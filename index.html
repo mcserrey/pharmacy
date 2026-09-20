@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KEP Pharmacy - ប្រព័ន្ធគ្រប់គ្រងឱសថស្ថានកែប</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', 'Khmer OS Siemreap', Tahoma, sans-serif; display: flex; background: #f1f5f9; color: #1e293b; height: 100vh; overflow: hidden; }
+
+        /* Sidebar */
+        .sidebar { width: 260px; background: #0f172a; color: #fff; display: flex; flex-direction: column; flex-shrink: 0; }
+        .brand { padding: 20px; border-bottom: 1px solid #1e293b; }
+        .brand h2 { font-size: 1.15rem; color: #38bdf8; }
+        .brand p { font-size: 0.8rem; color: #94a3b8; }
+        .nav-links { list-style: none; padding: 15px 0; flex: 1; }
+        .nav-item { padding: 14px 20px; display: flex; align-items: center; gap: 12px; cursor: pointer; color: #cbd5e1; transition: 0.2s; }
+        .nav-item:hover, .nav-item.active { background: #1e293b; color: #38bdf8; border-left: 4px solid #38bdf8; }
+        .pharmacist-info { padding: 15px 20px; background: #1e293b; border-top: 1px solid #334155; font-size: 0.85rem; color: #94a3b8; }
+        .pharmacist-info b { color: #f8fafc; display: block; font-size: 0.95rem; }
+
+        /* Main Content Workspace */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .topbar { background: #fff; padding: 14px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; }
+        .topbar h1 { font-size: 1.25rem; color: #0f172a; }
+        .page-content { flex: 1; padding: 20px; overflow-y: auto; display: none; }
+        .page-content.active { display: block; }
+
+        /* Dashboard Styles */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; border-left: 4px solid #38bdf8; }
+        .stat-card.green { border-left-color: #10b981; }
+        .stat-card.amber { border-left-color: #f59e0b; }
+        .stat-card p { font-size: 0.85rem; color: #64748b; }
+        .stat-card h3 { font-size: 1.6rem; color: #0f172a; margin-top: 5px; }
+
+        /* POS Layout */
+        .pos-grid { display: grid; grid-template-columns: 1fr 380px; gap: 20px; height: 100%; }
+        .catalog-container { display: flex; flex-direction: column; background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; padding: 15px; overflow: hidden; }
+        .pos-search { display: flex; gap: 10px; margin-bottom: 12px; }
+        .pos-search input { flex: 1; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 0.95rem; }
+        .pos-search input:focus { border-color: #38bdf8; }
+        .filter-tags { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
+        .tag-btn { border: 1px solid #cbd5e1; background: #fff; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; white-space: nowrap; }
+        .tag-btn.active { background: #0f172a; color: #fff; border-color: #0f172a; }
+        .product-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; overflow-y: auto; align-content: start; flex: 1; }
+        .product-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; cursor: pointer; transition: 0.15s; background: #f8fafc; }
+        .product-card:hover { border-color: #38bdf8; background: #f0f9ff; transform: translateY(-2px); }
+        .product-card h4 { font-size: 0.9rem; margin-bottom: 4px; color: #0f172a; }
+        .product-card .price { font-weight: bold; color: #0284c7; font-size: 1rem; }
+        .product-card .stock { font-size: 0.75rem; color: #64748b; }
+
+        /* Cart Layout */
+        .cart-container { background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; padding: 15px; }
+        .cart-header { display: flex; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+        .cart-list { flex: 1; overflow-y: auto; padding: 10px 0; }
+        .cart-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; font-size: 0.9rem; }
+        .cart-item-name { flex: 1; font-weight: 500; }
+        .cart-controls { display: flex; align-items: center; gap: 8px; }
+        .btn-qty { width: 24px; height: 24px; border: 1px solid #cbd5e1; background: #f8fafc; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-del { border: none; background: none; color: #ef4444; cursor: pointer; font-size: 1.1rem; margin-left: 6px; }
+        .cart-footer { border-top: 2px solid #e2e8f0; padding-top: 12px; }
+        .bill-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.9rem; color: #64748b; }
+        .bill-row.total { font-size: 1.25rem; font-weight: bold; color: #0f172a; margin-top: 8px; }
+        .btn-pay { width: 100%; padding: 14px; background: #10b981; color: #fff; border: none; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 12px; }
+        .btn-pay:hover { background: #059669; }
+
+        /* Inventory Management */
+        .form-inline { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) 120px; gap: 10px; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 15px; }
+        .form-inline input, .form-inline select { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; }
+        .btn-add { background: #0284c7; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
+        .data-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; }
+        .data-table th, .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; }
+        .data-table th { background: #f8fafc; color: #475569; font-weight: 600; }
+
+        /* Receipt Modal */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal.open { display: flex; }
+        .receipt-card { background: #fff; width: 340px; padding: 20px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .receipt-header { text-align: center; border-bottom: 1px dashed #94a3b8; padding-bottom: 10px; margin-bottom: 10px; }
+        .btn-print { width: 100%; padding: 10px; background: #0f172a; color: #fff; border: none; border-radius: 6px; cursor: pointer; margin-top: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="brand">
+            <h2>ឱសថស្ថានកែប</h2>
+            <p>KEP Pharmacy System</p>
+        </div>
+        <ul class="nav-links">
+            <li class="nav-item active" onclick="switchTab('pos', this)">🛒 ផ្ទាំងលក់ថ្នាំ (POS)</li>
+            <li class="nav-item" onclick="switchTab('inventory', this)">📦 គ្រប់គ្រងស្តុក (Stock)</li>
+            <li class="nav-item" onclick="switchTab('dashboard', this)">📊 ផ្ទាំងសង្ខេប (Dashboard)</li>
+        </ul>
+        <div class="pharmacist-info">
+            <small>ឱសថការីប្រចាំការ៖</small>
+            <b>ឈឹន សុវណ្ណដាណែត</b>
+            <small style="color: #38bdf8;">សាខាខេត្តកែប</small>
+        </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="main-wrapper">
+        <div class="topbar">
+            <h1 id="topbar-title">ផ្ទាំងលក់ឱសថ (Point of Sale)</h1>
+            <div id="clock" style="font-size: 0.9rem; color: #64748b;"></div>
+        </div>
+
+        <!-- POS Screen -->
+        <div id="pos-page" class="page-content active" style="height: 100%;">
+            <div class="pos-grid">
+                <!-- Product Catalog -->
+                <div class="catalog-container">
+                    <div class="pos-search">
+                        <input type="text" id="searchInput" placeholder="វាយឈ្មោះឱសថដើម្បីស្វែងរក..." oninput="filterProducts()">
+                    </div>
+                    <div class="filter-tags">
+                        <button class="tag-btn active" onclick="filterCategory('all', this)">ទាំងអស់</button>
+                        <button class="tag-btn" onclick="filterCategory('ថ្នាំគ្រាប់', this)">ថ្នាំគ្រាប់</button>
+                        <button class="tag-btn" onclick="filterCategory('ថ្នាំទឹក', this)">ថ្នាំទឹក</button>
+                        <button class="tag-btn" onclick="filterCategory('វីតាមីន', this)">វីតាមីន</button>
+                        <button class="tag-btn" onclick="filterCategory('ឧបករណ៍', this)">ឧបករណ៍/ផ្សេងៗ</button>
+                    </div>
+                    <div class="product-list" id="productGrid"></div>
+                </div>
+
+                <!-- Shopping Cart & Checkout -->
+                <div class="cart-container">
+                    <div class="cart-header">
+                        <b style="color: #0f172a;">កន្ត្រកទំនិញ</b>
+                        <span id="bill-id" style="color: #64748b; font-size: 0.85rem;">#INV-1001</span>
+                    </div>
+                    <div class="cart-list" id="cartItems">
+                        <div style="text-align: center; color: #94a3b8; padding-top: 50px;">មិនទាន់មានមុខឱសថ</div>
+                    </div>
+                    <div class="cart-footer">
+                        <div class="bill-row">
+                            <span>សរុប ($)៖</span>
+                            <span id="total-usd">$0.00</span>
+                        </div>
+                        <div class="bill-row">
+                            <span>សរុប (រៀល)៖</span>
+                            <span id="total-khr">0 ៛</span>
+                        </div>
+                        <div class="bill-row total">
+                            <span>ប្រាក់ត្រូវបង់៖</span>
+                            <span id="grand-total">$0.00</span>
+                        </div>
+                        <button class="btn-pay" onclick="checkout()">💵 គិតលុយ និងចេញវិក្កយបត្រ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Screen -->
+        <div id="inventory-page" class="page-content">
+            <h3 style="margin-bottom: 12px; color: #0f172a;">បន្ថែមឱសថថ្មីចូលស្តុក</h3>
+            <div class="form-inline">
+                <input type="text" id="new-name" placeholder="ឈ្មោះថ្នាំ (ឧ. Paracetamol)">
+                <select id="new-cat">
+                    <option value="ថ្នាំគ្រាប់">ថ្នាំគ្រាប់</option>
+                    <option value="ថ្នាំទឹក">ថ្នាំទឹក</option>
+                    <option value="វីតាមីន">វីតាមីន</option>
+                    <option value="ឧបករណ៍">ឧបករណ៍</option>
+                </select>
+                <input type="number" id="new-price" step="0.01" placeholder="តម្លៃ ($)">
+                <input type="number" id="new-stock" placeholder="ចំនួនស្តុក">
+                <input type="date" id="new-exp">
+                <button class="btn-add" onclick="addNewProduct()">+ បញ្ចូល</button>
+            </div>
+
+            <h3 style="margin: 20px 0 10px; color: #0f172a;">តារាងបញ្ជីស្តុកឱសថបច្ចុប្បន្ន</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>កូដ</th>
+                        <th>ឈ្មោះឱសថ</th>
+                        <th>ប្រភេទ</th>
+                        <th>តម្លៃលក់</th>
+                        <th>ស្តុកនៅសល់</th>
+                        <th>កាលបរិច្ឆេទផុតកំណត់</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryTable"></tbody>
+            </table>
+        </div>
+
+        <!-- Dashboard Screen -->
+        <div id="dashboard-page" class="page-content">
+            <div class="stats-grid">
+                <div class="stat-card green">
+                    <p>ចំណូលសរុបថ្ងៃនេះ</p>
+                    <h3 id="dash-revenue">$0.00</h3>
+                </div>
+                <div class="stat-card">
+                    <p>ចំនួនវិក្កយបត្រលក់</p>
+                    <h3 id="dash-invoices">0</h3>
+                </div>
+                <div class="stat-card amber">
+                    <p>ចំនួនមុខឱសថក្នុងប្រព័ន្ធ</p>
+                    <h3 id="dash-items">0</h3>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 12px; color: #0f172a;">ប្រវត្តិការលក់ចុងក្រោយ</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>លេខវិក្កយបត្រ</th>
+                        <th>ម៉ោង</th>
+                        <th>មុខទំនិញ</th>
+                        <th>តម្លៃសរុប</th>
+                        <th>ឱសថការី</th>
+                    </tr>
+                </thead>
+                <tbody id="salesHistoryTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div class="modal" id="receiptModal">
+        <div class="receipt-card">
+            <div class="receipt-header">
+                <h3>ឱសថស្ថានកែប (KEP Pharmacy)</h3>
+                <p style="font-size: 0.8rem; color: #64748b;">ខេត្តកែប | ទូរស័ព្ទ៖ 012 xxx xxx</p>
+                <p style="font-size: 0.8rem; margin-top: 5px;">វិក្កយបត្រ៖ <span id="rec-id"></span></p>
+                <p style="font-size: 0.8rem;">ឱសថការី៖ <b>ឈឹន សុវណ្ណដាណែត</b></p>
+            </div>
+            <div id="rec-items" style="font-size: 0.85rem; margin-bottom: 10px;"></div>
+            <hr style="border: none; border-top: 1px dashed #94a3b8; margin: 8px 0;">
+            <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                <span>សរុប ($)៖</span>
+                <span id="rec-total"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: #64748b;">
+                <span>ប្រាក់រៀល៖</span>
+                <span id="rec-khr"></span>
+            </div>
+            <button class="btn-print" onclick="closeModal()">បិទ និងចេញការលក់បន្ទាប់</button>
+        </div>
+    </div>
+
+    <script>
+        // Data Store
+        let inventory = [
+            { id: 101, name: "Paracetamol 500mg", cat: "ថ្នាំគ្រាប់", price: 0.50, stock: 120, exp: "2027-05-10" },
+            { id: 102, name: "Amoxicillin 500mg", cat: "ថ្នាំគ្រាប់", price: 1.50, stock: 65, exp: "2026-11-20" },
+            { id: 103, name: "Ibuprofen 400mg", cat: "ថ្នាំគ្រាប់", price: 1.20, stock: 45, exp: "2027-01-15" },
+            { id: 104, name: "Vitamin C 1000mg", cat: "វីតាមីន", price: 3.00, stock: 30, exp: "2028-02-18" },
+            { id: 105, name: "Betadine Antiseptic", cat: "ថ្នាំទឹក", price: 2.20, stock: 18, exp: "2027-08-01" },
+            { id: 106, name: "Surgical Face Masks", cat: "ឧបករណ៍", price: 2.50, stock: 80, exp: "2029-12-31" }
+        ];
+
+        let cart = [];
+        let totalRevenue = 0;
+        let invoiceCounter = 1001;
+        let salesHistory = [];
+        let currentFilter = 'all';
+
+        // Navigation Tabs
+        function switchTab(page, el) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(page + '-page').classList.add('active');
+            el.classList.add('active');
+
+            const titles = {
+                'pos': 'ផ្ទាំងលក់ឱសថ (Point of Sale)',
+                'inventory': 'គ្រប់គ្រងស្តុកឱសថ (Inventory)',
+                'dashboard': 'ផ្ទាំងរបាយការណ៍សង្ខេប (Dashboard)'
+            };
+            document.getElementById('topbar-title').innerText = titles[page];
+            if(page === 'inventory') renderInventory();
+            if(page === 'dashboard') renderDashboard();
+        }
+
+        // Render POS Catalog
+        function renderProducts(items) {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = '';
+            items.forEach(p => {
+                grid.innerHTML += `
+                    <div class="product-card" onclick="addToCart(${p.id})">
+                        <h4>${p.name}</h4>
+                        <div class="price">$${p.price.toFixed(2)}</div>
+                        <div class="stock">ស្តុក៖ ${p.stock} | ${p.cat}</div>
+                    </div>
+                `;
+            });
+        }
+
+        // Cart Actions
+        function addToCart(id) {
+            const product = inventory.find(p => p.id === id);
+            if (product.stock <= 0) return alert("ថ្នាំនេះអស់ពីស្តុកហើយ!");
+
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                if (existing.qty < product.stock) {
+                    existing.qty++;
+                } else {
+                    alert("មិនអាចលក់លើសចំនួនក្នុងស្តុកទេ!");
+                }
+            } else {
+                cart.push({ id: product.id, name: product.name, price: product.price, qty: 1 });
+            }
+            renderCart();
+        }
+
+        function changeQty(id, delta) {
+            const item = cart.find(i => i.id === id);
+            const product = inventory.find(p => p.id === id);
+            if (item) {
+                item.qty += delta;
+                if (item.qty > product.stock) {
+                    item.qty = product.stock;
+                    alert("ចំនួនឈានដល់កម្រិតស្តុកអតិបរមា!");
+                }
+                if (item.qty <= 0) {
+                    cart = cart.filter(i => i.id !== id);
+                }
+            }
+            renderCart();
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(i => i.id !== id);
+            renderCart();
+        }
+
+        function renderCart() {
+            const list = document.getElementById('cartItems');
+            if (cart.length === 0) {
+                list.innerHTML = `<div style="text-align: center; color: #94a3b8; padding-top: 50px;">មិនទាន់មានមុខឱសថ</div>`;
+                document.getElementById('total-usd').innerText = "$0.00";
+                document.getElementById('total-khr').innerText = "0 ៛";
+                document.getElementById('grand-total').innerText = "$0.00";
+                return;
+            }
+
+            let total = 0;
+            list.innerHTML = '';
+            cart.forEach(item => {
+                const sub = item.price * item.qty;
+                total += sub;
+                list.innerHTML += `
+                    <div class="cart-row">
+                        <div class="cart-item-name">
+                            <div>${item.name}</div>
+                            <small style="color: #64748b;">$${item.price.toFixed(2)}</small>
+                        </div>
+                        <div class="cart-controls">
+                            <button class="btn-qty" onclick="changeQty(${item.id}, -1)">-</button>
+                            <span>${item.qty}</span>
+                            <button class="btn-qty" onclick="changeQty(${item.id}, 1)">+</button>
+                            <span style="width: 50px; text-align: right; font-weight: bold;">$${sub.toFixed(2)}</span>
+                            <button class="btn-del" onclick="removeFromCart(${item.id})">×</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            const khr = total * 4100;
+            document.getElementById('total-usd').innerText = `$${total.toFixed(2)}`;
+            document.getElementById('total-khr').innerText = `${khr.toLocaleString()} ៛`;
+            document.getElementById('grand-total').innerText = `$${total.toFixed(2)}`;
+        }
+
+        // Checkout & Invoice
+        function checkout() {
+            if (cart.length === 0) return alert("សូមជ្រើសរើសថ្នាំចូលកន្ត្រកមុននឹងគិតលុយ!");
+
+            let total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            totalRevenue += total;
+
+            // Reduce stock
+            cart.forEach(c => {
+                const p = inventory.find(i => i.id === c.id);
+                if (p) p.stock -= c.qty;
+            });
+
+            // Save sale history
+            const now = new Date().toLocaleTimeString('km-KH', { hour: '2-digit', minute: '2-digit' });
+            salesHistory.unshift({
+                id: `INV-${invoiceCounter}`,
+                time: now,
+                items: cart.map(i => `${i.name} (${i.qty})`).join(', '),
+                total: total.toFixed(2)
+            });
+
+            // Show Receipt
+            document.getElementById('rec-id').innerText = `#INV-${invoiceCounter}`;
+            document.getElementById('rec-total').innerText = `$${total.toFixed(2)}`;
+            document.getElementById('rec-khr').innerText = `${(total * 4100).toLocaleString()} ៛`;
+            
+            let recItemsHtml = '';
+            cart.forEach(i => {
+                recItemsHtml += `<div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <span>${i.name} x ${i.qty}</span>
+                    <span>$${(i.price * i.qty).toFixed(2)}</span>
+                </div>`;
+            });
+            document.getElementById('rec-items').innerHTML = recItemsHtml;
+            document.getElementById('receiptModal').classList.add('open');
+
+            // Reset
+            cart = [];
+            invoiceCounter++;
+            document.getElementById('bill-id').innerText = `#INV-${invoiceCounter}`;
+            renderCart();
+            renderProducts(inventory);
+        }
+
+        function closeModal() {
+            document.getElementById('receiptModal').classList.remove('open');
+        }
+
+        // Search & Category
+        function filterProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = inventory.filter(p => 
+                (currentFilter === 'all' || p.cat === currentFilter) &&
+                p.name.toLowerCase().includes(query)
+            );
+            renderProducts(filtered);
+        }
+
+        function filterCategory(cat, btn) {
+            currentFilter = cat;
+            document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterProducts();
+        }
+
+        // Inventory Management
+        function renderInventory() {
+            const tbody = document.getElementById('inventoryTable');
+            tbody.innerHTML = '';
+            inventory.forEach(p => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>#${p.id}</td>
+                        <td><b>${p.name}</b></td>
+                        <td>${p.cat}</td>
+                        <td>$${p.price.toFixed(2)}</td>
+                        <td style="color: ${p.stock < 10 ? '#ef4444' : '#10b981'}; font-weight: bold;">${p.stock}</td>
+                        <td>${p.exp || 'N/A'}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function addNewProduct() {
+            const name = document.getElementById('new-name').value;
+            const cat = document.getElementById('new-cat').value;
+            const price = parseFloat(document.getElementById('new-price').value);
+            const stock = parseInt(document.getElementById('new-stock').value);
+            const exp = document.getElementById('new-exp').value;
+
+            if (!name || isNaN(price) || isNaN(stock)) {
+                return alert("សូមបំពេញឈ្មោះ តម្លៃ និងចំនួនស្តុកឱ្យបានត្រឹមត្រូវ!");
+            }
+
+            const newId = 100 + inventory.length + 1;
+            inventory.push({ id: newId, name, cat, price, stock, exp });
+            alert("បានបញ្ចូលឱសថថ្មីជោគជ័យ!");
+            
+            // Clear inputs
+            document.getElementById('new-name').value = '';
+            document.getElementById('new-price').value = '';
+            document.getElementById('new-stock').value = '';
+            document.getElementById('new-exp').value = '';
+            
+            renderInventory();
+            renderProducts(inventory);
+        }
+
+        // Dashboard Screen
+        function renderDashboard() {
+            document.getElementById('dash-revenue').innerText = `$${totalRevenue.toFixed(2)}`;
+            document.getElementById('dash-invoices').innerText = salesHistory.length;
+            document.getElementById('dash-items').innerText = inventory.length;
+
+            const tbody = document.getElementById('salesHistoryTable');
+            tbody.innerHTML = '';
+            if (salesHistory.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">មិនទាន់មានទិន្នន័យលក់នៅឡើយទេ</td></tr>`;
+                return;
+            }
+            salesHistory.forEach(s => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${s.id}</td>
+                        <td>${s.time}</td>
+                        <td>${s.items}</td>
+                        <td style="color:#0284c7; font-weight:bold;">$${s.total}</td>
+                        <td>ឈឹន សុវណ្ណដាណែត</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Clock
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleString('km-KH');
+        }, 1000);
+
+        // Initial Load
+        renderProducts(inventory);
+    </script>
+</body>
+</html>
