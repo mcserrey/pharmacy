@@ -354,6 +354,30 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
 .inv-sign{display:flex;justify-content:space-between;margin-top:34px;color:var(--ib);font-size:.82rem;font-weight:600}
 @media (max-width:520px){.inv{padding:12px}.inv-t{font-size:.76rem}.inv-t th,.inv-t td{padding:4px 5px}}
 
+.inv-in{width:100%;min-width:46px;border:0;border-bottom:1px dashed #9db3e0;background:transparent;color:inherit;text-align:right;padding:2px 0;font-size:inherit;outline:none}
+.inv-in:focus{border-bottom:1.5px solid #1f4fb0;background:#f1f5ff}
+.inv-t td:nth-child(3){display:table-cell}
+.inv-t td:nth-child(3) .inv-in{width:calc(100% - 22px);display:inline-block}
+.inv-u{display:inline-block;width:20px;text-align:left;padding-left:3px;font-size:.78rem;color:#1f4fb0}
+.inv-t td:nth-child(3),.inv-t td:nth-child(4){width:15%}.inv-t td:nth-child(5){width:16%}
+.inv-hint{margin:8px 0 0;font-size:.76rem;color:#6a7a99}
+.hw-list.desc li{grid-template-columns:auto auto minmax(0,1fr)}
+.desc-n{font-family:var(--f-mono);color:var(--muted);font-size:.8rem}
+.hw-list.desc .inp{padding:5px 8px}
+.s58 li .s58-row{font-size:10px}
+.s58-tot{font-weight:700}
+#print58{display:none}
+.s58{width:52mm;margin:0 auto;color:#000;background:#fff;font:11px/1.45 var(--f-body);text-align:left}
+.s58 img{display:block;width:16mm;height:16mm;margin:0 auto 1mm;border-radius:50%}
+.s58>b{display:block;text-align:center;font:700 13px/1.3 var(--f-disp)}
+.s58>div:nth-of-type(1),.s58>div:nth-of-type(2){text-align:center}
+.s58-hr{border-top:1px dashed #000;margin:1.5mm 0}
+.s58-row{display:flex;justify-content:space-between;gap:2mm;font-family:var(--f-mono);font-size:10px}
+.s58-h{font-weight:700}
+.s58 ol{margin:1mm 0;padding-left:5mm}
+.s58 li{padding:.4mm 0;word-break:break-word}
+.s58-c{text-align:center}
+
 /* staff orders */
 .olist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));gap:12px;align-items:start}
 .ocard header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:12px 14px;border-bottom:1px dashed var(--line)}
@@ -426,12 +450,17 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
 @media (max-width:360px){.row2{grid-template-columns:1fr}.pgrid{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 @media print{
+  body.printing58>*:not(#print58){display:none!important}
+  body.printing58 #print58{display:block}
+  body.printing58{background:#fff}
   html,body{height:auto!important;overflow:visible!important}
   body.printing{background:#fff}
   body.printing .app,body.printing .toast,body.printing .no-print{display:none!important}
   body.printing .modal{position:static;background:none;padding:0;display:block}
   body.printing .sheet{border:0;padding:0;max-height:none;width:72mm;background:#fff}
   body.printing .sheet.invoice{width:auto}
+  .inv-in{border:0!important;background:transparent!important}
+  .inv-hint{display:none}
   body.printing .receipt{padding:0}
 }
 </style>
@@ -1021,6 +1050,7 @@ document.addEventListener('click',e=>{
   else if(d.goto){if(d.goto==='low'){stockTab='summary'}else{stockTab='batches';batchFilter=d.goto}go('stock')}
 });
 document.addEventListener('input',e=>{const id=e.target.id,v=e.target.value;
+  if(e.target.classList&&e.target.classList.contains('inv-in'))return invEdit(e.target);
   const SF={sname:'name',sphone:'phone',snote:'note'};
   if(SF[id]){C[SF[id]]=v;return}
   if(id==='shopq')return drawShopGrid();
@@ -1203,12 +1233,13 @@ async function quickOrder(file){
     if(!name){toast('សូមបញ្ចូលឈ្មោះ','bad');return $('#qoName').focus()}
     if(phone.replace(/\D/g,'').length<8){toast('សូមបញ្ចូលលេខទូរស័ព្ទឲ្យបានត្រឹមត្រូវ','bad');return $('#qoPhone').focus()}
     const picked=[],miss=[];
-    items.forEach((i,k)=>{const cb=$('#qo-c'+k);if(!cb||!cb.checked)return;const q=Math.max(1,parseInt($('#qo-q'+k).value)||1);
-      if(!i.p){picked.push({pid:'',name:i.written,unit:i.unit,rx:false,qty:q});return}
-      picked.push({pid:i.p.id,name:i.p.name,unit:i.p.unit,wunit:i.unit,rx:!!i.p.rx,qty:q})});
+    items.forEach((i,k)=>{const cb=$('#qo-c'+k);if(!cb||!cb.checked)return;const nm=($('#qo-n'+k).value||'').trim()||i.written;
+      if(!i.p||nm!==i.p.name){const p=sprods().find(x=>x.name.toLowerCase()===nm.toLowerCase());
+        picked.push(p?{pid:p.id,name:p.name,unit:p.unit,rx:!!p.rx,qty:''}:{pid:'',name:nm,unit:'',rx:false,qty:''});return}
+      picked.push({pid:i.p.id,name:i.p.name,unit:i.p.unit,rx:!!i.p.rx,qty:''})});
     const btn=$('#qoSend');btn.disabled=true;btn.textContent='កំពុងផ្ញើ...';
     try{const no=await submitOrder({name,phone,note:miss.length?'ពីរូបបញ្ជី៖ '+miss.join(', '):'',photo,items:picked});
-      quickOrder.token=null;showOrderDone({no,name,phone,photo,items:picked},picked.reduce((s,i)=>s+i.qty,0))}
+      quickOrder.token=null;showOrderDone({no,name,phone,photo,items:picked},0)}
     catch(e){btn.disabled=false;btn.textContent='ផ្ញើការបញ្ជាទិញ';toast('ផ្ញើមិនបានសម្រេច — សូមពិនិត្យអ៊ីនធឺណិត ហើយព្យាយាមម្តងទៀត','bad')}
   };
   if(!sampleFn&&!syncUrl())return msg('រូបបញ្ជីនេះនឹងផ្ញើទៅឱសថការី ដើម្បីរៀបចំឱសថ ហើយទូរស័ព្ទបញ្ជាក់ជូន។');
@@ -1219,9 +1250,8 @@ async function quickOrder(file){
   if(quickOrder.token!==token||$('#modal').hidden||!$('#qoList'))return;
   items=(Array.isArray(raw)?raw:[]).map(i=>({p:sp(String(i&&i.id||'')),written:String(i&&i.written||'').slice(0,120),qty:Math.max(1,parseInt(i&&i.qty)||1),unit:String(i&&i.unit||'').slice(0,12)}));
   if(!items.length)return msg('រកមិនឃើញបញ្ជីឱសថក្នុងរូបនេះទេ។ រូបនេះនៅតែផ្ញើទៅឱសថការីបាន។');
-  list.innerHTML=`<p class="muted" style="margin:0 0 8px">សូមពិនិត្យបញ្ជី និងចំនួន</p><ul class="hw-list">${items.map((i,k)=>i.p?
-    `<li><input type="checkbox" id="qo-c${k}" ${sstock(i.p.id)>0?'checked':'disabled'}><label for="qo-c${k}" style="color:var(--fg);font-size:.9rem">${esc(i.p.name)}<small>${sstock(i.p.id)>0?'សរសេរ៖ '+esc(i.written):'អស់ស្តុក'}</small></label><input type="number" id="qo-q${k}" class="inp mono" min="1" value="${i.qty}" aria-label="ចំនួន"></li>`
-    :`<li><input type="checkbox" id="qo-c${k}" checked><label for="qo-c${k}" style="color:var(--fg);font-size:.9rem">${esc(i.written)}<small>មិនទាន់មានក្នុងបញ្ជី — ឱសថការីនឹងពិនិត្យ</small></label><input type="number" id="qo-q${k}" class="inp mono" min="1" value="${i.qty}" aria-label="ចំនួន"></li>`).join('')}</ul>`;
+  list.innerHTML=`<p class="muted" style="margin:0 0 8px">រាយមុខឱសថដែលអានបាន — អាចកែឈ្មោះបាន</p><ul class="hw-list desc">${items.map((i,k)=>
+    `<li><input type="checkbox" id="qo-c${k}" checked aria-label="យក"><span class="desc-n">${k+1}.</span><input id="qo-n${k}" class="inp" value="${esc(i.p?i.p.name:i.written)}" aria-label="រាយមុខឱសថ ${k+1}"></li>`).join('')}</ul>`;
 }
 async function handleHandwriting(file){
   let photo,big;
@@ -1275,8 +1305,8 @@ async function placeOrderRemote(){
 }
 function showOrderDone(o,n){
   openModal(`<div class="done-big"><img src="${LOGO}" alt=""><span class="muted">អរគុណ ${esc(o.name)}! យើងបានទទួលការបញ្ជាទិញ</span><b>${o.no}</b></div>
-    ${o.items.length?`<ul class="oitems" style="padding:0">${o.items.map(i=>`<li><span>${esc(i.name)}</span><span class="mono">× ${i.qty}</span></li>`).join('')}</ul>
-    <div class="totals" style="margin-top:8px"><div class="big"><span>សរុបចំនួន</span><span class="mono">${n} ឯកតា</span></div></div>`:''}
+    ${o.items.length?`<ul class="oitems" style="padding:0">${o.items.map((i,k)=>`<li><span>${k+1}. ${esc(i.name)}</span><span class="mono">${i.qty?'× '+i.qty:''}</span></li>`).join('')}</ul>
+    ${n?`<div class="totals" style="margin-top:8px"><div class="big"><span>សរុបចំនួន</span><span class="mono">${n} ឯកតា</span></div></div>`:''}`:''}
     ${o.photo?'<p class="muted" style="margin:8px 0 0">រូបបញ្ជីសរសេរដៃត្រូវបានភ្ជាប់។</p>':''}
     <p class="muted" style="margin:12px 0 0">ឱសថការីនឹងទូរស័ព្ទទៅលេខ <b class="mono">${esc(o.phone)}</b> ដើម្បីបញ្ជាក់ និងប្រាប់តម្លៃ។ ទូរស័ព្ទមកយើង៖ <b class="mono">${esc(S.set.phone)}</b></p>
     ${o.items.some(i=>i.rx)?'<p class="rx-note" style="margin:10px 0 0">មានឱសថ Rx — សូមយកវេជ្ជបញ្ជាមកបង្ហាញ</p>':''}
@@ -1295,23 +1325,58 @@ function renderOrders(){
     <header><div><b class="mono">${o.no}</b> <span class="chip ${OST[o.status][1]}">${OST[o.status][0]}</span><small>${fmtDT(o.ts)}</small></div><span class="ototal">${usd(o.total)}</span></header>
     <div class="ometa"><span><b>${esc(o.name)}</b> · <span class="mono">${esc(o.phone)}</span></span>${o.pick?`<span><span class="k">ទទួល៖</span> ${PICK[o.pick]}${o.addr?' — '+esc(o.addr):''}</span>`:''}${o.note?`<span><span class="k">សម្គាល់៖</span> ${esc(o.note)}</span>`:''}</div>
     ${o.photo?`<img class="ophoto" src="${o.photo}" alt="រូបបញ្ជីរបស់អតិថិជន" data-photo="${o.id}">`:''}
-    <ul class="oitems">${o.items.map((i,k)=>{const p=prod(i.pid);return `<li><span>${k+1}. ${esc(i.name)} × ${i.qty}${i.wunit||(!p&&i.unit)?' '+esc(i.wunit||i.unit):''}${i.rx?' <span class="chip bad sm">Rx</span>':''}${p?'':' <span class="chip warn sm">មិនមានក្នុងបញ្ជី</span>'}</span><span class="mono">${p?usd(i.qty*p.price):'—'}</span></li>`}).join('')}</ul>
-    <footer><button class="btn ghost sm" data-act="orderInvoice" data-id="${o.id}">វិក្កយបត្រ</button><span class="grow"></span>${o.status==='new'?`<button class="btn danger ghost sm" data-act="cancelOrder" data-id="${o.id}">បោះបង់</button><button class="btn gold sm" data-act="orderToPOS" data-id="${o.id}">យកទៅលក់ (POS)</button>`
+    <ul class="oitems">${o.items.map((i,k)=>{const p=prod(i.pid);return `<li><span>${k+1}. ${esc(i.name)}${i.qty?' × '+i.qty+(i.wunit||(!p&&i.unit)?' '+esc(i.wunit||i.unit):''):''}${i.rx?' <span class="chip bad sm">Rx</span>':''}${p?'':' <span class="chip warn sm">មិនមានក្នុងបញ្ជី</span>'}</span><span class="mono">${iAmount(i)!==''?usd(iAmount(i)):'—'}</span></li>`}).join('')}</ul>
+    <footer><button class="btn ghost sm" data-act="orderInvoice" data-id="${o.id}">វិក្កយបត្រ</button>${canPrint?`<button class="btn ghost sm" data-act="orderPrint58" data-id="${o.id}">Print 58mm</button>`:''}<span class="grow"></span>${o.status==='new'?`<button class="btn danger ghost sm" data-act="cancelOrder" data-id="${o.id}">បោះបង់</button><button class="btn gold sm" data-act="orderToPOS" data-id="${o.id}">យកទៅលក់ (POS)</button>`
       :o.status==='done'?`<span class="muted mono">${esc(o.saleNo||'')}</span>`:'<span class="muted">បានបោះបង់</span>'}</footer></article>`).join('')||`<div class="empty panel">មិនមានការបញ្ជាទិញក្នុងបញ្ជីនេះ</div>`}</div>`}
+/* invoice keeps the full Kep Pharmacy form. From a photo only the Description is filled in;
+   quantity and unit price are typed by the pharmacist right on the invoice (saved with the order). */
+const iUnitPrice=i=>{if(i.uprice!==undefined&&i.uprice!=='')return Number(i.uprice);if(i.qty===''||i.qty==null)return '';const p=prod(i.pid);return p?p.price:''};
+const iAmount=i=>{const q=parseFloat(i.qty),u=iUnitPrice(i);return q>0&&u!==''?round2(q*u):''};
+let invOrder=null;
 function invoiceHTML(o){
-  const rows=o.items.map(i=>{const p=prod(i.pid);return{name:i.name,qty:i.qty,unit:i.wunit||i.unit||(p&&p.unit)||'',price:p?p.price:null}});
-  const total=round2(rows.reduce((s,r)=>s+(r.price||0)*r.qty,0)),missing=rows.some(r=>r.price==null);
-  const blank=Math.max(0,8-rows.length);
+  invOrder=o;
+  const blank=Math.max(0,10-o.items.length);
+  const rows=o.items.map((i,k)=>{const u=iUnitPrice(i),a=iAmount(i);return `<tr><td>${k+1}</td><td>${esc(i.name)}</td>
+    <td><input class="inv-in mono" data-k="${k}" data-f="qty" inputmode="decimal" value="${i.qty===''||i.qty==null?'':esc(i.qty)}" aria-label="ចំនួន ${k+1}"><span class="inv-u">${esc(i.wunit||i.unit||'')}</span></td>
+    <td><input class="inv-in mono" data-k="${k}" data-f="uprice" inputmode="decimal" value="${u===''?'':u}" aria-label="តម្លៃរាយ ${k+1}"></td>
+    <td class="mono" id="inv-a${k}">${a===''?'':usd(a)}</td></tr>`}).join('')+'<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td></tr>'.repeat(blank);
   return `<div class="inv"><div class="inv-head"><img src="${LOGO}" alt=""><div class="inv-shop"><b>${esc(S.set.shop)}</b><span>${esc(S.set.shopEn)}</span><small>Tel: ${esc(S.set.phone)}</small></div>
     <div class="inv-no"><b>វិក្កយបត្រ</b><span>INVOICE</span><span class="mono">${esc(o.no)}</span></div></div>
     <div class="inv-info"><span>ឈ្មោះអតិថិជន៖ <b>${esc(o.name)}</b></span><span>ទូរស័ព្ទ៖ <b class="mono">${esc(o.phone)}</b></span><span>កាលបរិច្ឆេទ៖ <b class="mono">${fmtDT(o.ts)}</b></span></div>
     <table class="inv-t"><thead><tr><th>ល.រ<small>No</small></th><th>រាយមុខឱសថ<small>Description</small></th><th>ចំនួន<small>Quantity</small></th><th>តម្លៃរាយ<small>Unit Price</small></th><th>តម្លៃសរុប<small>Amount</small></th></tr></thead>
-    <tbody>${rows.map((r,k)=>`<tr><td>${k+1}</td><td>${esc(r.name)}</td><td class="mono">${r.qty} ${esc(r.unit)}</td><td class="mono">${r.price==null?'':usd(r.price)}</td><td class="mono">${r.price==null?'':usd(r.price*r.qty)}</td></tr>`).join('')}${'<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td></tr>'.repeat(blank)}</tbody>
-    <tfoot><tr><td colspan="4">សរុប TOTAL</td><td class="mono">${usd(total)}</td></tr><tr><td colspan="4">ជាប្រាក់រៀល</td><td class="mono">${khr(total)}</td></tr></tfoot></table>
-    ${missing?'<p class="inv-warn">មុខដែលគ្មានតម្លៃ មិនទាន់មានក្នុងបញ្ជីឱសថ</p>':''}
+    <tbody>${rows}</tbody>
+    <tfoot><tr><td colspan="4">សរុប TOTAL</td><td class="mono" id="inv-tot"></td></tr><tr><td colspan="4">ជាប្រាក់រៀល</td><td class="mono" id="inv-khr"></td></tr></tfoot></table>
+    <p class="inv-hint no-print">វាយចំនួន និងតម្លៃរាយ ក្នុងតារាង — រក្សាទុកដោយស្វ័យប្រវត្តិ</p>
     <div class="inv-sign"><span>អ្នកទិញ / The Buyer</span><span>អ្នកលក់ / The Seller</span></div></div>`}
+function invTotals(){const o=invOrder;if(!o)return;let t=0,any=false;o.items.forEach(i=>{const a=iAmount(i);if(a!==''){t+=a;any=true}});
+  const a=$('#inv-tot'),b=$('#inv-khr');if(a)a.textContent=any?usd(t):'';if(b)b.textContent=any?khr(t):'';
+  o.total=round2(t)}
+let invSaveT;
+function invEdit(el){const o=invOrder;if(!o)return;const i=o.items[+el.dataset.k];if(!i)return;const v=el.value.replace(',','.').trim();
+  if(el.dataset.f==='qty')i.qty=v===''?'':(parseFloat(v)||'');else i.uprice=v===''?'':(parseFloat(v)>=0?parseFloat(v):'');
+  const a=iAmount(i),cell=$('#inv-a'+el.dataset.k);if(cell)cell.textContent=a===''?'':usd(a);invTotals();
+  clearTimeout(invSaveT);invSaveT=setTimeout(()=>{save();if(view==='orders'&&$('#modal').hidden)render()},600)}
+/* 58mm thermal slip — same content as the invoice */
+function slip58(o){let t=0,any=false;
+  const rows=o.items.map((i,k)=>{const u=iUnitPrice(i),a=iAmount(i);if(a!==''){t+=a;any=true}
+    return `<li><span>${esc(i.name)}</span>${i.qty!==''&&i.qty!=null?`<span class="s58-row"><span>${esc(i.qty)} ${esc(i.wunit||i.unit||'')}${u!==''?' × '+usd(u):''}</span><span>${a!==''?usd(a):''}</span></span>`:''}</li>`}).join('');
+  return `<div class="s58"><img src="${LOGO}" alt=""><b>${esc(S.set.shop)}</b><div>${esc(S.set.shopEn)}</div><div>Tel ${esc(S.set.phone)}</div>
+  <div class="s58-hr"></div><div class="s58-row"><span>${esc(o.no)}</span><span>${fmtDT(o.ts)}</span></div>
+  <div>អតិថិជន៖ ${esc(o.name)}</div><div>ទូរស័ព្ទ៖ ${esc(o.phone)}</div>
+  <div class="s58-hr"></div><div class="s58-h">រាយមុខឱសថ / Description</div>
+  <ol>${rows}</ol>
+  ${any?`<div class="s58-hr"></div><div class="s58-row s58-tot"><span>សរុប TOTAL</span><span>${usd(t)}</span></div><div class="s58-row"><span>ជាប្រាក់រៀល</span><span>${khr(t)}</span></div>`:''}
+  <div class="s58-hr"></div><div class="s58-c">សូមអរគុណ · Thank you</div></div>`}
+function print58(html){
+  let el=$('#print58');if(!el){el=document.createElement('div');el.id='print58';document.body.appendChild(el)}
+  el.innerHTML=html;
+  const st=document.createElement('style');st.textContent='@page{size:58mm auto;margin:0}';document.head.appendChild(st);
+  document.body.classList.add('printing58');
+  let done=false;const end=()=>{if(done)return;done=true;document.body.classList.remove('printing58');st.remove();el.innerHTML=''};
+  window.addEventListener('afterprint',end,{once:true});window.print();setTimeout(end,2000);
+}
 function orderToPOS(id){const o=S.orders.find(x=>x.id===id);resetP();const miss=[];
-  o.items.forEach(i=>{if(!prod(i.pid))return miss.push(i.name);const q=Math.min(i.qty,sellable(i.pid));if(q>0)P.cart.push({pid:i.pid,qty:q});if(q<i.qty)miss.push(i.name)});
+  o.items.forEach(i=>{if(!prod(i.pid))return miss.push(i.name);const want=parseInt(i.qty)||1,q=Math.min(want,sellable(i.pid));if(q>0)P.cart.push({pid:i.pid,qty:q});if(q<want)miss.push(i.name)});
   P.cust=`${o.name} · ${o.phone}`;P.orderId=o.id;go('pos');
   if(miss.length)toast('ស្តុកមិនគ្រប់៖ '+miss.join(', '),'bad');else toast(`បានបញ្ចូល ${o.no} ទៅ POS`,'ok')}
 Object.assign(ACTS,{
@@ -1325,7 +1390,8 @@ Object.assign(ACTS,{
   dropPhoto(){C.photo='';drawShopCart()},
   toSTicket(){$('#sticket')?.scrollIntoView({behavior:'smooth',block:'start'})},
   orderToPOS(el){orderToPOS(el.dataset.id)},
-  orderInvoice(el){const o=S.orders.find(x=>x.id===el.dataset.id);openModal(invoiceHTML(o)+`<div class="sheet-actions no-print"><span class="grow"></span>${canPrint?'<button class="btn" data-act="print">បោះពុម្ព</button>':''}<button class="btn gold" data-act="closeModal">បិទ</button></div>`,'invoice')},
+  orderInvoice(el){const o=S.orders.find(x=>x.id===el.dataset.id);setTimeout(invTotals);openModal(invoiceHTML(o)+`<div class="sheet-actions no-print"><span class="grow"></span>${canPrint?`<button class="btn" data-act="print">បោះពុម្ព A4/A5</button><button class="btn" data-act="orderPrint58" data-id="${o.id}">Print 58mm</button>`:'<span class="muted" style="font-size:.8rem">ការបោះពុម្ពប្រើបានក្នុងឯកសារ HTML</span>'}<button class="btn gold" data-act="closeModal">បិទ</button></div>`,'invoice')},
+  orderPrint58(el){const o=S.orders.find(x=>x.id===el.dataset.id);if(o)print58(slip58(o))},
   cancelOrder(el){const o=S.orders.find(x=>x.id===el.dataset.id);confirmBox(`បោះបង់ ${o.no}?`,`ការបញ្ជាទិញរបស់ ${esc(o.name)} នឹងត្រូវបោះបង់។`,'បោះបង់ការបញ្ជាទិញ',()=>{o.status='cancel';save();drawNav();render();toast('បានបោះបង់','ok')})}
 });
 /* orders placed from another tab on this device */
