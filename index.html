@@ -330,6 +330,30 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
 .attach img{width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
 .ophoto{display:block;margin:0 14px 10px;max-height:120px;border-radius:6px;border:1px solid var(--line);cursor:zoom-in}
 
+/* invoice (paper look, matches the printed Kep Pharmacy form) */
+.sheet.invoice{width:min(720px,100%)}
+.inv{background:#fff;color:#1b2a4a;border-radius:8px;padding:18px;--ib:#1f4fb0}
+.inv-head{display:flex;gap:12px;align-items:center;border-bottom:2px solid var(--ib);padding-bottom:10px}
+.inv-head img{width:58px;height:58px;border-radius:50%}
+.inv-shop{flex:1;display:flex;flex-direction:column;line-height:1.3}
+.inv-shop b{font:700 1.2rem var(--f-disp);color:var(--ib)}
+.inv-shop span{font-weight:700;color:var(--ib)}
+.inv-shop small{color:#555}
+.inv-no{text-align:right;display:flex;flex-direction:column;line-height:1.3;color:var(--ib)}
+.inv-no b{font:700 1.05rem var(--f-disp)}
+.inv-no span{font-size:.75rem;letter-spacing:.1em}
+.inv-info{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:.84rem;padding:10px 0}
+.inv-t{width:100%;border-collapse:collapse;font-size:.86rem}
+.inv-t th,.inv-t td{border:1px solid var(--ib);padding:5px 8px;text-align:left}
+.inv-t th{color:var(--ib);font-weight:700;font-size:.8rem;line-height:1.25;text-align:center}
+.inv-t th small{display:block;font-weight:500;font-size:.68rem}
+.inv-t td:first-child{text-align:center;width:42px;color:var(--ib)}
+.inv-t td:nth-child(n+3){text-align:right;white-space:nowrap}
+.inv-t tfoot td{font-weight:700;color:var(--ib);text-align:right}
+.inv-warn{margin:8px 0 0;font-size:.78rem;color:#b3352e}
+.inv-sign{display:flex;justify-content:space-between;margin-top:34px;color:var(--ib);font-size:.82rem;font-weight:600}
+@media (max-width:520px){.inv{padding:12px}.inv-t{font-size:.76rem}.inv-t th,.inv-t td{padding:4px 5px}}
+
 /* staff orders */
 .olist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));gap:12px;align-items:start}
 .ocard header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:12px 14px;border-bottom:1px dashed var(--line)}
@@ -407,6 +431,7 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
   body.printing .app,body.printing .toast,body.printing .no-print{display:none!important}
   body.printing .modal{position:static;background:none;padding:0;display:block}
   body.printing .sheet{border:0;padding:0;max-height:none;width:72mm;background:#fff}
+  body.printing .sheet.invoice{width:auto}
   body.printing .receipt{padding:0}
 }
 </style>
@@ -1143,9 +1168,10 @@ function shopAdd(pid,delta,quiet){const p=sp(pid),s=sstock(pid),c=C.cart.find(x=
 async function hwRead(blob){
   const catalog=sprods().map(p=>`${p.id}\t${p.name}\t${p.generic}\t${p.unit}`).join('\n');
   const prompt=`This photo is a customer's handwritten medicine list or a doctor's prescription for a pharmacy in Cambodia. Writing may be Khmer or English, and drug names may be misspelled or abbreviated.
-Read every medicine line. For each, choose the best match from the catalog below (columns: id, name, generic, selling unit), matching by brand or generic name and strength. qty = the amount written for that line as a whole number in the catalog's selling unit; if no amount is written use 1.
+It may also be a printed pharmacy invoice / order form with a table (columns like No, Description, Quantity, Unit Price, Amount): then read only the filled rows, taking the medicine from the Description column and the amount from the Quantity column; ignore printed headers, shop details, empty rows and the totals line.
+Read every medicine line. For each, choose the best match from the catalog below (columns: id, name, generic, selling unit), matching by brand or generic name and strength. qty = the number written for that line (default 1). unit = the unit letters or word written next to the number exactly as written (for example "B", "A", "box", "ដប"), or "" if none.
 Reply with only a JSON array, one object per line read, in the order written:
-[{"id": "<catalog id, or null if nothing matches>", "written": "<the line as written>", "qty": 1}]
+[{"id": "<catalog id, or null if nothing matches>", "written": "<the medicine as written, cleaned up>", "qty": 1, "unit": ""}]
 If the photo has no medicine list, reply [].
 
 Catalog:
@@ -1177,7 +1203,9 @@ async function quickOrder(file){
     if(!name){toast('សូមបញ្ចូលឈ្មោះ','bad');return $('#qoName').focus()}
     if(phone.replace(/\D/g,'').length<8){toast('សូមបញ្ចូលលេខទូរស័ព្ទឲ្យបានត្រឹមត្រូវ','bad');return $('#qoPhone').focus()}
     const picked=[],miss=[];
-    items.forEach((i,k)=>{if(!i.p){miss.push(i.written);return}const cb=$('#qo-c'+k);if(cb&&cb.checked)picked.push({pid:i.p.id,name:i.p.name,unit:i.p.unit,rx:!!i.p.rx,qty:Math.max(1,parseInt($('#qo-q'+k).value)||1)})});
+    items.forEach((i,k)=>{const cb=$('#qo-c'+k);if(!cb||!cb.checked)return;const q=Math.max(1,parseInt($('#qo-q'+k).value)||1);
+      if(!i.p){picked.push({pid:'',name:i.written,unit:i.unit,rx:false,qty:q});return}
+      picked.push({pid:i.p.id,name:i.p.name,unit:i.p.unit,wunit:i.unit,rx:!!i.p.rx,qty:q})});
     const btn=$('#qoSend');btn.disabled=true;btn.textContent='កំពុងផ្ញើ...';
     try{const no=await submitOrder({name,phone,note:miss.length?'ពីរូបបញ្ជី៖ '+miss.join(', '):'',photo,items:picked});
       quickOrder.token=null;showOrderDone({no,name,phone,photo,items:picked},picked.reduce((s,i)=>s+i.qty,0))}
@@ -1189,11 +1217,11 @@ async function quickOrder(file){
   const blob=await new Promise(r=>big.toBlob(r,'image/jpeg',.85));
   let raw;try{raw=await readList(blob,big)}catch(e){if(quickOrder.token===token)msg((HW_WHY[e&&e.code]||'អានមិនបានសម្រេច។')+' រូបនេះនៅតែផ្ញើទៅឱសថការីបាន។');return}
   if(quickOrder.token!==token||$('#modal').hidden||!$('#qoList'))return;
-  items=(Array.isArray(raw)?raw:[]).map(i=>({p:sp(String(i&&i.id||'')),written:String(i&&i.written||'').slice(0,120),qty:Math.max(1,parseInt(i&&i.qty)||1)}));
+  items=(Array.isArray(raw)?raw:[]).map(i=>({p:sp(String(i&&i.id||'')),written:String(i&&i.written||'').slice(0,120),qty:Math.max(1,parseInt(i&&i.qty)||1),unit:String(i&&i.unit||'').slice(0,12)}));
   if(!items.length)return msg('រកមិនឃើញបញ្ជីឱសថក្នុងរូបនេះទេ។ រូបនេះនៅតែផ្ញើទៅឱសថការីបាន។');
   list.innerHTML=`<p class="muted" style="margin:0 0 8px">សូមពិនិត្យបញ្ជី និងចំនួន</p><ul class="hw-list">${items.map((i,k)=>i.p?
     `<li><input type="checkbox" id="qo-c${k}" ${sstock(i.p.id)>0?'checked':'disabled'}><label for="qo-c${k}" style="color:var(--fg);font-size:.9rem">${esc(i.p.name)}<small>${sstock(i.p.id)>0?'សរសេរ៖ '+esc(i.written):'អស់ស្តុក'}</small></label><input type="number" id="qo-q${k}" class="inp mono" min="1" value="${i.qty}" aria-label="ចំនួន"></li>`
-    :`<li class="nomatch"><span>${esc(i.written)}<small>មិនមានក្នុងបញ្ជីឱសថ — ឱសថការីនឹងពិនិត្យ</small></span></li>`).join('')}</ul>`;
+    :`<li><input type="checkbox" id="qo-c${k}" checked><label for="qo-c${k}" style="color:var(--fg);font-size:.9rem">${esc(i.written)}<small>មិនទាន់មានក្នុងបញ្ជី — ឱសថការីនឹងពិនិត្យ</small></label><input type="number" id="qo-q${k}" class="inp mono" min="1" value="${i.qty}" aria-label="ចំនួន"></li>`).join('')}</ul>`;
 }
 async function handleHandwriting(file){
   let photo,big;
@@ -1211,7 +1239,7 @@ async function handleHandwriting(file){
     const why={not_granted:'មិនបានអនុញ្ញាតឲ្យប្រើ Claude។',rate_limited:'ប្រើញឹកពេក សូមសាកម្តងទៀតបន្តិចក្រោយ។',invalid_json:'អានមិនចេញ។',refused:'អានមិនចេញ។',image_rejected:'រូបនេះមិនអាចប្រើបាន។'}[e&&e.code]||'អានមិនបានសម្រេច។';
     return attachOnly(why+' អ្នកនៅតែអាចភ្ជាប់រូបនេះទៅការបញ្ជាទិញ ហើយឱសថការីនឹងអានវា។')}
   if($('#modal').hidden)return;
-  items=(Array.isArray(items)?items:[]).map(i=>({p:sp(String(i&&i.id||'')),written:String(i&&i.written||'').slice(0,120),qty:Math.max(1,parseInt(i&&i.qty)||1)}));
+  items=(Array.isArray(items)?items:[]).map(i=>({p:sp(String(i&&i.id||'')),written:String(i&&i.written||'').slice(0,120),qty:Math.max(1,parseInt(i&&i.qty)||1),unit:String(i&&i.unit||'').slice(0,12)}));
   if(!items.length)return attachOnly('រកមិនឃើញបញ្ជីឱសថក្នុងរូបនេះទេ។');
   body.innerHTML=`<p class="muted" style="margin:0 0 8px">សូមពិនិត្យបញ្ជីខាងក្រោម រួចចុច «ដាក់ចូលកន្ត្រក»</p><ul class="hw-list">${items.map((i,k)=>i.p?
     `<li><input type="checkbox" id="hw-c${k}" ${sstock(i.p.id)>0?'checked':'disabled'}><label for="hw-c${k}" style="color:var(--fg);font-size:.9rem">${esc(i.p.name)}<small>${sstock(i.p.id)>0?'សរសេរ៖ '+esc(i.written):'អស់ស្តុក'}</small></label><input type="number" id="hw-q${k}" class="inp mono" min="1" value="${i.qty}" aria-label="ចំនួន"></li>`
@@ -1267,9 +1295,21 @@ function renderOrders(){
     <header><div><b class="mono">${o.no}</b> <span class="chip ${OST[o.status][1]}">${OST[o.status][0]}</span><small>${fmtDT(o.ts)}</small></div><span class="ototal">${usd(o.total)}</span></header>
     <div class="ometa"><span><b>${esc(o.name)}</b> · <span class="mono">${esc(o.phone)}</span></span>${o.pick?`<span><span class="k">ទទួល៖</span> ${PICK[o.pick]}${o.addr?' — '+esc(o.addr):''}</span>`:''}${o.note?`<span><span class="k">សម្គាល់៖</span> ${esc(o.note)}</span>`:''}</div>
     ${o.photo?`<img class="ophoto" src="${o.photo}" alt="រូបបញ្ជីរបស់អតិថិជន" data-photo="${o.id}">`:''}
-    <ul class="oitems">${o.items.map(i=>`<li><span>${esc(i.name)} × ${i.qty}${i.rx?' <span class="chip bad sm">Rx</span>':''}</span><span class="mono">${usd(i.qty*i.price)}</span></li>`).join('')}</ul>
-    <footer>${o.status==='new'?`<button class="btn danger ghost sm" data-act="cancelOrder" data-id="${o.id}">បោះបង់</button><button class="btn gold sm" data-act="orderToPOS" data-id="${o.id}">យកទៅលក់ (POS)</button>`
+    <ul class="oitems">${o.items.map((i,k)=>{const p=prod(i.pid);return `<li><span>${k+1}. ${esc(i.name)} × ${i.qty}${i.wunit||(!p&&i.unit)?' '+esc(i.wunit||i.unit):''}${i.rx?' <span class="chip bad sm">Rx</span>':''}${p?'':' <span class="chip warn sm">មិនមានក្នុងបញ្ជី</span>'}</span><span class="mono">${p?usd(i.qty*p.price):'—'}</span></li>`}).join('')}</ul>
+    <footer><button class="btn ghost sm" data-act="orderInvoice" data-id="${o.id}">វិក្កយបត្រ</button><span class="grow"></span>${o.status==='new'?`<button class="btn danger ghost sm" data-act="cancelOrder" data-id="${o.id}">បោះបង់</button><button class="btn gold sm" data-act="orderToPOS" data-id="${o.id}">យកទៅលក់ (POS)</button>`
       :o.status==='done'?`<span class="muted mono">${esc(o.saleNo||'')}</span>`:'<span class="muted">បានបោះបង់</span>'}</footer></article>`).join('')||`<div class="empty panel">មិនមានការបញ្ជាទិញក្នុងបញ្ជីនេះ</div>`}</div>`}
+function invoiceHTML(o){
+  const rows=o.items.map(i=>{const p=prod(i.pid);return{name:i.name,qty:i.qty,unit:i.wunit||i.unit||(p&&p.unit)||'',price:p?p.price:null}});
+  const total=round2(rows.reduce((s,r)=>s+(r.price||0)*r.qty,0)),missing=rows.some(r=>r.price==null);
+  const blank=Math.max(0,8-rows.length);
+  return `<div class="inv"><div class="inv-head"><img src="${LOGO}" alt=""><div class="inv-shop"><b>${esc(S.set.shop)}</b><span>${esc(S.set.shopEn)}</span><small>Tel: ${esc(S.set.phone)}</small></div>
+    <div class="inv-no"><b>វិក្កយបត្រ</b><span>INVOICE</span><span class="mono">${esc(o.no)}</span></div></div>
+    <div class="inv-info"><span>ឈ្មោះអតិថិជន៖ <b>${esc(o.name)}</b></span><span>ទូរស័ព្ទ៖ <b class="mono">${esc(o.phone)}</b></span><span>កាលបរិច្ឆេទ៖ <b class="mono">${fmtDT(o.ts)}</b></span></div>
+    <table class="inv-t"><thead><tr><th>ល.រ<small>No</small></th><th>រាយមុខឱសថ<small>Description</small></th><th>ចំនួន<small>Quantity</small></th><th>តម្លៃរាយ<small>Unit Price</small></th><th>តម្លៃសរុប<small>Amount</small></th></tr></thead>
+    <tbody>${rows.map((r,k)=>`<tr><td>${k+1}</td><td>${esc(r.name)}</td><td class="mono">${r.qty} ${esc(r.unit)}</td><td class="mono">${r.price==null?'':usd(r.price)}</td><td class="mono">${r.price==null?'':usd(r.price*r.qty)}</td></tr>`).join('')}${'<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td></tr>'.repeat(blank)}</tbody>
+    <tfoot><tr><td colspan="4">សរុប TOTAL</td><td class="mono">${usd(total)}</td></tr><tr><td colspan="4">ជាប្រាក់រៀល</td><td class="mono">${khr(total)}</td></tr></tfoot></table>
+    ${missing?'<p class="inv-warn">មុខដែលគ្មានតម្លៃ មិនទាន់មានក្នុងបញ្ជីឱសថ</p>':''}
+    <div class="inv-sign"><span>អ្នកទិញ / The Buyer</span><span>អ្នកលក់ / The Seller</span></div></div>`}
 function orderToPOS(id){const o=S.orders.find(x=>x.id===id);resetP();const miss=[];
   o.items.forEach(i=>{if(!prod(i.pid))return miss.push(i.name);const q=Math.min(i.qty,sellable(i.pid));if(q>0)P.cart.push({pid:i.pid,qty:q});if(q<i.qty)miss.push(i.name)});
   P.cust=`${o.name} · ${o.phone}`;P.orderId=o.id;go('pos');
@@ -1285,6 +1325,7 @@ Object.assign(ACTS,{
   dropPhoto(){C.photo='';drawShopCart()},
   toSTicket(){$('#sticket')?.scrollIntoView({behavior:'smooth',block:'start'})},
   orderToPOS(el){orderToPOS(el.dataset.id)},
+  orderInvoice(el){const o=S.orders.find(x=>x.id===el.dataset.id);openModal(invoiceHTML(o)+`<div class="sheet-actions no-print"><span class="grow"></span>${canPrint?'<button class="btn" data-act="print">បោះពុម្ព</button>':''}<button class="btn gold" data-act="closeModal">បិទ</button></div>`,'invoice')},
   cancelOrder(el){const o=S.orders.find(x=>x.id===el.dataset.id);confirmBox(`បោះបង់ ${o.no}?`,`ការបញ្ជាទិញរបស់ ${esc(o.name)} នឹងត្រូវបោះបង់។`,'បោះបង់ការបញ្ជាទិញ',()=>{o.status='cancel';save();drawNav();render();toast('បានបោះបង់','ok')})}
 });
 /* orders placed from another tab on this device */
@@ -1324,27 +1365,37 @@ async function readList(blob,bigCanvas){
 }
 function lev(a,b){const m=a.length,n=b.length;if(!m||!n)return m||n;let p=Array.from({length:n+1},(_,j)=>j);
   for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c}return p[n]}
-function qtyOf(line){
+function qtyUnit(line){
   let l=line.toLowerCase().replace(/\d+(\.\d+)?\s*(mg|ml|mcg|g|%|iu)\b/g,' ');
-  let m=l.match(/(?:x|×|\*|#|qty|sl|ចំនួន|=)\s*(\d{1,3})(?!\d)/)||l.match(/(\d{1,3})\s*(?:tabs?|caps?|viên|v\b|btls?|bottles?|box(?:es)?|pcs|គ្រាប់|ដប|បន្ទះ|កញ្ចប់|ប្រអប់)/);
-  if(!m){const nums=l.match(/(?<![\d.])\d{1,3}(?![\d.])/g);if(nums)m=[0,nums[nums.length-1]]}
-  const q=m?parseInt(m[1]):1;return q>0&&q<=500?q:1}
+  let m=l.match(/(?:x|×|\*|#|qty|sl|ចំនួន|=)\s*(\d{1,3})(?!\d)\s*([a-z]{1,3}|[ក-៿]{1,5})?/)||l.match(/(\d{1,3})\s*(tabs?|caps?|viên|btls?|bottles?|box(?:es)?|pcs|គ្រាប់|ដប|បន្ទះ|កញ្ចប់|ប្រអប់)/)||l.match(/(?<![\d.])(\d{1,3})\s*([a-z]{1,2})?\s*$/);
+  if(!m){const nums=l.match(/(?<![\d.])\d{1,3}(?![\d.])/g);if(nums)m=[0,nums[nums.length-1],'']}
+  const q=m?parseInt(m[1]):1;return [q>0&&q<=500?q:1,(m&&m[2]||'').toUpperCase()]}
+const qtyOf=line=>qtyUnit(line)[0];
 function matchText(text){
   const kd=s=>s.replace(/[០-៩]/g,d=>'០១២៣៤៥៦៧៨៩'.indexOf(d));
   const toks=s=>s.toLowerCase().split(/[^a-z0-9ក-៿.]+/).filter(Boolean);
-  const lines=kd(text).split(/\r?\n/).map(l=>l.replace(/\s+/g,' ').trim()).filter(l=>/[a-zក-៿]{3,}/i.test(l)).slice(0,60);
+  const HEAD=/invoice|description|quantity|unit\s*price|amount|total|buyer|seller|customer|address|\btel\b|\baba\b|acleda|pharmacy|ឱសថស្ថាន|វិក្កយបត្រ|ឈ្មោះ|សរុប|អ្នកទិញ|អ្នកលក់|ចំនួន|តម្លៃ|ទូរស័ព្ទ|អាសយដ្ឋាន|ល\.រ/i;
+  const QONLY=/^(\d{1,3})\s*([a-z]{1,3}|[ក-៿]{1,5})$/i;
+  const lines=kd(text).split(/\r?\n/).map(l=>l.replace(/\s+/g,' ').trim()).filter(l=>l&&!HEAD.test(l)).slice(0,80);
+  /* inside the Quantity column block a bare number (e.g. "1") is a quantity too, not a row number */
+  const firstQ=lines.findIndex(l=>QONLY.test(l)),isQ=(l,i)=>QONLY.test(l)||(firstQ>=0&&i>firstQ&&/^\d{1,3}$/.test(l));
+  const qtyLines=lines.filter(isQ);
+  const descs=lines.filter((l,i)=>!isQ(l,i)&&/[a-zក-៿]{3,}/i.test(l)).map(l=>l.replace(/^\d{1,2}\s*[.)]?\s+/,''));
+  /* table photos: OCR often returns the Description column, then the Quantity column — pair them in order */
+  const paired=qtyLines.length>=2&&qtyLines.length>=descs.length*0.5;
   const prods=sprods(),res=[];
-  lines.forEach(line=>{
-    const lt=toks(line),flat=line.toLowerCase().replace(/\s/g,'');let best=null,bs=0;
+  descs.forEach((line,idx)=>{
+    let qu=paired&&qtyLines[idx]?(()=>{const m=qtyLines[idx].match(/^(\d{1,3})\s*(.*)$/);return [parseInt(m[1]),(m[2]||'').toUpperCase()]})():qtyUnit(line);
+    const clean=paired?line:line.replace(/\s*(?:x|×|\*|#)?\s*\d{1,3}\s*[a-z]{0,2}\s*$/i,'');
+    const lt=toks(clean),flat=clean.toLowerCase().replace(/\s/g,'');let best=null,bs=0;
     prods.forEach(p=>{let sc=0;
       [...new Set(toks(p.name+' '+(p.generic||'')).filter(w=>w.length>=4&&!/^\d/.test(w)))].forEach(w=>{
         if(lt.includes(w)||flat.includes(w))sc+=w.length;
         else{const tol=w.length>=8?2:w.length>=5?1:0;if(tol&&lt.some(t=>Math.abs(t.length-w.length)<=tol&&lev(t,w)<=tol))sc+=w.length*.7}});
       if(sc)(p.name.toLowerCase().replace(/\s/g,'').match(/\d+(\.\d+)?(mg|ml|mcg|g|%)/g)||[]).forEach(x=>{if(flat.includes(x))sc+=4});
       if(sc>bs){bs=sc;best=p}});
-    const qty=qtyOf(line);
-    if(best&&bs>=4){const ex=res.find(r=>r.id===best.id);if(ex)ex.qty+=qty;else res.push({id:best.id,written:line,qty})}
-    else if(/[a-z]{4,}/i.test(line)&&res.filter(r=>!r.id).length<8)res.push({id:null,written:line,qty:1});
+    if(best&&bs>=4){const ex=res.find(r=>r.id===best.id);if(ex)ex.qty+=qu[0];else res.push({id:best.id,written:clean,qty:qu[0],unit:qu[1]})}
+    else if(/[a-z]{3,}/i.test(clean)&&res.filter(r=>!r.id).length<15)res.push({id:null,written:clean,qty:qu[0],unit:qu[1]});
   });
   return res;
 }
