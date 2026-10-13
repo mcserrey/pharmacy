@@ -590,7 +590,7 @@ function drawTop(){
    ${a.near?`<button class="chip warn" data-goto="near">${a.near} Lot ជិតផុត</button>`:''}
    ${a.low?`<button class="chip warn" data-goto="low">${a.low} មុខស្តុកទាប</button>`:''}
    ${newOrders()?`<button class="chip info" data-goto="orders">${newOrders()} ការបញ្ជាទិញថ្មី</button>`:''}
-   ${SY.url?`<button class="chip" id="syncChip" data-act="syncNow" title="ធ្វើសមកាលកម្មជាមួយ Google Sheets"></button>`:''}
+   ${syncUrl()?`<button class="chip" id="syncChip" data-act="syncNow" title="ធ្វើសមកាលកម្មជាមួយ Google Sheets"></button>`:''}
    <button class="btn ghost sm" data-act="logout">ចាកចេញ</button>`;
   paintSync();
   $('#shopName').textContent=S.set.shop;$('#dutyName').textContent=S.set.staff;
@@ -1261,7 +1261,8 @@ const OST={new:['ថ្មី','info'],done:['បានលក់','ok'],cancel:[
 function renderOrders(){
   const cnt=k=>S.orders.filter(o=>k==='all'||o.status===k).length;
   const list=S.orders.filter(o=>orderF==='all'||o.status===orderF).sort((a,b)=>orderF==='new'?a.ts-b.ts:b.ts-a.ts);
-  V().innerHTML=`<div class="filters">${[['new','ថ្មី'],['done','បានលក់'],['cancel','បានបោះបង់'],['all','ទាំងអស់']].map(([k,v])=>`<button class="chipbtn ${orderF===k?'on':''}" data-of="${k}">${v}<b>${cnt(k)}</b></button>`).join('')}</div>
+  V().innerHTML=`<div class="toolbar" style="margin-bottom:8px">${syncUrl()?`<button class="btn sm" data-act="ordersRefresh">ទាញការបញ្ជាទិញថ្មីពី Sheet</button><span class="muted" style="font-size:.8rem">${SY.last?'ចុងក្រោយ៖ '+fmtDT(SY.last):''}${SY.state==='error'?' · មិនអាចភ្ជាប់ Sheet':SY.state==='pin'?' · PIN មិនត្រូវនឹង Sheet':''}</span>`:`<span class="muted" style="font-size:.8rem">${IN_CLAUDE?'ក្នុង Artifact ការបញ្ជាទិញរក្សាទុកតែក្នុងឧបករណ៍នេះ':''}</span>`}</div>
+  <div class="filters">${[['new','ថ្មី'],['done','បានលក់'],['cancel','បានបោះបង់'],['all','ទាំងអស់']].map(([k,v])=>`<button class="chipbtn ${orderF===k?'on':''}" data-of="${k}">${v}<b>${cnt(k)}</b></button>`).join('')}</div>
   <div class="olist">${list.map(o=>`<article class="panel ocard">
     <header><div><b class="mono">${o.no}</b> <span class="chip ${OST[o.status][1]}">${OST[o.status][0]}</span><small>${fmtDT(o.ts)}</small></div><span class="ototal">${usd(o.total)}</span></header>
     <div class="ometa"><span><b>${esc(o.name)}</b> · <span class="mono">${esc(o.phone)}</span></span>${o.pick?`<span><span class="k">ទទួល៖</span> ${PICK[o.pick]}${o.addr?' — '+esc(o.addr):''}</span>`:''}${o.note?`<span><span class="k">សម្គាល់៖</span> ${esc(o.note)}</span>`:''}</div>
@@ -1364,7 +1365,10 @@ const SET_KEYS=['shop','shopEn','address','phone','staff','rate','warnDays'];
 let SY=(()=>{try{return Object.assign({url:'',hashes:{},last:0},JSON.parse(localStorage.getItem(SYNC_KEY)||'{}'))}catch(e){return{url:'',hashes:{},last:0}}})();
 SY.state='';SY.busy=false;
 function saveSY(){try{localStorage.setItem(SYNC_KEY,JSON.stringify({url:SY.url,hashes:SY.hashes,last:SY.last}))}catch(e){}}
-function syncUrl(){return (SY&&SY.url)||SHEET_API_URL}
+const IN_CLAUDE=!!(window.claude&&typeof window.claude.use==='function');
+function syncUrl(){return IN_CLAUDE?'':((SY&&SY.url)||SHEET_API_URL)}
+/* a device not yet linked to the Sheet still exchanges customer orders with it */
+const syncColls=()=>SY.url?Object.keys(TBL):['orders'];
 function sessPin(){try{return sessionStorage.getItem('kep-pin')||''}catch(e){return ''}}
 function setSessPin(p){try{sessionStorage.setItem('kep-pin',p)}catch(e){}}
 function fnv(str){let h=0x811c9dc5;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,0x01000193)}return (h>>>0).toString(36)}
@@ -1386,16 +1390,16 @@ function paintSync(){
   const inf=$('#syncInfo');if(inf)inf.textContent=SY.last?'ធ្វើសមកាលកម្មចុងក្រោយ៖ '+fmtDT(SY.last):''}
 function setSync(st){SY.state=st;paintSync()}
 let syncTimer;
-function scheduleSync(){if(!SY.url||mode!=='staff')return;clearTimeout(syncTimer);syncTimer=setTimeout(pushNow,1500)}
+function scheduleSync(){if(!syncUrl()||mode!=='staff')return;clearTimeout(syncTimer);syncTimer=setTimeout(pushNow,1500)}
 async function pushNow(){
-  if(!SY.url||mode!=='staff'||!sessPin())return;
+  if(!syncUrl()||mode!=='staff'||!sessPin())return;
   if(SY.busy){SY.again=true;return}
   S.moves.forEach(m=>m.id||(m.id=uid()));
   const data={},deleted={},newH={};let n=0;
-  Object.keys(TBL).forEach(coll=>{const ids=new Set();
+  syncColls().forEach(coll=>{const ids=new Set();
     (S[coll]||[]).forEach(r=>{if(!r.id)return;ids.add(r.id);const k=coll+':'+r.id,h=recHash(coll,r);if(SY.hashes[k]!==h){(data[coll]=data[coll]||[]).push(r);newH[k]=h;n++}});
     Object.keys(SY.hashes).forEach(k=>{if(k.startsWith(coll+':')){const id=k.slice(coll.length+1);if(!ids.has(id)){(deleted[coll]=deleted[coll]||[]).push(id);n++}}})});
-  const st=setPayload(),sh=fnv(JSON.stringify(st));const sendSet=SY.hashes['set']!==sh||SY.pendingPin;
+  const st=setPayload(),sh=fnv(JSON.stringify(st));const sendSet=!!SY.url&&(SY.hashes['set']!==sh||SY.pendingPin);
   if(!n&&!sendSet){if(SY.state!=='ok')setSync('ok');return}
   SY.busy=true;setSync('saving');
   try{
@@ -1413,7 +1417,7 @@ async function pushNow(){
 }
 function mergePull(r){
   const H=SY.hashes,beforeNew=newOrders();
-  Object.keys(TBL).forEach(coll=>{
+  syncColls().forEach(coll=>{
     const server=(r.data&&r.data[coll])||[],local=S[coll]||[],lmap={};local.forEach(x=>lmap[x.id]=x);
     const out=[],seen=new Set();
     server.forEach(sr=>{if(!sr.id)return;seen.add(sr.id);const k=coll+':'+sr.id,l=lmap[sr.id];
@@ -1424,15 +1428,15 @@ function mergePull(r){
       else out.push(l)});
     if(coll==='sales'||coll==='moves'||coll==='orders')out.sort((a,b)=>(a.ts||0)-(b.ts||0));
     S[coll]=out});
-  const ss=r.settings||{};
+  const ss=SY.url?(r.settings||{}):{};
   if(fnv(JSON.stringify(setPayload()))===H['set']||H['set']===undefined){
     SET_KEYS.forEach(k=>{if(ss[k]!==undefined&&ss[k]!=='')S.set[k]=(k==='rate'||k==='warnDays')?Number(ss[k])||S.set[k]:String(ss[k])});}
-  S.counter=Math.max(S.counter||0,Number(ss.counter)||0);S.orderCounter=Math.max(S.orderCounter||0,Number(ss.orderCounter)||0);
-  if(H['set']!==undefined||Object.keys(ss).length)H['set']=fnv(JSON.stringify(setPayload()));
+  if(SY.url){S.counter=Math.max(S.counter||0,Number(ss.counter)||0);S.orderCounter=Math.max(S.orderCounter||0,Number(ss.orderCounter)||0);
+  if(H['set']!==undefined||Object.keys(ss).length)H['set']=fnv(JSON.stringify(setPayload()))}
   return newOrders()>beforeNew;
 }
 async function pullNow(){
-  if(!SY.url||mode!=='staff'||!sessPin()||SY.pulling)return;
+  if(!syncUrl()||mode!=='staff'||!sessPin()||SY.pulling)return;
   SY.pulling=true;
   try{await pushNow();const r=await api(null,{action:'pull',pin:sessPin()});const fresh=mergePull(r);SY.last=Date.now();saveLocal();saveSY();setSync('ok');refreshAfterPull(fresh)}
   catch(e){setSync(e&&e.error==='PIN'?'pin':'error')}
@@ -1466,6 +1470,8 @@ setInterval(()=>{if(mode==='staff'&&document.visibilityState==='visible')pullNow
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&mode==='staff')pullNow()});
 Object.assign(ACTS,{
   syncNow(){pullNow()},
+  async ordersRefresh(el){el.disabled=true;el.textContent='កំពុងទាញ...';await pullNow();if(view==='orders')render();
+    toast(SY.state==='ok'?`មានការបញ្ជាទិញថ្មី ${newOrders()}`:SY.state==='pin'?'PIN មិនត្រូវនឹង PIN ក្នុង Apps Script':'មិនអាចភ្ជាប់ Sheet — សូមពិនិត្យអ៊ីនធឺណិត និងការ Deploy',SY.state==='ok'?'ok':'bad')},
   syncConnect(){syncConnect()},
   reloadCat(){loadCatalog()},
   syncDisconnect(){confirmBox('ផ្តាច់ពី Google Sheets?','ទិន្នន័យនៅក្នុងឧបករណ៍នេះនៅដដែល ប៉ុន្តែនឹងលែងរក្សាទុកទៅ Sheet។','ផ្តាច់',()=>{SY.url='';SY.hashes={};SY.last=0;saveSY();setSync('');render()})}
