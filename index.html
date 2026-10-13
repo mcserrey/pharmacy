@@ -387,6 +387,13 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
 .catchip button[data-act=catDel]:hover{color:var(--bad)}
 .catchip button:disabled{opacity:.3;cursor:default}
 
+.btn-snap{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border:1.5px dashed var(--gold);border-radius:10px;background:color-mix(in srgb,var(--gold) 8%,transparent);color:var(--fg);cursor:pointer;text-align:left;font-family:var(--f-body)}
+.btn-snap:hover{background:color-mix(in srgb,var(--gold) 15%,transparent)}
+.btn-snap svg{width:28px;height:28px;color:var(--gold);flex-shrink:0}
+.btn-snap span{display:flex;flex-direction:column;line-height:1.35}
+.btn-snap small{color:var(--muted);font-size:.78rem}
+.inp.autofill{border-color:var(--ok);box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 25%,transparent);transition:box-shadow .3s}
+
 /* staff orders */
 .olist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));gap:12px;align-items:start}
 .ocard header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:12px 14px;border-bottom:1px dashed var(--line)}
@@ -840,6 +847,8 @@ function drawProducts(){const q=($('#pq')?.value||'').toLowerCase(),c=$('#pcat')
 function productForm(id){
   const p=id?prod(id):{code:'P'+String(S.products.length+1).padStart(3,'0'),barcode:'',name:'',generic:'',cat:CATS[0],form:'',unit:'',rx:false,cost:'',price:'',reorder:10};
   openModal(`<h3>${id?'កែប្រែឱសថ':'បន្ថែមឱសថថ្មី'}</h3><form id="pform" class="form">
+  <button type="button" class="btn-snap" data-act="prodCam">${CAM_ICON}<span><b>ថតរូបផលិតផល</b><small>ប្រមូលទិន្នន័យពីស្លាកប្រអប់ ដោយស្វ័យប្រវត្តិ</small></span></button>
+  <p class="scan-status" id="phInfo" hidden></p>
   <div class="row2"><label>កូដ<input name="code" id="f-code" class="inp mono" required value="${esc(p.code)}"></label><label>Barcode<span class="inp-row"><input name="barcode" id="f-bc" class="inp mono" value="${esc(p.barcode)}" placeholder="ស្កេន ឬវាយបញ្ចូល"><button type="button" class="scanbtn" data-act="scanField" title="ស្កេន Barcode" aria-label="ស្កេន Barcode">${SCAN_ICON}</button></span></label></div>
   <label>ឈ្មោះឱសថ (Brand + កម្លាំង)<input name="name" id="f-name" class="inp" required value="${esc(p.name)}" placeholder="ឧ. Amoxicillin 500mg"></label>
   <label>ឈ្មោះ Generic<input name="generic" id="f-gen" class="inp" value="${esc(p.generic)}"></label>
@@ -851,7 +860,8 @@ function productForm(id){
   <label class="check"><input type="checkbox" name="rx" id="f-rx" ${p.rx?'checked':''}> ត្រូវការវេជ្ជបញ្ជា (Prescription only)</label>
   <div class="sheet-actions">${id?`<button type="button" class="btn danger ghost" data-act="delProduct" data-id="${id}">លុប</button>`:''}<span class="grow"></span><button type="button" class="btn ghost" data-act="closeModal">បោះបង់</button><button class="btn gold">រក្សាទុក</button></div></form>`);
   let pImg=p.img||'';
-  const bindPhoto=()=>{$('#phFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{pImg=(await resizeImage(f,360)).toDataURL('image/jpeg',.82);$('#phPrev').innerHTML=`<img src="${pImg}" alt="">`}catch(err){toast('មិនអាចបើករូបនេះបាន','bad')}};
+  window.__setProdPhoto=d=>{pImg=d;const pv=$('#phPrev');if(pv)pv.innerHTML=`<img src="${d}" alt="">`};
+  const bindPhoto=()=>{$('#phFile').onchange=e=>{const f=e.target.files[0];e.target.value='';if(f)readProductPhoto(f)};
     $('#phDel').onclick=()=>{pImg='';$('#phPrev').innerHTML=drugArt(p.name?p:{code:'new',name:'',form:'',cat:CATS[0],unit:''})}};
   bindPhoto();window.__rebindPhoto=bindPhoto;
   $('#pform').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);
@@ -1403,6 +1413,9 @@ Object.assign(ACTS,{
   exitShop(){showGate()},
   gateCam(){openCamera(quickOrder)},
   hwCam(){openCamera(handleHandwriting)},
+  prodCam(){const keep=$('#sheet').innerHTML,vals=[...$('#pform').elements].map(x=>x.type==='checkbox'?x.checked:x.type==='file'?null:x.value),handler=$('#pform').onsubmit;
+    const restore=()=>{openModal(keep);[...$('#pform').elements].forEach((x,i)=>{if(x.type==='file'||vals[i]===null)return;x.type==='checkbox'?x.checked=vals[i]:x.value=vals[i]});$('#pform').onsubmit=handler;window.__rebindPhoto&&window.__rebindPhoto()};
+    openCamera(f=>{restore();readProductPhoto(f)},restore)},
   showPin(el){const box=$('#pinBox'),open=box.hidden;box.hidden=!open;el.classList.toggle('on',open);if(open)$('#pinInput').focus()},
   logout(){showGate()},
   shopClear(){C.cart=[];drawShopGrid();drawShopCart()},
@@ -1421,11 +1434,12 @@ window.addEventListener('storage',e=>{if(e.key!==KEY||!e.newValue)return;const b
 /* ---------- camera + reading a photographed list ---------- */
 let camStream=null;
 function stopCam(){if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null}}
-async function openCamera(cb){
+async function openCamera(cb,back){
   openModal(`<h3>ថតបញ្ជីបញ្ជាទិញ / វេជ្ជបញ្ជា</h3><div class="cam"><video id="camV" playsinline autoplay muted></video></div>
     <p class="scan-status" id="camMsg">កំពុងបើកកាមេរ៉ា... តម្រង់ក្រដាសឲ្យពេញស៊ុម ហើយចុច «ថត»</p>
     <div class="sheet-actions"><span class="btn filebtn">${FILE_ICON.replace('<svg','<svg style="width:16px;height:16px;vertical-align:-3px;margin-right:4px"')}ជ្រើសរូបពីឯកសារ<input type="file" id="camFile" accept="image/*"></span><span class="grow"></span>
-    <button class="btn ghost" data-act="closeModal">បោះបង់</button><button class="btn gold" id="camShot" disabled>ថត</button></div>`,'narrow');
+    ${back?'<button class="btn ghost" id="camBack">ត្រឡប់</button>':'<button class="btn ghost" data-act="closeModal">បោះបង់</button>'}<button class="btn gold" id="camShot" disabled>ថត</button></div>`,'narrow');
+  if(back)$('#camBack').onclick=()=>{stopCam();back()};
   $('#camFile').onchange=e=>{const f=e.target.files[0];if(f){closeModal();cb(f)}};
   try{
     if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw 0;
@@ -1483,6 +1497,78 @@ function matchText(text){
     else if(/[a-z]{3,}/i.test(clean)&&res.filter(r=>!r.id).length<15)res.push({id:null,written:clean,qty:qu[0],unit:qu[1]});
   });
   return res;
+}
+
+/* ---------- new product from a photo of its box ---------- */
+const PROD_PROMPT=()=>`This is a photo of a medicine or medical product package in a pharmacy in Cambodia. Read the label and reply with only one JSON object:
+{"name": "brand name with strength as sold, e.g. Doliprane 500mg",
+ "generic": "active ingredient(s) with strength, e.g. Paracetamol 500mg",
+ "form": "Tablet | Capsule | Syrup | Suspension | Injection | Infusion | Cream | Ointment | Gel | Drops | Sachet | Solution | Effervescent | Spray | Device | other",
+ "unit": "the selling unit in Khmer: one of បន្ទះ, ប្រអប់, ដប, កញ្ចប់, បំពង់, អំពូល, គ្រាប់ — add the count in parentheses when the pack shows it, e.g. បន្ទះ (10)",
+ "category": "one of: ${CATS.join(', ')}",
+ "rx": true if it is prescription-only (antibiotics, injections, infusions, "Rx only"), otherwise false,
+ "barcode": "the digits under the barcode if readable, else empty",
+ "lot": "batch/lot number if visible, else empty",
+ "exp": "expiry date as YYYY-MM-DD or YYYY-MM if visible, else empty",
+ "maker": "manufacturer if visible, else empty"}
+Use "" for anything you cannot read. Do not guess a barcode.`;
+function parseLabel(t){
+  const lines=t.split(/\r?\n/).map(l=>l.replace(/\s+/g,' ').trim()).filter(Boolean),low=t.toLowerCase();
+  const STR=/(\d+(?:[.,]\d+)?)\s*(mg|mcg|µg|g|ml|%|iu)\b/i;
+  const STOP=/(each|contain|store|keep|batch|lot|exp|mfg|manuf|reg\b|composition|dosage|indication|warning|www|tel|made in|rx only|use|read)/i;
+  const cand=lines.filter(l=>/[a-z]{4,}/i.test(l)&&!STOP.test(l)&&l.length<=40);
+  let name=cand.find(l=>STR.test(l))||cand[0]||'';const st=t.match(STR);
+  if(name&&!STR.test(name)&&st)name+=' '+st[1]+st[2].toLowerCase();
+  let generic='';const ci=lines.findIndex(l=>/contain|composition/i.test(l));
+  if(ci>=0){const g=(lines[ci].replace(/.*(contains?|composition)\s*:?/i,'').trim()||lines[ci+1]||'');generic=g.replace(/\b(bp|usp|ip|ph\.?\s*eur\.?)\b/ig,'').replace(/\s+/g,' ').trim().slice(0,60)}
+  const FORMS=[['effervescent','Effervescent'],['capsule','Capsule'],['tablet','Tablet'],['syrup','Syrup'],['suspension','Suspension'],['infusion','Infusion'],['injection','Injection'],['cream','Cream'],['ointment','Ointment'],['gel','Gel'],['drops','Drops'],['sachet','Sachet'],['powder','Sachet'],['spray','Spray'],['solution','Solution']];
+  const form=(FORMS.find(([k])=>low.includes(k))||[,''])[1];
+  const n10=low.match(/(\d{1,3})\s*x\s*(\d{1,3})/);
+  const unit={Tablet:'បន្ទះ',Capsule:'បន្ទះ',Syrup:'ដប',Suspension:'ដប',Solution:'ដប',Drops:'ដប',Spray:'ដប',Infusion:'ដប',Injection:'អំពូល',Cream:'បំពង់',Ointment:'បំពង់',Gel:'បំពង់',Sachet:'កញ្ចប់',Effervescent:'បំពង់'}[form]||'ប្រអប់';
+  const catOf=k=>CATS.find(c=>c.includes(k))||'';
+  let category=/infusion|nacl|ringer|glucose \d|dextrose|serum|i\.v\./i.test(t)?catOf('សារ៉ូម'):/vitamin/i.test(t)?catOf('វីតាមីន'):
+    ({Tablet:catOf('គ្រាប់'),Capsule:catOf('គ្រាប់'),Syrup:catOf('ទឹក'),Suspension:catOf('ទឹក'),Solution:catOf('ទឹក'),Drops:catOf('ទឹក'),Injection:catOf('ចាក់'),Cream:catOf('ក្រៅ'),Ointment:catOf('ក្រៅ'),Gel:catOf('ក្រៅ')}[form]||'');
+  const bc=(t.match(/(?<!\d)(\d{13}|\d{12}|\d{8})(?!\d)/)||[])[1]||'';
+  const lot=(t.match(/(?:lot|batch(?:\s*no)?|b\.?\s*no)\s*\.?\s*[:#]?\s*([a-z0-9][a-z0-9\-\/]{2,})/i)||[])[1]||'';
+  let exp='';const em=t.match(/exp[a-z.]*\s*(?:date)?\s*[:.]?\s*(\d{1,2})[\/.\- ](\d{2,4})/i);
+  if(em){let y=em[2].length===2?'20'+em[2]:em[2];exp=`${y}-${String(em[1]).padStart(2,'0')}`}
+  return {name,generic,form,unit:(unit==='បន្ទះ'&&n10?`បន្ទះ (${n10[2]})`:unit),category,rx:/rx only|prescription|℞|injection|infusion/i.test(t),barcode:bc,lot,exp};
+}
+async function readBarcodeFromFile(file){
+  await loadScanLib();let el=document.getElementById('bcTmp');
+  if(!el){el=document.createElement('div');el.id='bcTmp';el.style.display='none';document.body.appendChild(el)}
+  const h=new Html5Qrcode('bcTmp',{verbose:false,experimentalFeatures:{useBarCodeDetectorIfSupported:true}});
+  try{const r=await h.scanFile(file,false);return /^\d{8,14}$/.test(r)?r:''}finally{try{h.clear()}catch(e){}}
+}
+function applyProductData(d){
+  if(!$('#pform'))return 0;let n=0;const done=[];
+  const flash=el=>{el.classList.add('autofill');setTimeout(()=>el.classList.remove('autofill'),4000)};
+  const set=(sel,v,label)=>{const el=$(sel);v=String(v||'').trim();if(!el||!v||el.value.trim())return;el.value=v.slice(0,80);flash(el);n++;done.push(label)};
+  set('#f-name',d.name,'ឈ្មោះ');set('#f-gen',d.generic,'Generic');set('#f-form',d.form,'ទម្រង់');set('#f-unit',d.unit,'ឯកតា');
+  set('#f-bc',String(d.barcode||'').replace(/\D/g,''),'Barcode');
+  const cat=$('#f-cat');if(cat&&d.category&&CATS.includes(d.category)&&cat.value!==d.category){cat.value=d.category;flash(cat);n++;done.push('ប្រភេទ')}
+  const rx=$('#f-rx');if(rx&&d.rx===true&&!rx.checked){rx.checked=true;n++;done.push('Rx')}
+  return {n,done};
+}
+async function readProductPhoto(file){
+  const say=(m,bad)=>{const el=$('#phInfo');if(el){el.hidden=false;el.textContent=m;el.className='scan-status'+(bad?' bad':'')}};
+  let big;try{big=await resizeImage(file,1600);window.__setProdPhoto((await resizeImage(file,360)).toDataURL('image/jpeg',.82))}catch(e){return say('មិនអាចបើករូបនេះបាន',true)}
+  const canRead=!!sampleFn||!!syncUrl();
+  say(canRead?'កំពុងអានស្លាកផលិតផល... (អាចចំណាយពេល ១០–៤០ វិនាទី)':'កំពុងស្វែងរក Barcode...');
+  const bcP=readBarcodeFromFile(file).catch(()=>'');
+  let d=null;
+  try{
+    if(sampleFn){const blob=await new Promise(r=>big.toBlob(r,'image/jpeg',.85));d=await sampleFn.json(PROD_PROMPT(),{images:[blob],cache:false})}
+    else if(syncUrl()){const r=await api(null,{action:'ocr',photo:big.toDataURL('image/jpeg',.85)});d=parseLabel(r.text||'')}
+  }catch(e){}
+  const bc=await bcP;if(bc){d=d||{};if(!/^\d{8,14}$/.test(String(d.barcode||'')))d.barcode=bc}
+  if(!$('#pform'))return;
+  if(!d||typeof d!=='object')return say(canRead?'បានដាក់រូប ប៉ុន្តែអានស្លាកមិនចេញ — សូមបំពេញដោយដៃ':'បានដាក់រូប។ ការអានស្លាកស្វ័យប្រវត្តិ ត្រូវភ្ជាប់ Google Sheet ឬប្រើក្នុង Artifact',true);
+  const r=applyProductData(d);
+  const extra=[d.lot&&'Lot '+d.lot,d.exp&&'EXP '+d.exp,d.maker].filter(Boolean).join(' · ');
+  const dup=d.name&&S.products.find(p=>p.name.toLowerCase()===String(d.name).toLowerCase().trim());
+  say((r.n?`បានបំពេញ៖ ${r.done.join(', ')} — សូមពិនិត្យ និងបញ្ចូលថ្លៃដើម/តម្លៃលក់`:'មិនមានចំណុចថ្មីដែលត្រូវបំពេញ')+(extra?` · ${extra} (ប្រើពេលទទួលស្តុក)`:'')+(dup?` · ចំណាំ៖ «${dup.name}» មានរួចហើយ`:''),!r.n||!!dup);
+  if(r.n)$('#f-cost')?.focus();
 }
 
 /* ---------- Google Sheets sync ---------- */
