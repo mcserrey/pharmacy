@@ -247,36 +247,30 @@ textarea.inp{font:12px/1.4 var(--f-mono);min-height:160px;resize:vertical}
 .rc-foot{text-align:center;color:#555;font-size:.74rem;margin-top:10px;border-top:1px dashed #999;padding-top:8px}
 .void-stamp{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%) rotate(-18deg);font:700 3rem var(--f-mono);color:rgba(200,40,40,.35);border:4px solid rgba(200,40,40,.35);padding:0 14px;border-radius:8px}
 
-/* login gate */
-.gate{position:fixed;inset:0;z-index:40;overflow:auto;display:flex;padding:calc(24px + env(safe-area-inset-top,0px)) 16px calc(24px + env(safe-area-inset-bottom,0px));
-  background:radial-gradient(1100px 560px at 50% -12%,color-mix(in srgb,var(--gold) 16%,transparent),transparent 62%),var(--bg)}
-.gate-card{width:min(860px,100%);display:flex;flex-direction:column;align-items:center;gap:22px;margin:auto}
+/* login gate — one compact column */
+.gate{position:fixed;inset:0;z-index:40;overflow:auto;display:flex;padding:calc(20px + env(safe-area-inset-top,0px)) 16px calc(20px + env(safe-area-inset-bottom,0px));
+  background:radial-gradient(900px 480px at 50% -14%,color-mix(in srgb,var(--gold) 15%,transparent),transparent 62%),var(--bg)}
+.gate-card{width:min(320px,100%);display:flex;flex-direction:column;align-items:stretch;gap:18px;margin:auto}
 .gate-brand{text-align:center}
-.gate-brand img{width:clamp(84px,13vw,120px);height:clamp(84px,13vw,120px);border-radius:50%;background:#fff;box-shadow:0 0 0 3px var(--gold),0 14px 40px rgba(0,0,0,.35)}
-.gate-brand h1{font:700 clamp(1.4rem,3vw,1.9rem)/1.3 var(--f-disp);color:var(--gold);margin:12px 0 0}
-.gate-brand small{letter-spacing:.24em;color:var(--muted);font:500 .72rem var(--f-mono)}
-.gate-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%}
-.gate-pane{padding:22px;display:flex;flex-direction:column;gap:12px}
-.gate-pane h2{margin:0;font:700 1.2rem var(--f-disp)}
-.gate-pane p{margin:0;color:var(--muted)}
-.gate-cust{justify-content:space-between;background:linear-gradient(165deg,color-mix(in srgb,var(--gold) 13%,var(--panel)),var(--panel) 70%)}
-.gate-cust ul{margin:0;padding-left:18px;color:var(--muted);display:grid;gap:4px;font-size:.9rem}
-.gate-cust .btn{padding:14px;font-size:1.05rem}
-.pin-dots{display:flex;gap:14px;justify-content:center;padding:4px 0}
-.pin-dots i{width:15px;height:15px;border-radius:50%;border:2px solid var(--gold);transition:background .12s}
-.pin-dots i.on{background:var(--gold)}
-.pinpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:270px;width:100%;margin:0 auto}
-.pinpad button{height:54px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);font:600 1.3rem var(--f-mono);cursor:pointer;touch-action:manipulation}
-.pinpad button:hover{border-color:var(--gold)}
-.pinpad button:active{background:var(--gold);color:var(--on-gold)}
-.pinpad .fn{font:500 .85rem var(--f-body);color:var(--muted)}
-.pin-msg{text-align:center;min-height:1.6em;font-size:.86rem}
+.gate-brand img{width:92px;height:92px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px var(--gold),0 10px 30px rgba(0,0,0,.3)}
+.gate-brand h1{font:700 1.45rem/1.3 var(--f-disp);color:var(--gold);margin:10px 0 0}
+.gate-brand small{letter-spacing:.24em;color:var(--muted);font:500 .68rem var(--f-mono)}
+.gate-shop{display:flex;flex-direction:column;gap:8px}
+.btn-yellow{width:100%;border:0;border-radius:10px;padding:14px;cursor:pointer;font:700 1.08rem var(--f-body);background:#f6d60f;color:#173d14;box-shadow:0 4px 0 #c9a800;transition:transform .08s,box-shadow .08s}
+.btn-yellow:hover{background:#ffe02a}
+.btn-yellow:active{transform:translateY(3px);box-shadow:0 1px 0 #c9a800}
+.gate-shop p{margin:0;text-align:center;font-size:.82rem;line-height:1.55;color:var(--muted);text-wrap:balance}
+.gate-staff{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:6px;margin:0}
+.gate-staff label{font-size:.78rem;color:var(--muted)}
+.pin-row{display:flex;gap:8px}
+.pin-row .inp{flex:1;text-align:center;letter-spacing:.5em;font-size:1rem;padding:9px 10px}
+.pin-row .btn{padding:0 18px}
+.pin-msg{text-align:center;min-height:1.4em;font-size:.8rem;margin:0}
 .pin-msg.bad{color:var(--bad)}
 .shake{animation:shake .35s}
 @keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
-.gate-foot{color:var(--muted);font-size:.78rem;text-align:center;margin:0}
-@media (max-width:640px){.gate-cols{grid-template-columns:1fr}.gate-cust{order:-1}.gate-card{gap:16px}}
-@media (max-height:680px) and (min-width:641px){.gate-brand img{width:70px;height:70px}.pinpad button{height:42px}.gate-pane{padding:16px}}
+.gate-foot{color:var(--muted);font-size:.72rem;text-align:center;margin:0;line-height:1.6}
+@media (max-height:640px){.gate-brand img{width:64px;height:64px}.gate-card{gap:12px}}
 
 /* customer shop */
 .shop-brand{display:flex;align-items:center;gap:10px;min-width:0}
@@ -374,24 +368,15 @@ textarea.inp{font:12px/1.4 var(--f-mono);min-height:160px;resize:vertical}
 <div id="gate" class="gate">
   <div class="gate-card">
     <div class="gate-brand"><img data-logo alt="KEP Pharmacy logo"><h1 id="gateShop">ឱសថស្ថានកែប</h1><small>KEP PHARMACY</small></div>
-    <div class="gate-cols">
-      <section class="panel gate-pane gate-staff" id="pinBox">
-        <h2>បុគ្គលិក</h2><p>បញ្ចូលលេខ PIN ដើម្បីចូលប្រព័ន្ធលក់ និងគ្រប់គ្រងស្តុក</p>
-        <div class="pin-dots" id="pinDots"></div>
-        <div class="pinpad">
-          <button data-pin="1">1</button><button data-pin="2">2</button><button data-pin="3">3</button>
-          <button data-pin="4">4</button><button data-pin="5">5</button><button data-pin="6">6</button>
-          <button data-pin="7">7</button><button data-pin="8">8</button><button data-pin="9">9</button>
-          <button data-pin="clr" class="fn">សម្អាត</button><button data-pin="0">0</button><button data-pin="del" class="fn" aria-label="លុបមួយខ្ទង់">⌫</button>
-        </div>
-        <p class="pin-msg" id="pinMsg" aria-live="polite"></p>
-      </section>
-      <section class="panel gate-pane gate-cust">
-        <div class="stack" style="gap:10px"><h2>អតិថិជន</h2><p>មើលតម្លៃឱសថ ដាក់ចូលកន្ត្រក ហើយផ្ញើការបញ្ជាទិញមកយើង ដោយមិនចាំបាច់ចូលគណនី។</p>
-        <ul><li>តម្លៃជាដុល្លារ និងរៀល</li><li>ដឹងថាឱសថមានក្នុងស្តុកឬអត់</li><li>មកយកផ្ទាល់ ឬឲ្យដឹកដល់ផ្ទះ</li></ul></div>
-        <button class="btn gold" data-act="enterShop">ចូលទិញឱសថ</button>
-      </section>
+    <div class="gate-shop">
+      <button class="btn-yellow" data-act="enterShop">ចូលទិញឱសថ</button>
+      <p>សូមស្វាគមន៍ លោកអ្នកអាចមើលតម្លៃឱសថ និងបញ្ជាទិញឱសថបាននៅទីនេះ</p>
     </div>
+    <form class="gate-staff" id="pinBox" autocomplete="off" aria-label="ចូលសម្រាប់បុគ្គលិក">
+      <label for="pinInput">បុគ្គលិក · PIN</label>
+      <div class="pin-row"><input id="pinInput" class="inp mono" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" placeholder="••••" aria-describedby="pinMsg"><button class="btn" type="submit">ចូល</button></div>
+      <p class="pin-msg" id="pinMsg" aria-live="polite"></p>
+    </form>
     <p class="gate-foot" id="gateFoot"></p>
   </div>
 </div>
@@ -448,7 +433,7 @@ let S,view='pos',P,R,stockTab='summary',batchFilter='all',salesRange='today',cat
 
 /* ---------- storage ---------- */
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-function migrate(){S.orders=S.orders||[];S.orderCounter=S.orderCounter||0;S.set.pin=String(S.set.pin||'2210')}
+function migrate(){S.orders=S.orders||[];S.orderCounter=S.orderCounter||0;S.set.pin=String(S.set.pin||'2210');if(!S.set.phone||/x/i.test(S.set.phone))S.set.phone='012369726-078375166'}
 function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(d&&d.products){S=d;migrate();return}}}catch(e){}S=seed();migrate();save()}
 
 /* ---------- lookups ---------- */
@@ -495,7 +480,7 @@ function voidSale(id){
 function seed(){
   const keepPin=S&&S.set&&S.set.pin;
   S={v:2,counter:0,products:[],batches:[],suppliers:[],sales:[],moves:[],orders:[],orderCounter:0,
-     set:{shop:'ឱសថស្ថានកែប',shopEn:'KEP Pharmacy',address:'ខេត្តកែប',phone:'012 xxx xxx',staff:'ឈឹន សុវណ្ណដាណែត',rate:4100,warnDays:90,pin:keepPin||'2210'}};
+     set:{shop:'ឱសថស្ថានកែប',shopEn:'KEP Pharmacy',address:'ខេត្តកែប',phone:'012369726-078375166',staff:'ឈឹន សុវណ្ណដាណែត',rate:4100,warnDays:90,pin:keepPin||'2210'}};
   const sups=[['Mekong Pharma Supply','លោក វណ្ណា','012 000 111'],['Phnom Penh Medical Distribution','កញ្ញា ស្រីពៅ','010 000 222'],['Kampot Medical Store','លោក សុផល','097 000 333']];
   sups.forEach(([name,contact,phone])=>S.suppliers.push({id:uid(),name,contact,phone,note:'ទិន្នន័យគំរូ'}));
   const P_=[ // code,name,generic,cat,form,unit,rx,cost,price,reorder
@@ -915,11 +900,10 @@ const ACTS={
   wipe(){confirmBox('លុបទិន្នន័យទាំងអស់?','ឱសថ ស្តុក ប្រវត្តិលក់ និងអ្នកផ្គត់ផ្គង់ នឹងត្រូវលុប។ ការកំណត់នៅដដែល។','លុបទាំងអស់',()=>{Object.assign(S,{products:[],batches:[],suppliers:[],sales:[],moves:[],counter:0,orders:[],orderCounter:0});save();resetP();resetR();render();toast('បានលុបទិន្នន័យ','ok')})}
 };
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-pin],[data-sadd],[data-sinc],[data-sdec],[data-sdel],[data-scat],[data-of],[data-view],[data-act],[data-add],[data-inc],[data-dec],[data-del],[data-cat],[data-sale],[data-editp],[data-adj],[data-tab],[data-bf],[data-range],[data-rmline],[data-editsup],[data-goto]');
+  const t=e.target.closest('[data-sadd],[data-sinc],[data-sdec],[data-sdel],[data-scat],[data-of],[data-view],[data-act],[data-add],[data-inc],[data-dec],[data-del],[data-cat],[data-sale],[data-editp],[data-adj],[data-tab],[data-bf],[data-range],[data-rmline],[data-editsup],[data-goto]');
   if(e.target.id==='modal')return closeModal();
   if(!t)return;const d=t.dataset;
-  if(d.pin)pinKey(d.pin);
-  else if(d.sadd)shopAdd(d.sadd,1);
+  if(d.sadd)shopAdd(d.sadd,1);
   else if(d.sinc)shopAdd(d.sinc,1);
   else if(d.sdec)shopAdd(d.sdec,-1);
   else if(d.sdel)shopAdd(d.sdel,-1e6);
@@ -957,7 +941,7 @@ document.addEventListener('change',e=>{const id=e.target.id,v=e.target.value;
   else if(e.target.dataset.qty)setQty(e.target.dataset.qty,parseInt(v)||0)});
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&!$('#modal').hidden)return closeModal();
-  if(mode==='gate'){if(/^\d$/.test(e.key))pinKey(e.key);else if(e.key==='Backspace')pinKey('del');else if(e.key==='Escape')pinKey('clr');return}
+  if(mode==='gate')return;
   if(mode!=='staff')return;
   if(e.key==='Enter'&&e.target.closest('[data-sale]'))return showReceipt(S.sales.find(s=>s.id===e.target.closest('[data-sale]').dataset.sale));
   if(view!=='pos'||!$('#modal').hidden)return;
@@ -973,24 +957,23 @@ function tick(){const d=new Date();$('#clock').textContent=iso(d)+' · '+d.toTim
 
 /* ---------- login gate ---------- */
 const AUTH='kep-pharmacy-auth';
-let mode='gate',pinBuf='',pinFails=0,pinLockUntil=0;
+let mode='gate',pinFails=0,pinLockUntil=0;
 function setMode(m){mode=m;$('#appRoot').hidden=m!=='staff';$('#shop').hidden=m!=='shop';$('#gate').hidden=m!=='gate';window.scrollTo(0,0)}
-function showGate(){closeModal();pinBuf='';try{sessionStorage.removeItem(AUTH)}catch(e){}
-  $('#gateShop').textContent=S.set.shop;$('#gateFoot').textContent=[S.set.address,S.set.phone&&'ទូរស័ព្ទ '+S.set.phone].filter(Boolean).join(' · ');
-  setMode('gate');drawPin('')}
-function drawPin(msg,bad){const n=String(S.set.pin).length;$('#pinDots').innerHTML=Array.from({length:n},(_,i)=>`<i class="${i<pinBuf.length?'on':''}"></i>`).join('');
-  if(msg!=null){const m=$('#pinMsg');m.textContent=msg;m.className='pin-msg'+(bad?' bad':'')}}
-function pinKey(k){
-  if(Date.now()<pinLockUntil)return drawPin(`សូមរង់ចាំ ${Math.ceil((pinLockUntil-Date.now())/1000)} វិនាទី`,true);
-  const pin=String(S.set.pin);
-  if(k==='del')pinBuf=pinBuf.slice(0,-1);else if(k==='clr')pinBuf='';else if(pinBuf.length<pin.length)pinBuf+=k;
-  drawPin('');
-  if(pinBuf.length<pin.length)return;
-  if(pinBuf===pin){pinFails=0;pinBuf='';try{sessionStorage.setItem(AUTH,'1')}catch(e){}enterStaff();return}
-  pinFails++;pinBuf='';const box=$('#pinBox');box.classList.remove('shake');void box.offsetWidth;box.classList.add('shake');
-  if(pinFails>=5){pinFails=0;pinLockUntil=Date.now()+30000;drawPin('PIN ខុស ៥ ដង — សូមរង់ចាំ ៣០ វិនាទី',true)}
-  else drawPin(`PIN មិនត្រឹមត្រូវ (${pinFails}/5)`,true);
+function showGate(){closeModal();try{sessionStorage.removeItem(AUTH)}catch(e){}
+  $('#gateShop').textContent=S.set.shop;$('#gateFoot').innerHTML=[S.set.shop,S.set.staff,...String(S.set.phone||'').split('-')].filter(Boolean).map(x=>`<span style="white-space:nowrap">${esc(x)}</span>`).join('-');
+  setMode('gate');const i=$('#pinInput');i.value='';i.maxLength=String(S.set.pin).length;pinMsg('')}
+function pinMsg(m,bad){const el=$('#pinMsg');el.textContent=m;el.className='pin-msg'+(bad?' bad':'')}
+function tryPin(force){
+  const i=$('#pinInput'),pin=String(S.set.pin);i.value=i.value.replace(/\D/g,'');
+  if(Date.now()<pinLockUntil){i.value='';return pinMsg(`សូមរង់ចាំ ${Math.ceil((pinLockUntil-Date.now())/1000)} វិនាទី`,true)}
+  if(i.value.length<pin.length){if(force)pinMsg('សូមវាយ PIN ឲ្យគ្រប់ខ្ទង់',true);else pinMsg('');return}
+  if(i.value===pin){pinFails=0;i.value='';try{sessionStorage.setItem(AUTH,'1')}catch(e){}enterStaff();return}
+  pinFails++;i.value='';const box=$('#pinBox');box.classList.remove('shake');void box.offsetWidth;box.classList.add('shake');
+  if(pinFails>=5){pinFails=0;pinLockUntil=Date.now()+30000;pinMsg('PIN ខុស ៥ ដង — សូមរង់ចាំ ៣០ វិនាទី',true)}
+  else pinMsg(`PIN មិនត្រឹមត្រូវ (${pinFails}/5)`,true);
 }
+$('#pinBox').addEventListener('submit',e=>{e.preventDefault();tryPin(true)});
+$('#pinInput').addEventListener('input',()=>tryPin(false));
 function enterStaff(){setMode('staff');drawNav();render()}
 
 /* ---------- customer shop ---------- */
