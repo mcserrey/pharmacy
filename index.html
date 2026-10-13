@@ -259,8 +259,14 @@ textarea.inp{font:12px/1.4 var(--f-mono);min-height:160px;resize:vertical}
 .btn-yellow{width:100%;border:0;border-radius:10px;padding:14px;cursor:pointer;font:700 1.08rem var(--f-body);background:#f6d60f;color:#173d14;box-shadow:0 4px 0 #c9a800;transition:transform .08s,box-shadow .08s}
 .btn-yellow:hover{background:#ffe02a}
 .btn-yellow:active{transform:translateY(3px);box-shadow:0 1px 0 #c9a800}
-.gate-shop p{margin:0;text-align:center;font-size:.82rem;line-height:1.55;color:var(--muted);text-wrap:balance}
-.gate-staff{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:6px;margin:0}
+.btn-green{width:100%;border:0;border-radius:10px;padding:13px;cursor:pointer;font:700 1.02rem var(--f-body);background:#45c157;color:#fff;box-shadow:0 4px 0 #2e9a3e;transition:transform .08s,box-shadow .08s}
+.btn-green:hover{background:#52cd64}
+.btn-green:active,.btn-green.on{transform:translateY(3px);box-shadow:0 1px 0 #2e9a3e}
+.btn-hw{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;width:100%;border:1.5px dashed #c9a800;border-radius:10px;padding:11px;cursor:pointer;font:600 .95rem var(--f-body);color:var(--fg);background:var(--panel)}
+.btn-hw:hover{border-style:solid}
+.btn-hw svg{width:20px;height:20px;flex-shrink:0;color:#c9a800}
+.gate-shop{gap:12px}
+.gate-staff{display:flex;flex-direction:column;gap:6px;margin:0}
 .gate-staff label{font-size:.78rem;color:var(--muted)}
 .pin-row{display:flex;gap:8px}
 .pin-row .inp{flex:1;text-align:center;letter-spacing:.5em;font-size:1rem;padding:9px 10px}
@@ -407,10 +413,12 @@ textarea.inp{font:12px/1.4 var(--f-mono);min-height:160px;resize:vertical}
   <div class="gate-card">
     <div class="gate-brand"><img data-logo alt="KEP Pharmacy logo"><h1 id="gateShop">ឱសថស្ថានកែប</h1><small>KEP PHARMACY</small></div>
     <div class="gate-shop">
-      <button class="btn-yellow" data-act="enterShop">ចូលទិញឱសថ</button>
-      <p>សូមស្វាគមន៍ លោកអ្នកអាចមើលតម្លៃឱសថ និងបញ្ជាទិញឱសថបាននៅទីនេះ</p>
+      <button class="btn-yellow" data-act="enterShop">អតិថិជន-ចូលទិញឱសថ</button>
+      <label class="btn-hw" for="gateHw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg>ថតបញ្ជីសរសេរដៃ ផ្ញើបញ្ជាទិញ</label>
+      <input type="file" id="gateHw" accept="image/*" hidden>
+      <button class="btn-green" id="gateStaffBtn" data-act="showPin">ឈឹន សុវណ្ណដាណែត</button>
     </div>
-    <form class="gate-staff" id="pinBox" autocomplete="off" aria-label="ចូលសម្រាប់បុគ្គលិក">
+    <form class="gate-staff" id="pinBox" autocomplete="off" aria-label="ចូលសម្រាប់បុគ្គលិក" hidden>
       <label for="pinInput">បុគ្គលិក · PIN</label>
       <div class="pin-row"><input id="pinInput" class="inp mono" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" placeholder="••••" aria-describedby="pinMsg"><button class="btn" type="submit">ចូល</button></div>
       <p class="pin-msg" id="pinMsg" aria-live="polite"></p>
@@ -470,9 +478,11 @@ const canPrint=(()=>{try{return window.self===window.top}catch(e){return false}}
 let S,view='pos',P,R,stockTab='summary',batchFilter='all',salesRange='today',catF='all';
 
 /* ---------- storage ---------- */
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function save(){saveLocal();if(typeof scheduleSync==='function')scheduleSync()}
 function migrate(){S.orders=S.orders||[];S.orderCounter=S.orderCounter||0;S.set.pin=String(S.set.pin||'2210');if(!S.set.phone||/x/i.test(S.set.phone))S.set.phone='012369726-078375166'}
-function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(d&&d.products){S=d;migrate();return}}}catch(e){}S=seed();migrate();save()}
+function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(d&&d.products){S=d;migrate();return}}}catch(e){}S=seed();if(syncUrl())blankData();migrate();saveLocal()}
+function blankData(){Object.assign(S,{products:[],batches:[],suppliers:[],sales:[],moves:[],orders:[],counter:0,orderCounter:0})}
 
 /* ---------- lookups ---------- */
 const prod=id=>S.products.find(p=>p.id===id);
@@ -578,7 +588,9 @@ function drawTop(){
    ${a.near?`<button class="chip warn" data-goto="near">${a.near} Lot ជិតផុត</button>`:''}
    ${a.low?`<button class="chip warn" data-goto="low">${a.low} មុខស្តុកទាប</button>`:''}
    ${newOrders()?`<button class="chip info" data-goto="orders">${newOrders()} ការបញ្ជាទិញថ្មី</button>`:''}
+   ${SY.url?`<button class="chip" id="syncChip" data-act="syncNow" title="ធ្វើសមកាលកម្មជាមួយ Google Sheets"></button>`:''}
    <button class="btn ghost sm" data-act="logout">ចាកចេញ</button>`;
+  paintSync();
   $('#shopName').textContent=S.set.shop;$('#dutyName').textContent=S.set.staff;
 }
 function go(v){view=v;drawNav();render()}
@@ -912,10 +924,18 @@ function renderSettings(){const s=S.set;
     <p class="mono" style="margin:0">${S.products.length} មុខ · ${S.batches.length} Lot · ${S.sales.length} វិក្កយបត្រ · ${S.moves.length} ចលនា</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="exportData">នាំចេញ Backup</button><label class="btn" style="flex-direction:row;color:var(--fg);font-size:inherit">នាំចូល Backup<input type="file" id="importFile" accept=".json,application/json" hidden></label></div>
     <div class="divider">តំបន់គ្រោះថ្នាក់</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn danger ghost" data-act="loadDemo">ផ្ទុកទិន្នន័យគំរូឡើងវិញ</button><button class="btn danger ghost" data-act="wipe">លុបទិន្នន័យទាំងអស់</button></div></div></div>`;
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn danger ghost" data-act="loadDemo">ផ្ទុកទិន្នន័យគំរូឡើងវិញ</button><button class="btn danger ghost" data-act="wipe">លុបទិន្នន័យទាំងអស់</button></div></div>
+  <div class="panel pad stack"><div class="card-h" style="padding:0"><h3>Google Sheets</h3><span class="chip" id="syncState"></span></div>
+    <p class="muted" style="margin:0">រក្សាទុកទិន្នន័យក្នុង Sheet «POSPharmacy» ដោយស្វ័យប្រវត្តិ ហើយប្រើបានលើឧបករណ៍ច្រើន។ ការបញ្ជាទិញរបស់អតិថិជនក៏ចូល Sheet ដែរ។</p>
+    ${canPrint?'':'<p class="rx-note" style="margin:0">Artifact នេះមិនអនុញ្ញាតឲ្យភ្ជាប់ទៅ Google ទេ។ សូមប្រើឯកសារ KEP-Pharmacy.html ដែលបើកក្នុង Chrome។</p>'}
+    <label>Web App URL (Apps Script)<input id="syncUrlInp" class="inp mono" placeholder="https://script.google.com/macros/s/…/exec" value="${esc(syncUrl())}"></label>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn gold" data-act="syncConnect">${SY.url?'តភ្ជាប់ឡើងវិញ':'តភ្ជាប់'}</button>${SY.url?'<button class="btn" data-act="syncNow">ធ្វើសមកាលកម្មឥឡូវ</button><button class="btn danger ghost" data-act="syncDisconnect">ផ្តាច់</button>':''}</div>
+    <p class="muted mono" style="margin:0;font-size:.78rem" id="syncInfo"></p></div></div>`;
+  paintSync();
   $('#setform').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);const rate=parseInt(f.get('rate')),w=parseInt(f.get('warnDays'));
     if(!(rate>0)||!(w>0))return toast('អត្រាប្តូរប្រាក់ និងចំនួនថ្ងៃត្រូវតែធំជាង 0','bad');
     const pin=String(f.get('pin')).trim();if(!/^\d{4,6}$/.test(pin))return toast('PIN ត្រូវតែជាលេខ 4 ដល់ 6 ខ្ទង់','bad');
+    if(pin!==S.set.pin&&SY.url)SY.pendingPin=pin;
     S.set.pin=pin;
     Object.assign(S.set,{shop:f.get('shop').trim()||'ឱសថស្ថាន',shopEn:f.get('shopEn').trim(),address:f.get('address').trim(),phone:f.get('phone').trim(),staff:f.get('staff').trim(),rate,warnDays:w});save();drawTop();toast('បានរក្សាទុកការកំណត់','ok')};
   $('#importFile').onchange=e=>{const file=e.target.files[0];if(!file)return;const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);if(!d.products||!d.batches||!d.sales)throw 0;
@@ -981,6 +1001,7 @@ document.addEventListener('input',e=>{const id=e.target.id,v=e.target.value;
   else if(id==='q')drawGrid();else if(id==='sq')drawSales();else if(id==='pq')drawProducts();
   else if(id==='rRef')R.ref=v;else if(id==='rDate')R.date=v});
 document.addEventListener('change',e=>{const id=e.target.id,v=e.target.value;
+  if(id==='gateHw'){const f=e.target.files[0];e.target.value='';if(f)quickOrder(f);return}
   if(id==='hwFile'||id==='hwFile2'){const f=e.target.files[0];e.target.value='';if(f)handleHandwriting(f);return}
   if(id==='pay'){P.pay=v;drawTotals()}else if(id==='pcat')drawProducts();else if(id==='rSup')R.sup=v;
   else if(id==='lP'){const p=prod(v);if(p)$('#lC').value=p.cost}
@@ -1007,20 +1028,25 @@ let mode='gate',pinFails=0,pinLockUntil=0;
 function setMode(m){mode=m;$('#appRoot').hidden=m!=='staff';$('#shop').hidden=m!=='shop';$('#gate').hidden=m!=='gate';window.scrollTo(0,0)}
 function showGate(){closeModal();try{sessionStorage.removeItem(AUTH)}catch(e){}
   $('#gateShop').textContent=S.set.shop;$('#gateFoot').innerHTML=[S.set.shop,S.set.staff,...String(S.set.phone||'').split('-')].filter(Boolean).map(x=>`<span style="white-space:nowrap">${esc(x)}</span>`).join('-');
+  $('#gateStaffBtn').textContent=S.set.staff||'បុគ្គលិក';$('#gateStaffBtn').classList.remove('on');$('#pinBox').hidden=true;
   setMode('gate');const i=$('#pinInput');i.value='';i.maxLength=String(S.set.pin).length;pinMsg('')}
 function pinMsg(m,bad){const el=$('#pinMsg');el.textContent=m;el.className='pin-msg'+(bad?' bad':'')}
 function tryPin(force){
   const i=$('#pinInput'),pin=String(S.set.pin);i.value=i.value.replace(/\D/g,'');
   if(Date.now()<pinLockUntil){i.value='';return pinMsg(`សូមរង់ចាំ ${Math.ceil((pinLockUntil-Date.now())/1000)} វិនាទី`,true)}
   if(i.value.length<pin.length){if(force)pinMsg('សូមវាយ PIN ឲ្យគ្រប់ខ្ទង់',true);else pinMsg('');return}
-  if(i.value===pin){pinFails=0;i.value='';try{sessionStorage.setItem(AUTH,'1')}catch(e){}enterStaff();return}
+  if(i.value===pin){pinFails=0;setSessPin(i.value);i.value='';try{sessionStorage.setItem(AUTH,'1')}catch(e){}enterStaff();return}
+  if(syncUrl()&&!force&&!tryPin.remote){const v=i.value;tryPin.remote=true;pinMsg('កំពុងពិនិត្យ...');
+    api({action:'login',pin:v}).then(()=>{S.set.pin=v;saveLocal();setSessPin(v);i.value='';try{sessionStorage.setItem(AUTH,'1')}catch(e){}enterStaff()})
+      .catch(()=>{tryPin.remote=false;i.value=v;tryPin(true)}).finally(()=>{tryPin.remote=false});return}
   pinFails++;i.value='';const box=$('#pinBox');box.classList.remove('shake');void box.offsetWidth;box.classList.add('shake');
   if(pinFails>=5){pinFails=0;pinLockUntil=Date.now()+30000;pinMsg('PIN ខុស ៥ ដង — សូមរង់ចាំ ៣០ វិនាទី',true)}
   else pinMsg(`PIN មិនត្រឹមត្រូវ (${pinFails}/5)`,true);
 }
 $('#pinBox').addEventListener('submit',e=>{e.preventDefault();tryPin(true)});
 $('#pinInput').addEventListener('input',()=>tryPin(false));
-function enterStaff(){setMode('staff');drawNav();render()}
+function enterStaff(){if(!SY.url&&SHEET_API_URL&&!S.products.length&&!S.sales.length){SY.url=SHEET_API_URL;SY.hashes={};saveSY()}
+  setMode('staff');drawNav();render();pullNow()}
 
 /* ---------- product art (used when a product has no photo) ---------- */
 function drugArt(p){
@@ -1050,7 +1076,16 @@ let C,shopCat='all',sampleFn=null;
 /* Reading handwriting needs Claude, which is only reachable inside the Claude artifact viewer */
 (async()=>{try{if(window.claude&&window.claude.use){const fn=await window.claude.use('sample');if(fn){const lim=await fn.limits().catch(()=>null);if(lim&&lim.images)sampleFn=fn}}}catch(e){}})();
 function resetC(){C={cart:[],name:'',phone:'',note:'',photo:''}}
-function enterShop(){setMode('shop');renderShop()}
+let CAT=null;
+const sprods=()=>CAT?CAT.products:S.products;
+const sp=id=>sprods().find(p=>p.id===id);
+const sstock=id=>CAT?(CAT.stock[id]||0):sellable(id);
+function enterShop(){setMode('shop');CAT=null;renderShop();if(syncUrl())loadCatalog()}
+async function loadCatalog(){const g=$('#sgrid');if(g)g.innerHTML='<div class="empty">កំពុងទាញបញ្ជីឱសថ...</div>';
+  try{const r=await api(null,{action:'catalog'});CAT={products:r.products||[],stock:r.stock||{}};
+    if(r.settings&&r.settings.shop){$('#shopTitle').textContent=r.settings.shop}
+    C.cart=C.cart.filter(c=>sp(c.pid));drawShopGrid();drawShopCart()}
+  catch(e){CAT={products:[],stock:{}};if(g)g.innerHTML='<div class="empty">មិនអាចភ្ជាប់ទៅឱសថស្ថានបានទេ សូមពិនិត្យអ៊ីនធឺណិត<br><button class="btn sm" data-act="reloadCat" style="margin-top:8px">ព្យាយាមម្តងទៀត</button></div>'}}
 function renderShop(){
   $('#shopTitle').textContent=S.set.shop;
   $('#shopView').innerHTML=`<div class="pos">
@@ -1077,16 +1112,16 @@ function renderShop(){
   drawShopGrid();drawShopCart();
 }
 function drawShopGrid(){const g=$('#sgrid');if(!g)return;g.className='pgrid slist';const q=($('#shopq')?.value||'').trim().toLowerCase();
-  const list=S.products.filter(p=>(shopCat==='all'||p.cat===shopCat)&&(!q||[p.name,p.generic].join(' ').toLowerCase().includes(q)));
-  g.innerHTML=list.length?list.map(p=>{const s=sellable(p.id),c=C.cart.find(x=>x.pid===p.id);
+  const list=sprods().filter(p=>(shopCat==='all'||p.cat===shopCat)&&(!q||[p.name,p.generic].join(' ').toLowerCase().includes(q)));
+  g.innerHTML=list.length?list.map(p=>{const s=sstock(p.id),c=C.cart.find(x=>x.pid===p.id);
     return `<button class="srow ${c?'in':''}" data-sadd="${p.id}" ${s===0?'disabled':''}>
       <span class="srow-img">${pImgHTML(p)}</span>
       <span class="srow-txt"><b>${esc(p.name)}</b><small>${esc(p.generic&&p.generic!=='—'?p.generic+' · '+p.unit:p.unit)}</small></span>
       <span class="srow-tag">${p.rx?'<span class="chip bad sm" title="ត្រូវការវេជ្ជបញ្ជា">Rx</span>':''}${s===0?'<span class="chip sm bad">អស់ស្តុក</span>':''}${c?`<span class="incart mono">×${c.qty}</span>`:''}</span></button>`}).join(''):`<div class="empty">រកមិនឃើញឱសថ</div>`}
 function drawShopCart(){
-  const n=C.cart.reduce((s,c)=>s+c.qty,0),hasRx=C.cart.some(c=>prod(c.pid)?.rx);
+  const n=C.cart.reduce((s,c)=>s+c.qty,0),hasRx=C.cart.some(c=>sp(c.pid)?.rx);
   $('#scount').textContent=`${C.cart.length} មុខ`;
-  $('#slines').innerHTML=C.cart.length?C.cart.map(c=>{const p=prod(c.pid);return `<div class="line">
+  $('#slines').innerHTML=C.cart.length?C.cart.map(c=>{const p=sp(c.pid);return `<div class="line">
     <div class="l-name"><b>${esc(p.name)}</b><small>${esc(p.unit)}${p.rx?' · <span class="rxt">Rx</span>':''}</small></div>
     <div class="stepper"><button data-sdec="${p.id}" aria-label="បន្ថយ">−</button><input class="mono" value="${c.qty}" readonly aria-label="ចំនួន"><button data-sinc="${p.id}" aria-label="បន្ថែម">+</button></div>
     <span></span><button class="x" data-sdel="${p.id}" aria-label="លុប">×</button></div>`}).join('')
@@ -1096,13 +1131,68 @@ function drawShopCart(){
     ${hasRx?'<div class="rx-note">មានឱសថ Rx — សូមយកវេជ្ជបញ្ជាមកបង្ហាញពេលទទួលឱសថ</div>':''}`;
   const bar=$('#scartbar');if(bar){bar.hidden=!n&&!C.photo;$('#scartbarN').textContent=`កន្ត្រក · ${n} ឯកតា`}
 }
-function shopAdd(pid,delta,quiet){const p=prod(pid),s=sellable(pid),c=C.cart.find(x=>x.pid===pid);
+function shopAdd(pid,delta,quiet){const p=sp(pid),s=sstock(pid),c=C.cart.find(x=>x.pid===pid);
   let q=(c?c.qty:0)+delta;
   if(q>s){q=s;if(!quiet)toast(`${p.name} មានក្នុងស្តុកតែ ${s} ${p.unit}`,'bad')}
   if(q<=0)C.cart=C.cart.filter(x=>x.pid!==pid);else if(c)c.qty=q;else C.cart.push({pid,qty:q});
   if(!quiet){drawShopGrid();drawShopCart()}}
 
 /* handwriting / prescription photo -> order list */
+async function hwRead(blob){
+  const catalog=sprods().map(p=>`${p.id}\t${p.name}\t${p.generic}\t${p.unit}`).join('\n');
+  const prompt=`This photo is a customer's handwritten medicine list or a doctor's prescription for a pharmacy in Cambodia. Writing may be Khmer or English, and drug names may be misspelled or abbreviated.
+Read every medicine line. For each, choose the best match from the catalog below (columns: id, name, generic, selling unit), matching by brand or generic name and strength. qty = the amount written for that line as a whole number in the catalog's selling unit; if no amount is written use 1.
+Reply with only a JSON array, one object per line read, in the order written:
+[{"id": "<catalog id, or null if nothing matches>", "written": "<the line as written>", "qty": 1}]
+If the photo has no medicine list, reply [].
+
+Catalog:
+${catalog}`;
+  let items;
+  return sampleFn.json(prompt,{images:[blob],cache:false});
+}
+const HW_WHY={not_granted:'មិនបានអនុញ្ញាតឲ្យប្រើ Claude។',rate_limited:'ប្រើញឹកពេក សូមសាកម្តងទៀតបន្តិចក្រោយ។',invalid_json:'អានមិនចេញ។',refused:'អានមិនចេញ។',image_rejected:'រូបនេះមិនអាចប្រើបាន។'};
+async function submitOrder(d){
+  if(syncUrl()){const r=await api(null,{action:'order',order:d});return r.no}
+  S.orderCounter++;
+  const o={id:uid(),no:'ORD-'+String(S.orderCounter).padStart(4,'0'),ts:Date.now(),name:d.name,phone:d.phone,note:d.note||'',photo:d.photo||'',status:'new',
+    items:d.items.map(i=>{const p=prod(i.pid)||{};return{pid:i.pid,name:p.name||i.name,unit:p.unit||i.unit||'',qty:i.qty,price:p.price||0,rx:!!p.rx}})};
+  o.total=round2(o.items.reduce((s,i)=>s+i.qty*i.price,0));
+  S.orders.push(o);try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){o.photo='';saveLocal()}
+  return o.no;
+}
+/* gate: photograph a handwritten list and send it straight in as an order */
+async function quickOrder(file){
+  let photo,big;
+  try{photo=(await resizeImage(file,1000)).toDataURL('image/jpeg',.6);big=await resizeImage(file,1600)}catch(e){return toast('មិនអាចបើករូបនេះបាន','bad')}
+  let items=[],token={};quickOrder.token=token;
+  openModal(`<h3>បញ្ជាទិញតាមរូបថត</h3><img class="hw-prev" src="${photo}" alt="រូបបញ្ជី"><div id="qoList"></div>
+    <div class="form" style="margin-top:10px"><div class="row2"><label>ឈ្មោះ *<input id="qoName" class="inp" autocomplete="name"></label><label>លេខទូរស័ព្ទ *<input id="qoPhone" class="inp mono" type="tel" inputmode="tel" autocomplete="tel" placeholder="012 345 678"></label></div></div>
+    <div class="sheet-actions"><span class="grow"></span><button class="btn ghost" data-act="closeModal">បោះបង់</button><button class="btn gold" id="qoSend">ផ្ញើការបញ្ជាទិញ</button></div>`,'narrow');
+  const list=$('#qoList'),msg=m=>{list.innerHTML=`<p class="muted" style="margin:0">${m}</p>`};
+  $('#qoSend').onclick=async()=>{
+    const name=$('#qoName').value.trim(),phone=$('#qoPhone').value.trim();
+    if(!name){toast('សូមបញ្ចូលឈ្មោះ','bad');return $('#qoName').focus()}
+    if(phone.replace(/\D/g,'').length<8){toast('សូមបញ្ចូលលេខទូរស័ព្ទឲ្យបានត្រឹមត្រូវ','bad');return $('#qoPhone').focus()}
+    const picked=[],miss=[];
+    items.forEach((i,k)=>{if(!i.p){miss.push(i.written);return}const cb=$('#qo-c'+k);if(cb&&cb.checked)picked.push({pid:i.p.id,name:i.p.name,unit:i.p.unit,rx:!!i.p.rx,qty:Math.max(1,parseInt($('#qo-q'+k).value)||1)})});
+    const btn=$('#qoSend');btn.disabled=true;btn.textContent='កំពុងផ្ញើ...';
+    try{const no=await submitOrder({name,phone,note:miss.length?'ពីរូបបញ្ជី៖ '+miss.join(', '):'',photo,items:picked});
+      quickOrder.token=null;showOrderDone({no,name,phone,photo,items:picked},picked.reduce((s,i)=>s+i.qty,0))}
+    catch(e){btn.disabled=false;btn.textContent='ផ្ញើការបញ្ជាទិញ';toast('ផ្ញើមិនបានសម្រេច — សូមពិនិត្យអ៊ីនធឺណិត ហើយព្យាយាមម្តងទៀត','bad')}
+  };
+  if(!sampleFn)return msg('រូបបញ្ជីនេះនឹងផ្ញើទៅឱសថការី ដើម្បីរៀបចំឱសថ ហើយទូរស័ព្ទបញ្ជាក់ជូន។');
+  msg('កំពុងអានបញ្ជី... (អាចចំណាយពេល ១៥–៦០ វិនាទី) អ្នកអាចបំពេញឈ្មោះ និងលេខទូរស័ព្ទសិន។');
+  if(syncUrl()&&!CAT){try{const r=await api(null,{action:'catalog'});CAT={products:r.products||[],stock:r.stock||{}}}catch(e){}}
+  const blob=await new Promise(r=>big.toBlob(r,'image/jpeg',.85));
+  let raw;try{raw=await hwRead(blob)}catch(e){if(quickOrder.token===token)msg((HW_WHY[e&&e.code]||'អានមិនបានសម្រេច។')+' រូបនេះនៅតែផ្ញើទៅឱសថការីបាន។');return}
+  if(quickOrder.token!==token||$('#modal').hidden||!$('#qoList'))return;
+  items=(Array.isArray(raw)?raw:[]).map(i=>({p:sp(String(i&&i.id||'')),written:String(i&&i.written||'').slice(0,120),qty:Math.max(1,parseInt(i&&i.qty)||1)}));
+  if(!items.length)return msg('រកមិនឃើញបញ្ជីឱសថក្នុងរូបនេះទេ។ រូបនេះនៅតែផ្ញើទៅឱសថការីបាន។');
+  list.innerHTML=`<p class="muted" style="margin:0 0 8px">សូមពិនិត្យបញ្ជី និងចំនួន</p><ul class="hw-list">${items.map((i,k)=>i.p?
+    `<li><input type="checkbox" id="qo-c${k}" ${sstock(i.p.id)>0?'checked':'disabled'}><label for="qo-c${k}" style="color:var(--fg);font-size:.9rem">${esc(i.p.name)}<small>${sstock(i.p.id)>0?'សរសេរ៖ '+esc(i.written):'អស់ស្តុក'}</small></label><input type="number" id="qo-q${k}" class="inp mono" min="1" value="${i.qty}" aria-label="ចំនួន"></li>`
+    :`<li class="nomatch"><span>${esc(i.written)}<small>មិនមានក្នុងបញ្ជីឱសថ — ឱសថការីនឹងពិនិត្យ</small></span></li>`).join('')}</ul>`;
+}
 async function handleHandwriting(file){
   let photo,big;
   try{photo=(await resizeImage(file,1000)).toDataURL('image/jpeg',.6);big=await resizeImage(file,1600)}catch(e){return toast('មិនអាចបើករូបនេះបាន','bad')}
@@ -1113,25 +1203,15 @@ async function handleHandwriting(file){
   if(!sampleFn)return attachOnly('ឧបករណ៍នេះមិនអាចអានអក្សរដៃដោយស្វ័យប្រវត្តិបានទេ។ រូបនេះនឹងផ្ញើជាមួយការបញ្ជាទិញ ហើយឱសថការីនឹងរៀបចំឱសថតាមរូប។');
   body.innerHTML='<p class="muted" style="margin:0">កំពុងអានបញ្ជី... (អាចចំណាយពេល ១៥–៦០ វិនាទី)</p>';
   const blob=await new Promise(r=>big.toBlob(r,'image/jpeg',.85));
-  const catalog=S.products.map(p=>`${p.id}\t${p.name}\t${p.generic}\t${p.unit}`).join('\n');
-  const prompt=`This photo is a customer's handwritten medicine list or a doctor's prescription for a pharmacy in Cambodia. Writing may be Khmer or English, and drug names may be misspelled or abbreviated.
-Read every medicine line. For each, choose the best match from the catalog below (columns: id, name, generic, selling unit), matching by brand or generic name and strength. qty = the amount written for that line as a whole number in the catalog's selling unit; if no amount is written use 1.
-Reply with only a JSON array, one object per line read, in the order written:
-[{"id": "<catalog id, or null if nothing matches>", "written": "<the line as written>", "qty": 1}]
-If the photo has no medicine list, reply [].
-
-Catalog:
-${catalog}`;
-  let items;
-  try{items=await sampleFn.json(prompt,{images:[blob],cache:false})}
+  try{items=await hwRead(blob)}
   catch(e){if($('#modal').hidden)return;
     const why={not_granted:'មិនបានអនុញ្ញាតឲ្យប្រើ Claude។',rate_limited:'ប្រើញឹកពេក សូមសាកម្តងទៀតបន្តិចក្រោយ។',invalid_json:'អានមិនចេញ។',refused:'អានមិនចេញ។',image_rejected:'រូបនេះមិនអាចប្រើបាន។'}[e&&e.code]||'អានមិនបានសម្រេច។';
     return attachOnly(why+' អ្នកនៅតែអាចភ្ជាប់រូបនេះទៅការបញ្ជាទិញ ហើយឱសថការីនឹងអានវា។')}
   if($('#modal').hidden)return;
-  items=(Array.isArray(items)?items:[]).map(i=>({p:prod(String(i&&i.id||'')),written:String(i&&i.written||'').slice(0,120),qty:Math.max(1,parseInt(i&&i.qty)||1)}));
+  items=(Array.isArray(items)?items:[]).map(i=>({p:sp(String(i&&i.id||'')),written:String(i&&i.written||'').slice(0,120),qty:Math.max(1,parseInt(i&&i.qty)||1)}));
   if(!items.length)return attachOnly('រកមិនឃើញបញ្ជីឱសថក្នុងរូបនេះទេ។');
   body.innerHTML=`<p class="muted" style="margin:0 0 8px">សូមពិនិត្យបញ្ជីខាងក្រោម រួចចុច «ដាក់ចូលកន្ត្រក»</p><ul class="hw-list">${items.map((i,k)=>i.p?
-    `<li><input type="checkbox" id="hw-c${k}" ${sellable(i.p.id)>0?'checked':'disabled'}><label for="hw-c${k}" style="color:var(--fg);font-size:.9rem">${esc(i.p.name)}<small>${sellable(i.p.id)>0?'សរសេរ៖ '+esc(i.written):'អស់ស្តុក'}</small></label><input type="number" id="hw-q${k}" class="inp mono" min="1" value="${i.qty}" aria-label="ចំនួន"></li>`
+    `<li><input type="checkbox" id="hw-c${k}" ${sstock(i.p.id)>0?'checked':'disabled'}><label for="hw-c${k}" style="color:var(--fg);font-size:.9rem">${esc(i.p.name)}<small>${sstock(i.p.id)>0?'សរសេរ៖ '+esc(i.written):'អស់ស្តុក'}</small></label><input type="number" id="hw-q${k}" class="inp mono" min="1" value="${i.qty}" aria-label="ចំនួន"></li>`
     :`<li class="nomatch"><span>${esc(i.written)}<small>មិនមានក្នុងបញ្ជីឱសថ — ឱសថការីនឹងពិនិត្យ</small></span></li>`).join('')}</ul>
     <div class="sheet-actions"><span class="grow"></span><button class="btn ghost" data-act="closeModal">បោះបង់</button><button class="btn gold" id="hwAdd">ដាក់ចូលកន្ត្រក</button></div>`;
   $('#hwAdd').onclick=()=>{let added=0;const miss=[];
@@ -1143,14 +1223,26 @@ function placeOrder(){
   if(!C.cart.length&&!C.photo)return toast('សូមដាក់ឱសថចូលកន្ត្រក ឬថតបញ្ជីសរសេរដៃជាមុនសិន','bad');
   if(!C.name.trim()){toast('សូមបញ្ចូលឈ្មោះ','bad');return $('#sname').focus()}
   if(C.phone.replace(/\D/g,'').length<8){toast('សូមបញ្ចូលលេខទូរស័ព្ទឲ្យបានត្រឹមត្រូវ','bad');return $('#sphone').focus()}
-  for(const c of C.cart){const s=sellable(c.pid);if(c.qty>s)return toast(`${prod(c.pid).name} នៅសល់តែ ${s}`,'bad')}
+  for(const c of C.cart){const s=sstock(c.pid);if(c.qty>s)return toast(`${sp(c.pid).name} នៅសល់តែ ${s}`,'bad')}
+  if(syncUrl())return placeOrderRemote();
   S.orderCounter++;
   const o={id:uid(),no:'ORD-'+String(S.orderCounter).padStart(4,'0'),ts:Date.now(),name:C.name.trim(),phone:C.phone.trim(),note:C.note.trim(),photo:C.photo||'',
-    items:C.cart.map(c=>{const p=prod(c.pid);return{pid:p.id,name:p.name,unit:p.unit,qty:c.qty,price:p.price,rx:p.rx}}),status:'new'};
+    items:C.cart.map(c=>{const p=sp(c.pid);return{pid:p.id,name:p.name,unit:p.unit,qty:c.qty,price:p.price,rx:p.rx}}),status:'new'};
   o.total=round2(o.items.reduce((s,i)=>s+i.qty*i.price,0));
   const n=o.items.reduce((s,i)=>s+i.qty,0);
   try{S.orders.push(o);localStorage.setItem(KEY,JSON.stringify(S))}catch(e){if(o.photo){o.photo='';save()}}
   resetC();renderShop();
+  showOrderDone(o,n);
+}
+async function placeOrderRemote(){
+  const btn=$('#sticket .pay');if(btn){btn.disabled=true;btn.textContent='កំពុងផ្ញើ...'}
+  const items=C.cart.map(c=>{const p=sp(c.pid);return{pid:c.pid,name:p.name,unit:p.unit,qty:c.qty,rx:p.rx}});
+  try{const r=await api(null,{action:'order',order:{name:C.name.trim(),phone:C.phone.trim(),note:C.note.trim(),photo:C.photo||'',items}});
+    const o={no:r.no,name:C.name.trim(),phone:C.phone.trim(),photo:C.photo,items};
+    resetC();renderShop();loadCatalog();showOrderDone(o,items.reduce((s,i)=>s+i.qty,0))}
+  catch(e){if(btn){btn.disabled=false;btn.textContent='ផ្ញើការបញ្ជាទិញ'}toast('ផ្ញើមិនបានសម្រេច — សូមពិនិត្យអ៊ីនធឺណិត ហើយព្យាយាមម្តងទៀត','bad')}
+}
+function showOrderDone(o,n){
   openModal(`<div class="done-big"><img src="${LOGO}" alt=""><span class="muted">អរគុណ ${esc(o.name)}! យើងបានទទួលការបញ្ជាទិញ</span><b>${o.no}</b></div>
     ${o.items.length?`<ul class="oitems" style="padding:0">${o.items.map(i=>`<li><span>${esc(i.name)}</span><span class="mono">× ${i.qty}</span></li>`).join('')}</ul>
     <div class="totals" style="margin-top:8px"><div class="big"><span>សរុបចំនួន</span><span class="mono">${n} ឯកតា</span></div></div>`:''}
@@ -1181,6 +1273,7 @@ function orderToPOS(id){const o=S.orders.find(x=>x.id===id);resetP();const miss=
 Object.assign(ACTS,{
   enterShop,placeOrder,
   exitShop(){showGate()},
+  showPin(el){const box=$('#pinBox'),open=box.hidden;box.hidden=!open;el.classList.toggle('on',open);if(open)$('#pinInput').focus()},
   logout(){showGate()},
   shopClear(){C.cart=[];drawShopGrid();drawShopCart()},
   dropPhoto(){C.photo='';drawShopCart()},
@@ -1192,6 +1285,129 @@ Object.assign(ACTS,{
 window.addEventListener('storage',e=>{if(e.key!==KEY||!e.newValue)return;const before=S.orders.length;try{S=JSON.parse(e.newValue);migrate()}catch(err){return}
   if(mode==='staff'){drawNav();drawTop();if(view==='orders')render();if(S.orders.length>before){beep();toast('មានការបញ្ជាទិញថ្មី','ok')}}
   else if(mode==='shop'){drawShopGrid()}});
+
+/* ---------- Google Sheets sync ---------- */
+/* Paste the Apps Script Web App URL here to ship the file to customers already connected */
+const SHEET_API_URL='https://script.google.com/macros/s/AKfycbwmLQLV28sAI3qBPavtwjxX6_LSgpDVFllok5wAbS-BCNLMQPgEKAsqfwfhGjCeGtd5/exec';
+const SYNC_KEY='kep-pharmacy-sync';
+const TBL={
+  products:{cols:['id','code','barcode','name','generic','cat','form','unit','rx','cost','price','reorder','img'],num:['cost','price','reorder'],bool:['rx']},
+  batches:{cols:['id','pid','batch','exp','qty','cost','received','sup','ref'],num:['qty','cost']},
+  suppliers:{cols:['id','name','contact','phone','note']},
+  sales:{cols:['id','no','ts','total','sub','discPct','disc','cost','pay','paid','rate','cust','rx','staff','void','voidTs','lines'],num:['ts','total','sub','discPct','disc','cost','paid','rate','voidTs'],bool:['void'],json:['lines']},
+  moves:{cols:['id','ts','type','pid','bid','qty','note'],num:['ts','qty']},
+  orders:{cols:['id','no','ts','status','name','phone','note','total','saleNo','doneTs','photo','items'],num:['ts','total','doneTs'],json:['items']}
+};
+const SET_KEYS=['shop','shopEn','address','phone','staff','rate','warnDays'];
+let SY=(()=>{try{return Object.assign({url:'',hashes:{},last:0},JSON.parse(localStorage.getItem(SYNC_KEY)||'{}'))}catch(e){return{url:'',hashes:{},last:0}}})();
+SY.state='';SY.busy=false;
+function saveSY(){try{localStorage.setItem(SYNC_KEY,JSON.stringify({url:SY.url,hashes:SY.hashes,last:SY.last}))}catch(e){}}
+function syncUrl(){return (SY&&SY.url)||SHEET_API_URL}
+function sessPin(){try{return sessionStorage.getItem('kep-pin')||''}catch(e){return ''}}
+function setSessPin(p){try{sessionStorage.setItem('kep-pin',p)}catch(e){}}
+function fnv(str){let h=0x811c9dc5;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,0x01000193)}return (h>>>0).toString(36)}
+function norm(coll,r){const t=TBL[coll],o={};t.cols.forEach(c=>{let x=r[c];
+  if((t.json||[]).includes(c))x=x||[];else if((t.num||[]).includes(c))x=Number(x)||0;else if((t.bool||[]).includes(c))x=x===true||String(x).toUpperCase()==='TRUE';else x=x==null?'':String(x);o[c]=x});return o}
+const recHash=(coll,r)=>fnv(JSON.stringify(norm(coll,r)));
+function setPayload(){const o={};SET_KEYS.forEach(k=>o[k]=S.set[k]);o.counter=S.counter;o.orderCounter=S.orderCounter;return o}
+async function api(_,payload){
+  const url=SY.tmp||syncUrl();if(!url)throw{error:'no url'};
+  let res;
+  if(payload.action==='catalog')res=await fetch(url+(url.includes('?')?'&':'?')+'action=catalog');
+  else res=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+  const j=await res.json();if(!j.ok)throw j;return j}
+function paintSync(){
+  const st=SY.state,t=SY.last?new Date(SY.last).toTimeString().slice(0,5):'';
+  const m={ok:['ok','Sheets ✓ '+t],saving:['info','កំពុងរក្សាទុក...'],error:['bad','Sheets មិនភ្ជាប់'],pin:['bad','PIN មិនត្រូវនឹង Sheet'],'':['','Sheets']}[st]||['','Sheets'];
+  const c=$('#syncChip');if(c){c.className='chip '+m[0];c.textContent=m[1]}
+  const s2=$('#syncState');if(s2){s2.className='chip '+(SY.url?m[0]:'');s2.textContent=SY.url?m[1]:'មិនទាន់ភ្ជាប់'}
+  const inf=$('#syncInfo');if(inf)inf.textContent=SY.last?'ធ្វើសមកាលកម្មចុងក្រោយ៖ '+fmtDT(SY.last):''}
+function setSync(st){SY.state=st;paintSync()}
+let syncTimer;
+function scheduleSync(){if(!SY.url||mode!=='staff')return;clearTimeout(syncTimer);syncTimer=setTimeout(pushNow,1500)}
+async function pushNow(){
+  if(!SY.url||mode!=='staff'||!sessPin())return;
+  if(SY.busy){SY.again=true;return}
+  S.moves.forEach(m=>m.id||(m.id=uid()));
+  const data={},deleted={},newH={};let n=0;
+  Object.keys(TBL).forEach(coll=>{const ids=new Set();
+    (S[coll]||[]).forEach(r=>{if(!r.id)return;ids.add(r.id);const k=coll+':'+r.id,h=recHash(coll,r);if(SY.hashes[k]!==h){(data[coll]=data[coll]||[]).push(r);newH[k]=h;n++}});
+    Object.keys(SY.hashes).forEach(k=>{if(k.startsWith(coll+':')){const id=k.slice(coll.length+1);if(!ids.has(id)){(deleted[coll]=deleted[coll]||[]).push(id);n++}}})});
+  const st=setPayload(),sh=fnv(JSON.stringify(st));const sendSet=SY.hashes['set']!==sh||SY.pendingPin;
+  if(!n&&!sendSet){if(SY.state!=='ok')setSync('ok');return}
+  SY.busy=true;setSync('saving');
+  try{
+    const body={action:'push',pin:sessPin(),data,deleted};
+    if(sendSet)body.settings=Object.assign({},st,SY.pendingPin?{newPin:SY.pendingPin}:{});
+    const r=await api(null,body);
+    Object.assign(SY.hashes,newH);
+    Object.keys(deleted).forEach(c=>deleted[c].forEach(id=>delete SY.hashes[c+':'+id]));
+    if(sendSet)SY.hashes['set']=sh;
+    if(SY.pendingPin){setSessPin(SY.pendingPin);SY.pendingPin=''}
+    Object.entries(r.urls||{}).forEach(([coll,m])=>Object.entries(m).forEach(([id,f])=>{const rec=(S[coll]||[]).find(x=>x.id===id);if(rec){Object.assign(rec,f);SY.hashes[coll+':'+id]=recHash(coll,rec)}}));
+    SY.last=Date.now();saveLocal();saveSY();setSync('ok');
+  }catch(e){setSync(e&&e.error==='PIN'?'pin':'error')}
+  finally{SY.busy=false;if(SY.again){SY.again=false;scheduleSync()}}
+}
+function mergePull(r){
+  const H=SY.hashes,beforeNew=newOrders();
+  Object.keys(TBL).forEach(coll=>{
+    const server=(r.data&&r.data[coll])||[],local=S[coll]||[],lmap={};local.forEach(x=>lmap[x.id]=x);
+    const out=[],seen=new Set();
+    server.forEach(sr=>{if(!sr.id)return;seen.add(sr.id);const k=coll+':'+sr.id,l=lmap[sr.id];
+      if(l&&(H[k]===undefined||recHash(coll,l)!==H[k]))out.push(l);          /* local change not yet sent: keep it */
+      else{const rec=Object.assign(l||{},norm(coll,sr));out.push(rec);H[k]=recHash(coll,rec)}});
+    local.forEach(l=>{if(seen.has(l.id))return;const k=coll+':'+l.id;
+      if(H[k]!==undefined&&recHash(coll,l)===H[k])delete H[k];                 /* deleted on another device */
+      else out.push(l)});
+    if(coll==='sales'||coll==='moves'||coll==='orders')out.sort((a,b)=>(a.ts||0)-(b.ts||0));
+    S[coll]=out});
+  const ss=r.settings||{};
+  if(fnv(JSON.stringify(setPayload()))===H['set']||H['set']===undefined){
+    SET_KEYS.forEach(k=>{if(ss[k]!==undefined&&ss[k]!=='')S.set[k]=(k==='rate'||k==='warnDays')?Number(ss[k])||S.set[k]:String(ss[k])});}
+  S.counter=Math.max(S.counter||0,Number(ss.counter)||0);S.orderCounter=Math.max(S.orderCounter||0,Number(ss.orderCounter)||0);
+  if(H['set']!==undefined||Object.keys(ss).length)H['set']=fnv(JSON.stringify(setPayload()));
+  return newOrders()>beforeNew;
+}
+async function pullNow(){
+  if(!SY.url||mode!=='staff'||!sessPin()||SY.pulling)return;
+  SY.pulling=true;
+  try{await pushNow();const r=await api(null,{action:'pull',pin:sessPin()});const fresh=mergePull(r);SY.last=Date.now();saveLocal();saveSY();setSync('ok');refreshAfterPull(fresh)}
+  catch(e){setSync(e&&e.error==='PIN'?'pin':'error')}
+  finally{SY.pulling=false}
+}
+function refreshAfterPull(fresh){
+  if(mode!=='staff')return;drawNav();drawTop();
+  if(fresh){beep();toast('មានការបញ្ជាទិញថ្មី','ok')}
+  const typing=document.activeElement&&document.activeElement.matches&&document.activeElement.matches('input,textarea,select');
+  if(view==='pos'){drawGrid();return}
+  if($('#modal').hidden&&!typing)render();
+}
+async function syncConnect(){
+  const url=($('#syncUrlInp').value||'').trim();
+  if(!/^https:\/\/script\.google(usercontent)?\.com\//.test(url))return toast('URL ត្រូវតែជា Web App URL ពី script.google.com','bad');
+  setSync('saving');SY.tmp=url;
+  let r;try{r=await api(null,{action:'pull',pin:sessPin()})}
+  catch(e){SY.tmp='';setSync(e&&e.error==='PIN'?'pin':'error');
+    return toast(e&&e.error==='PIN'?'PIN មិនត្រូវនឹង PIN ក្នុង Apps Script':'មិនអាចភ្ជាប់បាន — សូមពិនិត្យ URL និងការ Deploy (Anyone)','bad')}
+  SY.tmp='';setSync(SY.url?'ok':'');
+  const count=(r.data.products||[]).length+(r.data.sales||[]).length;
+  if(count){
+    confirmBox('Sheet មានទិន្នន័យរួចហើយ',`Sheet មាន ${(r.data.products||[]).length} មុខឱសថ និង ${(r.data.sales||[]).length} វិក្កយបត្រ។ ទិន្នន័យក្នុងឧបករណ៍នេះនឹងត្រូវជំនួសដោយទិន្នន័យពី Sheet។`,'ប្រើទិន្នន័យពី Sheet',()=>{
+      SY.url=url;blankData();SY.hashes={};mergePull(r);SY.last=Date.now();saveLocal();saveSY();setSync('ok');render();toast('បានភ្ជាប់ Google Sheets','ok')});
+  }else{
+    confirmBox('Sheet នៅទទេ',`ផ្ញើទិន្នន័យទាំងអស់ក្នុងឧបករណ៍នេះ (${S.products.length} មុខ ${S.sales.length} វិក្កយបត្រ) ទៅ Sheet?`,'ផ្ញើទៅ Sheet',async()=>{
+      SY.url=url;SY.hashes={};saveSY();render();await pushNow();render();if(SY.state==='ok')toast('បានភ្ជាប់ និងផ្ញើទិន្នន័យទៅ Google Sheets','ok')});
+  }
+}
+setInterval(()=>{if(mode==='staff'&&document.visibilityState==='visible')pullNow()},45000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&mode==='staff')pullNow()});
+Object.assign(ACTS,{
+  syncNow(){pullNow()},
+  syncConnect(){syncConnect()},
+  reloadCat(){loadCatalog()},
+  syncDisconnect(){confirmBox('ផ្តាច់ពី Google Sheets?','ទិន្នន័យនៅក្នុងឧបករណ៍នេះនៅដដែល ប៉ុន្តែនឹងលែងរក្សាទុកទៅ Sheet។','ផ្តាច់',()=>{SY.url='';SY.hashes={};SY.last=0;saveSY();setSync('');render()})}
+});
 
 /* ---------- boot ---------- */
 load();resetP();resetR();resetC();
