@@ -317,6 +317,9 @@ textarea.inp{font:12px/1.4 var(--f-mono);min-height:160px;resize:vertical}
 .srow-tag{display:flex;gap:4px;align-items:center}
 .srow-tag .incart{position:static}
 @media (max-width:520px){#sgrid.slist{grid-template-columns:1fr}}
+.cam{border-radius:10px;overflow:hidden;background:#000;display:grid;place-items:center;min-height:200px}
+.cam video{width:100%;max-height:55vh;max-height:55dvh;display:block;object-fit:contain}
+button.hw-btn,button.btn-hw{font-family:var(--f-body)}
 .hw-prev{display:block;max-width:100%;max-height:38vh;margin:6px auto 10px;border-radius:8px;border:1px solid var(--line)}
 .hw-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
 .hw-list li{display:grid;grid-template-columns:auto minmax(0,1fr) 64px;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
@@ -414,8 +417,7 @@ textarea.inp{font:12px/1.4 var(--f-mono);min-height:160px;resize:vertical}
     <div class="gate-brand"><img data-logo alt="KEP Pharmacy logo"><h1 id="gateShop">ឱសថស្ថានកែប</h1><small>KEP PHARMACY</small></div>
     <div class="gate-shop">
       <button class="btn-yellow" data-act="enterShop">អតិថិជន-ចូលទិញឱសថ</button>
-      <label class="btn-hw" for="gateHw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg>ថតបញ្ជីសរសេរដៃ ផ្ញើបញ្ជាទិញ</label>
-      <input type="file" id="gateHw" accept="image/*" hidden>
+      <button type="button" class="btn-hw" data-act="gateCam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg>ថតបញ្ជីសរសេរដៃ ផ្ញើបញ្ជាទិញ</button>
       <button class="btn-green" id="gateStaffBtn" data-act="showPin">ឈឹន សុវណ្ណដាណែត</button>
     </div>
     <form class="gate-staff" id="pinBox" autocomplete="off" aria-label="ចូលសម្រាប់បុគ្គលិក" hidden>
@@ -599,7 +601,7 @@ function render(){drawTop();V().className='view';
 
 /* ---------- modal / toast / confirm ---------- */
 function openModal(html,cls=''){$('#sheet').className='sheet '+cls;$('#sheet').innerHTML=html;$('#modal').hidden=false;setTimeout(()=>{const f=$('#sheet').querySelector('input:not([type=checkbox]),select,button.gold');f&&f.focus()},30)}
-function closeModal(){stopScan();$('#modal').hidden=true;$('#sheet').innerHTML=''}
+function closeModal(){stopScan();stopCam();$('#modal').hidden=true;$('#sheet').innerHTML=''}
 
 /* ---------- barcode scanning ---------- */
 const LOGO=document.getElementById('logoImg').src;
@@ -1103,7 +1105,7 @@ function renderShop(){
       <label>កំណត់សម្គាល់<input id="snote" class="inp" value="${esc(C.note)}" placeholder="ឧ. ម៉ោងមកយក ឬសំណួរ"></label>
       <div class="totals" id="stotals"></div>
       <div class="hw-box"><span class="hw-title">បញ្ជីសរសេរដៃ / វេជ្ជបញ្ជា</span>
-        <div class="hw-row"><label class="hw-btn" for="hwFile">${CAM_ICON}<span>ថតរូប</span></label><label class="hw-btn" for="hwFile2">${FILE_ICON}<span>ជ្រើសរូបពីឯកសារ</span></label></div>
+        <div class="hw-row"><button type="button" class="hw-btn" data-act="hwCam">${CAM_ICON}<span>ថតរូប</span></button><label class="hw-btn" for="hwFile2">${FILE_ICON}<span>ជ្រើសរូបពីឯកសារ</span></label></div>
         <input type="file" id="hwFile" accept="image/*" capture="environment" hidden><input type="file" id="hwFile2" accept="image/*" hidden></div>
       <button class="btn gold pay" data-act="placeOrder">ផ្ញើការបញ្ជាទិញ</button>
     </div>
@@ -1181,11 +1183,11 @@ async function quickOrder(file){
       quickOrder.token=null;showOrderDone({no,name,phone,photo,items:picked},picked.reduce((s,i)=>s+i.qty,0))}
     catch(e){btn.disabled=false;btn.textContent='ផ្ញើការបញ្ជាទិញ';toast('ផ្ញើមិនបានសម្រេច — សូមពិនិត្យអ៊ីនធឺណិត ហើយព្យាយាមម្តងទៀត','bad')}
   };
-  if(!sampleFn)return msg('រូបបញ្ជីនេះនឹងផ្ញើទៅឱសថការី ដើម្បីរៀបចំឱសថ ហើយទូរស័ព្ទបញ្ជាក់ជូន។');
+  if(!sampleFn&&!syncUrl())return msg('រូបបញ្ជីនេះនឹងផ្ញើទៅឱសថការី ដើម្បីរៀបចំឱសថ ហើយទូរស័ព្ទបញ្ជាក់ជូន។');
   msg('កំពុងអានបញ្ជី... (អាចចំណាយពេល ១៥–៦០ វិនាទី) អ្នកអាចបំពេញឈ្មោះ និងលេខទូរស័ព្ទសិន។');
   if(syncUrl()&&!CAT){try{const r=await api(null,{action:'catalog'});CAT={products:r.products||[],stock:r.stock||{}}}catch(e){}}
   const blob=await new Promise(r=>big.toBlob(r,'image/jpeg',.85));
-  let raw;try{raw=await hwRead(blob)}catch(e){if(quickOrder.token===token)msg((HW_WHY[e&&e.code]||'អានមិនបានសម្រេច។')+' រូបនេះនៅតែផ្ញើទៅឱសថការីបាន។');return}
+  let raw;try{raw=await readList(blob,big)}catch(e){if(quickOrder.token===token)msg((HW_WHY[e&&e.code]||'អានមិនបានសម្រេច។')+' រូបនេះនៅតែផ្ញើទៅឱសថការីបាន។');return}
   if(quickOrder.token!==token||$('#modal').hidden||!$('#qoList'))return;
   items=(Array.isArray(raw)?raw:[]).map(i=>({p:sp(String(i&&i.id||'')),written:String(i&&i.written||'').slice(0,120),qty:Math.max(1,parseInt(i&&i.qty)||1)}));
   if(!items.length)return msg('រកមិនឃើញបញ្ជីឱសថក្នុងរូបនេះទេ។ រូបនេះនៅតែផ្ញើទៅឱសថការីបាន។');
@@ -1200,10 +1202,11 @@ async function handleHandwriting(file){
   const body=$('#hwBody'),attachOnly=msg=>{body.innerHTML=`<p class="muted" style="margin:0">${msg}</p>
     <div class="sheet-actions"><span class="grow"></span><button class="btn ghost" data-act="closeModal">បោះបង់</button><button class="btn gold" id="hwAttach">ភ្ជាប់រូបទៅការបញ្ជាទិញ</button></div>`;
     $('#hwAttach').onclick=()=>{C.photo=photo;closeModal();drawShopCart();toast('បានភ្ជាប់រូបបញ្ជី','ok')}};
-  if(!sampleFn)return attachOnly('ឧបករណ៍នេះមិនអាចអានអក្សរដៃដោយស្វ័យប្រវត្តិបានទេ។ រូបនេះនឹងផ្ញើជាមួយការបញ្ជាទិញ ហើយឱសថការីនឹងរៀបចំឱសថតាមរូប។');
+  if(!sampleFn&&!syncUrl())return attachOnly('ឧបករណ៍នេះមិនអាចអានអក្សរដៃដោយស្វ័យប្រវត្តិបានទេ។ រូបនេះនឹងផ្ញើជាមួយការបញ្ជាទិញ ហើយឱសថការីនឹងរៀបចំឱសថតាមរូប។');
   body.innerHTML='<p class="muted" style="margin:0">កំពុងអានបញ្ជី... (អាចចំណាយពេល ១៥–៦០ វិនាទី)</p>';
   const blob=await new Promise(r=>big.toBlob(r,'image/jpeg',.85));
-  try{items=await hwRead(blob)}
+  if(syncUrl()&&!sampleFn&&!CAT){try{const r=await api(null,{action:'catalog'});CAT={products:r.products||[],stock:r.stock||{}}}catch(e){}}
+  try{items=await readList(blob,big)}
   catch(e){if($('#modal').hidden)return;
     const why={not_granted:'មិនបានអនុញ្ញាតឲ្យប្រើ Claude។',rate_limited:'ប្រើញឹកពេក សូមសាកម្តងទៀតបន្តិចក្រោយ។',invalid_json:'អានមិនចេញ។',refused:'អានមិនចេញ។',image_rejected:'រូបនេះមិនអាចប្រើបាន។'}[e&&e.code]||'អានមិនបានសម្រេច។';
     return attachOnly(why+' អ្នកនៅតែអាចភ្ជាប់រូបនេះទៅការបញ្ជាទិញ ហើយឱសថការីនឹងអានវា។')}
@@ -1273,6 +1276,8 @@ function orderToPOS(id){const o=S.orders.find(x=>x.id===id);resetP();const miss=
 Object.assign(ACTS,{
   enterShop,placeOrder,
   exitShop(){showGate()},
+  gateCam(){openCamera(quickOrder)},
+  hwCam(){openCamera(handleHandwriting)},
   showPin(el){const box=$('#pinBox'),open=box.hidden;box.hidden=!open;el.classList.toggle('on',open);if(open)$('#pinInput').focus()},
   logout(){showGate()},
   shopClear(){C.cart=[];drawShopGrid();drawShopCart()},
@@ -1285,6 +1290,63 @@ Object.assign(ACTS,{
 window.addEventListener('storage',e=>{if(e.key!==KEY||!e.newValue)return;const before=S.orders.length;try{S=JSON.parse(e.newValue);migrate()}catch(err){return}
   if(mode==='staff'){drawNav();drawTop();if(view==='orders')render();if(S.orders.length>before){beep();toast('មានការបញ្ជាទិញថ្មី','ok')}}
   else if(mode==='shop'){drawShopGrid()}});
+
+/* ---------- camera + reading a photographed list ---------- */
+let camStream=null;
+function stopCam(){if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null}}
+async function openCamera(cb){
+  openModal(`<h3>ថតបញ្ជីបញ្ជាទិញ / វេជ្ជបញ្ជា</h3><div class="cam"><video id="camV" playsinline autoplay muted></video></div>
+    <p class="scan-status" id="camMsg">កំពុងបើកកាមេរ៉ា... តម្រង់ក្រដាសឲ្យពេញស៊ុម ហើយចុច «ថត»</p>
+    <div class="sheet-actions"><span class="btn filebtn">${FILE_ICON.replace('<svg','<svg style="width:16px;height:16px;vertical-align:-3px;margin-right:4px"')}ជ្រើសរូបពីឯកសារ<input type="file" id="camFile" accept="image/*"></span><span class="grow"></span>
+    <button class="btn ghost" data-act="closeModal">បោះបង់</button><button class="btn gold" id="camShot" disabled>ថត</button></div>`,'narrow');
+  $('#camFile').onchange=e=>{const f=e.target.files[0];if(f){closeModal();cb(f)}};
+  try{
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw 0;
+    const st=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1440}},audio:false});
+    const v=$('#camV');if(!v){st.getTracks().forEach(t=>t.stop());return}
+    camStream=st;v.srcObject=st;await v.play().catch(()=>{});
+    $('#camMsg').textContent='តម្រង់ក្រដាសឲ្យពេញស៊ុម ហើយចុច «ថត»';
+    const shot=$('#camShot');shot.disabled=false;
+    shot.onclick=()=>{const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);stopCam();
+      c.toBlob(b=>{closeModal();cb(new File([b],'photo.jpg',{type:'image/jpeg'}))},'image/jpeg',.9)};
+  }catch(e){
+    const m=$('#camMsg');if(!m)return;
+    m.textContent='មិនអាចបើកកាមេរ៉ាបានទេ។ សូមចុច «ជ្រើសរូបពីឯកសារ» (នៅលើទូរស័ព្ទ អាចជ្រើស «Camera» ដើម្បីថតបាន)។';m.className='scan-status bad';
+    const v=$('#camV');if(v)v.closest('.cam').hidden=true;$('#camShot')?.remove();
+  }
+}
+/* read the photo: Claude (inside the Claude viewer) or Google OCR through the Sheet's Apps Script */
+async function readList(blob,bigCanvas){
+  if(sampleFn)return hwRead(blob);
+  const r=await api(null,{action:'ocr',photo:bigCanvas.toDataURL('image/jpeg',.85)});
+  return matchText(r.text||'');
+}
+function lev(a,b){const m=a.length,n=b.length;if(!m||!n)return m||n;let p=Array.from({length:n+1},(_,j)=>j);
+  for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c}return p[n]}
+function qtyOf(line){
+  let l=line.toLowerCase().replace(/\d+(\.\d+)?\s*(mg|ml|mcg|g|%|iu)\b/g,' ');
+  let m=l.match(/(?:x|×|\*|#|qty|sl|ចំនួន|=)\s*(\d{1,3})(?!\d)/)||l.match(/(\d{1,3})\s*(?:tabs?|caps?|viên|v\b|btls?|bottles?|box(?:es)?|pcs|គ្រាប់|ដប|បន្ទះ|កញ្ចប់|ប្រអប់)/);
+  if(!m){const nums=l.match(/(?<![\d.])\d{1,3}(?![\d.])/g);if(nums)m=[0,nums[nums.length-1]]}
+  const q=m?parseInt(m[1]):1;return q>0&&q<=500?q:1}
+function matchText(text){
+  const kd=s=>s.replace(/[០-៩]/g,d=>'០១២៣៤៥៦៧៨៩'.indexOf(d));
+  const toks=s=>s.toLowerCase().split(/[^a-z0-9ក-៿.]+/).filter(Boolean);
+  const lines=kd(text).split(/\r?\n/).map(l=>l.replace(/\s+/g,' ').trim()).filter(l=>/[a-zក-៿]{3,}/i.test(l)).slice(0,60);
+  const prods=sprods(),res=[];
+  lines.forEach(line=>{
+    const lt=toks(line),flat=line.toLowerCase().replace(/\s/g,'');let best=null,bs=0;
+    prods.forEach(p=>{let sc=0;
+      [...new Set(toks(p.name+' '+(p.generic||'')).filter(w=>w.length>=4&&!/^\d/.test(w)))].forEach(w=>{
+        if(lt.includes(w)||flat.includes(w))sc+=w.length;
+        else{const tol=w.length>=8?2:w.length>=5?1:0;if(tol&&lt.some(t=>Math.abs(t.length-w.length)<=tol&&lev(t,w)<=tol))sc+=w.length*.7}});
+      if(sc)(p.name.toLowerCase().replace(/\s/g,'').match(/\d+(\.\d+)?(mg|ml|mcg|g|%)/g)||[]).forEach(x=>{if(flat.includes(x))sc+=4});
+      if(sc>bs){bs=sc;best=p}});
+    const qty=qtyOf(line);
+    if(best&&bs>=4){const ex=res.find(r=>r.id===best.id);if(ex)ex.qty+=qty;else res.push({id:best.id,written:line,qty})}
+    else if(/[a-z]{4,}/i.test(line)&&res.filter(r=>!r.id).length<8)res.push({id:null,written:line,qty:1});
+  });
+  return res;
+}
 
 /* ---------- Google Sheets sync ---------- */
 /* Paste the Apps Script Web App URL here to ship the file to customers already connected */
