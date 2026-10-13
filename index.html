@@ -378,6 +378,14 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
 .s58 li{padding:.4mm 0;word-break:break-word}
 .s58-c{text-align:center}
 
+.catlist{display:flex;flex-wrap:wrap;gap:6px}
+.catchip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:3px 4px 3px 12px;font-size:.88rem}
+.catchip small{color:var(--muted);font-size:.7rem}
+.catchip button{border:0;background:transparent;cursor:pointer;width:24px;height:24px;border-radius:50%;color:var(--muted);font-size:.95rem;line-height:1}
+.catchip button:hover:not(:disabled){background:var(--panel);color:var(--fg)}
+.catchip button[data-act=catDel]:hover{color:var(--bad)}
+.catchip button:disabled{opacity:.3;cursor:default}
+
 /* staff orders */
 .olist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));gap:12px;align-items:start}
 .ocard header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:12px 14px;border-bottom:1px dashed var(--line)}
@@ -509,7 +517,9 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
 <script>
 /* ---------- constants & helpers ---------- */
 const KEY='kep-pharmacy-v2';
-const CATS=['ថ្នាំគ្រាប់','ថ្នាំទឹក','ថ្នាំចាក់','ប្រើក្រៅ','វីតាមីន','សម្ភារៈពេទ្យ'];
+const DEFAULT_CATS=['ថ្នាំគ្រាប់','ថ្នាំទឹក','សារ៉ូម','ថ្នាំចាក់','ប្រើក្រៅ','វីតាមីន','សម្ភារៈពេទ្យ'];
+let CATS=[...DEFAULT_CATS];  /* the pharmacy's own list lives in S.set.cats (ការកំណត់ › ប្រភេទឱសថ) */
+function applyCats(){if(!Array.isArray(S.set.cats)||!S.set.cats.length)S.set.cats=[...DEFAULT_CATS];CATS=S.set.cats}
 const PAYS={cash:'សាច់ប្រាក់ (Cash)',aba:'ABA / KHQR',wing:'Wing',card:'កាត (Card)'};
 const ADJ=['រាប់ស្តុកឡើងវិញ (Count)','ខូចខាត (Damaged)','បោះចោល ផុតកំណត់ (Disposal)','ត្រឡប់ទៅអ្នកផ្គត់ផ្គង់ (Return)'];
 const VIEWS={pos:['ផ្ទាំងលក់','POS'],orders:['ការបញ្ជាទិញ','Orders'],sales:['ប្រវត្តិលក់','Sales'],products:['បញ្ជីឱសថ','Products'],stock:['ស្តុក','Stock'],suppliers:['អ្នកផ្គត់ផ្គង់','Suppliers'],reports:['របាយការណ៍','Reports'],settings:['ការកំណត់','Settings']};
@@ -536,7 +546,7 @@ let S,view='pos',P,R,stockTab='summary',batchFilter='all',salesRange='today',cat
 /* ---------- storage ---------- */
 function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function save(){saveLocal();if(typeof scheduleSync==='function')scheduleSync()}
-function migrate(){S.orders=S.orders||[];S.orderCounter=S.orderCounter||0;S.set.pin=String(S.set.pin||'2210');if(!S.set.phone||/x/i.test(S.set.phone))S.set.phone='012369726-078375166'}
+function migrate(){applyCats();S.orders=S.orders||[];S.orderCounter=S.orderCounter||0;S.set.pin=String(S.set.pin||'2210');if(!S.set.phone||/x/i.test(S.set.phone))S.set.phone='012369726-078375166'}
 function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);if(d&&d.products){S=d;migrate();return}}}catch(e){}S=seed();if(syncUrl())blankData();migrate();saveLocal()}
 function blankData(){Object.assign(S,{products:[],batches:[],suppliers:[],sales:[],moves:[],orders:[],counter:0,orderCounter:0})}
 
@@ -584,7 +594,7 @@ function voidSale(id){
 function seed(){
   const keepPin=S&&S.set&&S.set.pin;
   S={v:2,counter:0,products:[],batches:[],suppliers:[],sales:[],moves:[],orders:[],orderCounter:0,
-     set:{shop:'ឱសថស្ថានកែប',shopEn:'KEP Pharmacy',address:'ខេត្តកែប',phone:'012369726-078375166',staff:'ឈឹន សុវណ្ណដាណែត',rate:4100,warnDays:90,pin:keepPin||'2210'}};
+     set:{shop:'ឱសថស្ថានកែប',shopEn:'KEP Pharmacy',address:'ខេត្តកែប',phone:'012369726-078375166',staff:'ឈឹន សុវណ្ណដាណែត',rate:4100,warnDays:90,pin:keepPin||'2210',cats:(S&&S.set&&Array.isArray(S.set.cats)&&S.set.cats.length)?[...S.set.cats]:[...DEFAULT_CATS]}};
   const sups=[['Mekong Pharma Supply','លោក វណ្ណា','012 000 111'],['Phnom Penh Medical Distribution','កញ្ញា ស្រីពៅ','010 000 222'],['Kampot Medical Store','លោក សុផល','097 000 333']];
   sups.forEach(([name,contact,phone])=>S.suppliers.push({id:uid(),name,contact,phone,note:'ទិន្នន័យគំរូ'}));
   const P_=[ // code,name,generic,cat,form,unit,rx,cost,price,reorder
@@ -981,6 +991,11 @@ function renderSettings(){const s=S.set;
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="exportData">នាំចេញ Backup</button><label class="btn" style="flex-direction:row;color:var(--fg);font-size:inherit">នាំចូល Backup<input type="file" id="importFile" accept=".json,application/json" hidden></label></div>
     <div class="divider">តំបន់គ្រោះថ្នាក់</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn danger ghost" data-act="loadDemo">ផ្ទុកទិន្នន័យគំរូឡើងវិញ</button><button class="btn danger ghost" data-act="wipe">លុបទិន្នន័យទាំងអស់</button></div></div>
+  <div class="panel pad stack"><div class="card-h" style="padding:0"><h3>ប្រភេទឱសថ</h3><small>${CATS.length} ប្រភេទ</small></div>
+    <p class="muted" style="margin:0">ប្រភេទទាំងនេះបង្ហាញក្នុងទម្រង់ឱសថ ផ្ទាំងលក់ និងហាងអតិថិជន។</p>
+    <div class="catlist">${CATS.map((c,i)=>{const n=S.products.filter(p=>p.cat===c).length;return `<span class="catchip"><span>${esc(c)}</span><small class="mono">${n}</small>
+      <button type="button" data-act="catUp" data-i="${i}" ${i?'':'disabled'} aria-label="ផ្លាស់ទីឡើង">↑</button><button type="button" data-act="catDel" data-i="${i}" aria-label="លុប ${esc(c)}">×</button></span>`}).join('')}</div>
+    <form id="catForm" class="pin-row"><input id="catNew" class="inp" placeholder="ប្រភេទថ្មី ឧ. សារ៉ូម" maxlength="40" style="text-align:left;letter-spacing:0"><button class="btn gold">+ បន្ថែម</button></form></div>
   <div class="panel pad stack"><div class="card-h" style="padding:0"><h3>Google Sheets</h3><span class="chip" id="syncState"></span></div>
     <p class="muted" style="margin:0">រក្សាទុកទិន្នន័យក្នុង Sheet «POSPharmacy» ដោយស្វ័យប្រវត្តិ ហើយប្រើបានលើឧបករណ៍ច្រើន។ ការបញ្ជាទិញរបស់អតិថិជនក៏ចូល Sheet ដែរ។</p>
     ${canPrint?'':'<p class="rx-note" style="margin:0">Artifact នេះមិនអនុញ្ញាតឲ្យភ្ជាប់ទៅ Google ទេ។ សូមប្រើឯកសារ KEP-Pharmacy.html ដែលបើកក្នុង Chrome។</p>'}
@@ -988,6 +1003,8 @@ function renderSettings(){const s=S.set;
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn gold" data-act="syncConnect">${SY.url?'តភ្ជាប់ឡើងវិញ':'តភ្ជាប់'}</button>${SY.url?'<button class="btn" data-act="syncNow">ធ្វើសមកាលកម្មឥឡូវ</button><button class="btn danger ghost" data-act="syncDisconnect">ផ្តាច់</button>':''}</div>
     <p class="muted mono" style="margin:0;font-size:.78rem" id="syncInfo"></p></div></div>`;
   paintSync();
+  $('#catForm').onsubmit=e=>{e.preventDefault();const v=$('#catNew').value.trim().replace(/\s+/g,' ');if(!v)return toast('សូមវាយឈ្មោះប្រភេទ','bad');
+    if(CATS.some(c=>c.toLowerCase()===v.toLowerCase()))return toast('ប្រភេទនេះមានរួចហើយ','bad');S.set.cats.push(v);applyCats();save();render();toast(`បានបន្ថែម «${v}»`,'ok')};
   $('#setform').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);const rate=parseInt(f.get('rate')),w=parseInt(f.get('warnDays'));
     if(!(rate>0)||!(w>0))return toast('អត្រាប្តូរប្រាក់ និងចំនួនថ្ងៃត្រូវតែធំជាង 0','bad');
     const pin=String(f.get('pin')).trim();if(!/^\d{4,6}$/.test(pin))return toast('PIN ត្រូវតែជាលេខ 4 ដល់ 6 ខ្ទង់','bad');
@@ -1141,6 +1158,7 @@ function enterShop(){setMode('shop');CAT=null;renderShop();if(syncUrl())loadCata
 async function loadCatalog(){const g=$('#sgrid');if(g)g.innerHTML='<div class="empty">កំពុងទាញបញ្ជីឱសថ...</div>';
   try{const r=await api(null,{action:'catalog'});CAT={products:r.products||[],stock:r.stock||{}};
     if(r.settings&&r.settings.shop){$('#shopTitle').textContent=r.settings.shop}
+    try{const a=JSON.parse(r.settings&&r.settings.cats||'[]');if(Array.isArray(a)&&a.length&&a.join('|')!==CATS.join('|')){CATS=a.map(String);if(!CATS.includes(shopCat))shopCat='all';renderShop()}}catch(e){}
     C.cart=C.cart.filter(c=>sp(c.pid));drawShopGrid();drawShopCart()}
   catch(e){CAT={products:[],stock:{}};if(g)g.innerHTML='<div class="empty">មិនអាចភ្ជាប់ទៅឱសថស្ថានបានទេ សូមពិនិត្យអ៊ីនធឺណិត<br><button class="btn sm" data-act="reloadCat" style="margin-top:8px">ព្យាយាមម្តងទៀត</button></div>'}}
 function renderShop(){
@@ -1478,7 +1496,7 @@ const TBL={
   moves:{cols:['id','ts','type','pid','bid','qty','note'],num:['ts','qty']},
   orders:{cols:['id','no','ts','status','name','phone','note','total','saleNo','doneTs','photo','items'],num:['ts','total','doneTs'],json:['items']}
 };
-const SET_KEYS=['shop','shopEn','address','phone','staff','rate','warnDays'];
+const SET_KEYS=['shop','shopEn','address','phone','staff','rate','warnDays','cats'];
 let SY=(()=>{try{return Object.assign({url:'',hashes:{},last:0},JSON.parse(localStorage.getItem(SYNC_KEY)||'{}'))}catch(e){return{url:'',hashes:{},last:0}}})();
 SY.state='';SY.busy=false;
 function saveSY(){try{localStorage.setItem(SYNC_KEY,JSON.stringify({url:SY.url,hashes:SY.hashes,last:SY.last}))}catch(e){}}
@@ -1492,7 +1510,7 @@ function fnv(str){let h=0x811c9dc5;for(let i=0;i<str.length;i++){h^=str.charCode
 function norm(coll,r){const t=TBL[coll],o={};t.cols.forEach(c=>{let x=r[c];
   if((t.json||[]).includes(c))x=x||[];else if((t.num||[]).includes(c))x=Number(x)||0;else if((t.bool||[]).includes(c))x=x===true||String(x).toUpperCase()==='TRUE';else x=x==null?'':String(x);o[c]=x});return o}
 const recHash=(coll,r)=>fnv(JSON.stringify(norm(coll,r)));
-function setPayload(){const o={};SET_KEYS.forEach(k=>o[k]=S.set[k]);o.counter=S.counter;o.orderCounter=S.orderCounter;return o}
+function setPayload(){const o={};SET_KEYS.forEach(k=>o[k]=k==='cats'?JSON.stringify(S.set.cats||[]):S.set[k]);o.counter=S.counter;o.orderCounter=S.orderCounter;return o}
 async function api(_,payload){
   const url=SY.tmp||syncUrl();if(!url)throw{error:'no url'};
   let res;
@@ -1547,7 +1565,7 @@ function mergePull(r){
     S[coll]=out});
   const ss=SY.url?(r.settings||{}):{};
   if(fnv(JSON.stringify(setPayload()))===H['set']||H['set']===undefined){
-    SET_KEYS.forEach(k=>{if(ss[k]!==undefined&&ss[k]!=='')S.set[k]=(k==='rate'||k==='warnDays')?Number(ss[k])||S.set[k]:String(ss[k])});}
+    SET_KEYS.forEach(k=>{if(ss[k]===undefined||ss[k]==='')return;if(k==='cats'){try{const a=JSON.parse(ss[k]);if(Array.isArray(a)&&a.length)S.set.cats=a.map(String)}catch(e){}}else S.set[k]=(k==='rate'||k==='warnDays')?Number(ss[k])||S.set[k]:String(ss[k])});applyCats();}
   if(SY.url){S.counter=Math.max(S.counter||0,Number(ss.counter)||0);S.orderCounter=Math.max(S.orderCounter||0,Number(ss.orderCounter)||0);
   if(H['set']!==undefined||Object.keys(ss).length)H['set']=fnv(JSON.stringify(setPayload()))}
   return newOrders()>beforeNew;
@@ -1587,6 +1605,11 @@ setInterval(()=>{if(mode==='staff'&&document.visibilityState==='visible')pullNow
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&mode==='staff')pullNow()});
 Object.assign(ACTS,{
   syncNow(){pullNow()},
+  catUp(el){const i=+el.dataset.i;if(i<1)return;const a=S.set.cats;[a[i-1],a[i]]=[a[i],a[i-1]];applyCats();save();render()},
+  catDel(el){const i=+el.dataset.i,c=S.set.cats[i],n=S.products.filter(p=>p.cat===c).length;
+    if(n)return toast(`មិនអាចលុប «${c}» បានទេ ព្រោះមានឱសថ ${n} មុខ — សូមប្តូរប្រភេទឱសថទាំងនោះសិន`,'bad');
+    if(S.set.cats.length<=1)return toast('ត្រូវមានយ៉ាងហោចណាស់ ១ ប្រភេទ','bad');
+    confirmBox(`លុបប្រភេទ «${esc(c)}»?`,'ប្រភេទនេះនឹងលែងបង្ហាញក្នុងបញ្ជីជ្រើសរើស។','លុប',()=>{S.set.cats.splice(i,1);applyCats();if(catF===c)catF='all';save();render();toast('បានលុប','ok')})},
   async ordersRefresh(el){el.disabled=true;el.textContent='កំពុងទាញ...';await pullNow();if(view==='orders')render();
     toast(SY.state==='ok'?`មានការបញ្ជាទិញថ្មី ${newOrders()}`:SY.state==='pin'?'PIN មិនត្រូវនឹង PIN ក្នុង Apps Script':'មិនអាចភ្ជាប់ Sheet — សូមពិនិត្យអ៊ីនធឺណិត និងការ Deploy',SY.state==='ok'?'ok':'bad')},
   syncConnect(){syncConnect()},
