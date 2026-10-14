@@ -571,6 +571,13 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
 .gp-head span{min-width:0;flex:1}.shop-brand>div{min-width:0}.brand>div{min-width:0;max-width:100%}
 @media(max-width:420px){.ghero,.gtile{gap:10px}.ghero{padding:14px 12px}.gtile{padding:10px 10px 10px 10px}.gh-ic{width:44px;height:44px}.gtile .gt-ic{width:40px;height:40px}}
 
+.gtile.t-scan .gt-ic{background:color-mix(in srgb,#1f6fd1 14%,transparent);color:#1f4fb0}
+.scan-hit{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.scan-hit>div{display:flex;flex-direction:column;gap:2px;min-width:0}.scan-hit b{font-size:1.05rem}.scan-hit small{color:var(--muted)}
+.srow-img.big{width:84px;height:84px;flex:none;border-radius:12px;overflow:hidden;display:grid;place-items:center;background:var(--panel2)}
+.srow-img.big img,.srow-img.big svg{width:100%;height:100%;object-fit:contain}
+.scan-acts{display:grid;gap:8px}.scan-acts .btn{justify-content:center;padding:12px}
+
 /* staff orders */
 .olist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));gap:12px;align-items:start}
 .ocard header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:12px 14px;border-bottom:1px dashed var(--line)}
@@ -699,6 +706,7 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
     <div class="gpanel" id="gHome">
       <button type="button" class="ghero yellow" data-act="gateGo" data-to="gCust"><span class="gh-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><path d="M12 11v5M9.5 13.5h5"/></svg></span><span class="gt-tx"><b>អតិថិជន-ចូលទិញឱសថ</b><small>មើលឱសថ · ផ្ញើបញ្ជីបញ្ជាទិញ</small></span><span class="gt-ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></button>
       <button type="button" class="ghero green" data-act="gateGo" data-to="gStaff"><span class="gh-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="7" r="3.5"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/><path d="M12 14.5v4M10 16.5h4"/></svg></span><span class="gt-tx"><b id="gateStaffName">ឱសថការី-ឈឹន សុវណ្ណដាណែត</b><small>គ្រប់គ្រង សញ្ញាបត្រ អាជ្ញាប័ណ្ណ គណៈឱសថការី</small></span><span class="gt-ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></button>
+      <button type="button" class="gtile t-scan" data-act="gateScan"><span class="gt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8v8M10 8v8M13 8v8M16 8v8"/></svg></span><span class="gt-tx"><b>ស្កេន Barcode</b><small>ដាក់ចូលកន្ត្រក ឬបញ្ចូលទំនិញ</small></span><span class="gt-ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></button>
     </div>
     <div class="gpanel" id="gCust" hidden>
       <div class="gp-head"><button type="button" class="gback" data-act="gateGo" data-to="gHome" aria-label="ត្រឡប់"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><span><b>អតិថិជន</b><small>ជ្រើសរបៀបបញ្ជាទិញ</small></span></div>
@@ -1403,6 +1411,28 @@ function showGate(){closeModal();try{sessionStorage.removeItem(AUTH)}catch(e){}
   $('#gateShop').textContent=S.set.shop;$('#gateFoot').innerHTML=`<span style="white-space:nowrap">${esc(S.set.shop||'ឱសថស្ថានកែប')} (ខាងលិចផ្សារដំណាក់ចង្អើរ)</span> <span style="white-space:nowrap">ខេត្តកែប - 012-36-97-26</span>`;
   $('#gateStaffName').textContent=$('#gateStaffName2').textContent='ឱសថការី-'+(S.set.staff||'ឈឹន សុវណ្ណដាណែត');gateGo('gHome');
   setMode('gate');const i=$('#pinInput');i.value='';i.maxLength=String(S.set.pin).length;pinMsg('')}
+/* front screen: scan a barcode → put it in the basket, or (staff, with PIN) receive stock / add a new product */
+const shopFind=c=>{const n=bcNorm(c),d=bcDigits(c),L=sprods();return L.find(p=>bcNorm(p.barcode)===n||bcNorm(p.code)===n)||(d&&L.find(p=>bcDigits(p.barcode)===d))};
+function gateScan(){openScanner('ស្កេន Barcode',code=>gateScanResult(code))}
+async function gateScanResult(code){
+  if(!CAT&&syncUrl()){openModal('<h3>កំពុងស្វែងរក...</h3>','narrow');try{const r=await api(null,{action:'catalog'});CAT={products:r.products||[],stock:r.stock||{}}}catch(e){}}
+  const p=shopFind(code);
+  openModal(`${p?`<div class="scan-hit"><span class="srow-img big">${pImgHTML(p)}</span><div><b>${esc(p.name)}</b><small>${esc(p.unit||'')}${p.rx?' · Rx':''}</small><small class="mono">${esc(code)}</small></div></div>
+      <div class="scan-acts"><button class="btn gold" id="scCart">🛒 ដាក់ចូលកន្ត្រក</button><button class="btn" id="scStock">📦 បញ្ចូលទំនិញ (បុគ្គលិក)</button></div>`
+    :`<h3>រកមិនឃើញទំនិញ</h3><p class="muted">Barcode <b class="mono">${esc(code)}</b> មិនទាន់មានក្នុងបញ្ជីឱសថ។</p>
+      <div class="scan-acts"><button class="btn gold" id="scStock">+ បញ្ចូលទំនិញថ្មី (បុគ្គលិក)</button></div>`}
+    <div class="sheet-actions"><button class="btn ghost" id="scAgain">ស្កេនម្តងទៀត</button><span class="grow"></span><button class="btn ghost" data-act="closeModal">បិទ</button></div>`,'narrow');
+  $('#scAgain').onclick=gateScan;
+  if(p)$('#scCart').onclick=()=>{closeModal();enterShop();shopAdd(p.id,1);drawShopGrid();drawShopCart();shopCart(true);toast(`បានដាក់ ${p.name} ចូលកន្ត្រក`,'ok')};
+  $('#scStock').onclick=()=>{
+    openModal(`<h3>${p?'បញ្ចូលទំនិញ':'បញ្ចូលទំនិញថ្មី'}</h3><p class="muted" style="margin:0 0 10px">${p?esc(p.name):'Barcode '+esc(code)}</p>
+      <form id="scPinForm" class="form">${pinField()}<div class="sheet-actions"><span class="grow"></span><button type="button" class="btn ghost" data-act="closeModal">បោះបង់</button><button class="btn gold">បន្ត</button></div></form>`,'narrow');
+    setTimeout(()=>$('#bkPin')?.focus(),50);
+    $('#scPinForm').onsubmit=e=>{e.preventDefault();const pin=checkPinField();if(!pin)return;
+      setSessPin(pin);try{sessionStorage.setItem(AUTH,'1')}catch(_){}closeModal();enterStaff();
+      const lp=p&&(prod(p.id)||S.products.find(x=>bcDigits(x.barcode)&&bcDigits(x.barcode)===bcDigits(code)));
+      if(lp){stockTab='receive';go('stock');setTimeout(()=>{const s=$('#lP');if(s){s.value=lp.id;s.dispatchEvent(new Event('change',{bubbles:true}));$('#lC')&&($('#lC').value=lp.cost);$('#lB')?.focus()}},60);toast(lp.name+' — បំពេញ Lot ថ្ងៃផុតកំណត់ និងចំនួន','ok')}
+      else{go('products');setTimeout(()=>{productForm();const b=$('#f-bc');if(b)b.value=code},60)}}}}
 function gateGo(id){['gHome','gCust','gStaff'].forEach(p=>$('#'+p).hidden=p!==id);$('#pinBox').hidden=true;$('#gateLoginBtn')?.classList.remove('on');pinMsg('');fitText()}
 /* keep labels on one line: shrink the font a little instead of letting a line drop (phones) */
 const FIT_SEL='.gt-tx b,.gt-tx small,.gp-head b,.gp-head small,.brand b,.brand small,.brand-who,.brand-tel,.shop-brand b,.shop-brand small,#nav button>span';
@@ -1787,7 +1817,7 @@ Object.assign(ACTS,{
   gateCam(){openCamera(f=>quickOrder(f,'hw'))},
   gateRx(){openCamera(f=>quickOrder(f,'rx'))},
   gateGo(el){gateGo(el.dataset.to)},
-  gateDoc(el){gateDoc(el.dataset.doc)},
+  gateDoc(el){gateDoc(el.dataset.doc)},gateScan(){gateScan()},
   hwCam(){openCamera(handleHandwriting)},
   prodCam(){const keep=$('#sheet').innerHTML,vals=[...$('#pform').elements].map(x=>x.type==='checkbox'?x.checked:x.type==='file'?null:x.value),handler=$('#pform').onsubmit;
     const restore=()=>{openModal(keep);[...$('#pform').elements].forEach((x,i)=>{if(x.type==='file'||vals[i]===null)return;x.type==='checkbox'?x.checked=vals[i]:x.value=vals[i]});$('#pform').onsubmit=handler;window.__rebindPhoto&&window.__rebindPhoto()};
