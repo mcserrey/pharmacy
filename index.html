@@ -220,13 +220,13 @@ tr.click{cursor:pointer}
 .meter i{display:block;height:100%;background:var(--gold)}
 
 /* modal + toast */
-.modal{position:fixed;inset:0;background:rgba(5,6,9,.62);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.modal{position:fixed;inset:0;background:rgba(5,6,9,.62);display:flex;align-items:center;justify-content:center;padding:16px;z-index:65}
 .sheet{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;width:min(560px,100%);max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow:auto}
 .sheet h3{margin:0 0 6px;font:700 1.1rem var(--f-disp)}
 .sheet.narrow{width:min(380px,100%)}
 .form{display:flex;flex-direction:column;gap:12px;margin-top:10px}
 .sheet-actions{display:flex;gap:8px;margin-top:14px;align-items:center;flex-wrap:wrap}
-.toast{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:8px;font-weight:600;z-index:60;max-width:calc(100% - 32px);box-shadow:0 6px 24px rgba(0,0,0,.3)}
+.toast{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:8px;font-weight:600;z-index:80;max-width:calc(100% - 32px);box-shadow:0 6px 24px rgba(0,0,0,.3)}
 .toast.bad{background:var(--bad);color:#fff}
 .toast.ok{background:var(--ok);color:#fff}
 textarea.inp{font:12px/1.4 var(--f-mono);min-height:160px;resize:vertical}
@@ -1455,12 +1455,7 @@ function renderShop(){
     <div class="lines" id="slines"></div>
     <div class="checkout">
       <div class="attach" id="sattach" hidden></div>
-      <div class="row2"><label>ឈ្មោះ *<input id="sname" class="inp" autocomplete="name" value="${esc(C.name)}"></label><label>លេខទូរស័ព្ទ *<input id="sphone" class="inp mono" type="tel" inputmode="tel" autocomplete="tel" value="${esc(C.phone)}" placeholder="012 345 678"></label></div>
-      <label>កំណត់សម្គាល់<input id="snote" class="inp" value="${esc(C.note)}" placeholder="ឧ. ម៉ោងមកយក ឬសំណួរ"></label>
       <div class="totals" id="stotals"></div>
-      <div class="hw-box"><span class="hw-title">បញ្ជីសរសេរដៃ / វេជ្ជបញ្ជា</span>
-        <div class="hw-row"><button type="button" class="hw-btn" data-act="hwCam">${CAM_ICON}<span>ថតរូប</span></button><label class="hw-btn" for="hwFile2">${FILE_ICON}<span>ជ្រើសរូបពីឯកសារ</span></label></div>
-        <input type="file" id="hwFile" accept="image/*" capture="environment" hidden><input type="file" id="hwFile2" accept="image/*" hidden></div>
       <button class="btn gold pay" data-act="placeOrder">ផ្ញើការបញ្ជាទិញ</button>
     </div>
   </section></div>
@@ -1470,10 +1465,10 @@ function renderShop(){
 function drawShopGrid(){const g=$('#sgrid');if(!g)return;g.className='pgrid slist';const q=($('#shopq')?.value||'').trim().toLowerCase();
   const list=sprods().filter(p=>(shopCat==='all'||p.cat===shopCat)&&(!q||[p.name,p.generic].join(' ').toLowerCase().includes(q)));
   g.innerHTML=list.length?list.map(p=>{const s=sstock(p.id),c=C.cart.find(x=>x.pid===p.id);
-    return `<button class="srow ${c?'in':''}" data-sadd="${p.id}" ${s===0?'disabled':''}>
+    return `<button class="srow ${c?'in':''}" data-sadd="${p.id}">
       <span class="srow-img">${pImgHTML(p)}</span>
       <span class="srow-txt"><b>${esc(p.name)}</b><small>${esc(p.generic&&p.generic!=='—'?p.generic+' · '+p.unit:p.unit)}</small></span>
-      <span class="srow-tag">${p.rx?'<span class="chip bad sm" title="ត្រូវការវេជ្ជបញ្ជា">Rx</span>':''}${s===0?'<span class="chip sm bad">អស់ស្តុក</span>':''}${c?`<span class="incart mono">×${c.qty}</span>`:''}</span></button>`}).join(''):`<div class="empty">រកមិនឃើញឱសថ</div>`}
+      <span class="srow-tag">${p.rx?'<span class="chip bad sm" title="ត្រូវការវេជ្ជបញ្ជា">Rx</span>':''}${c?`<span class="incart mono">×${c.qty}</span>`:''}</span></button>`}).join(''):`<div class="empty">រកមិនឃើញឱសថ</div>`}
 function shopCart(open){const sh=$('#shop');if(!sh)return;sh.classList.toggle('cart-open',!!open);$('#cartShade').hidden=!open;if(open)$('#sticket')?.scrollTo(0,0)}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#shop')?.classList.contains('cart-open')&&$('#modal').hidden)shopCart(false)});
 function drawShopCart(){
@@ -1483,7 +1478,7 @@ function drawShopCart(){
     <div class="l-name"><b>${esc(p.name)}</b><small>${esc(p.unit)}${p.rx?' · <span class="rxt">Rx</span>':''}</small></div>
     <div class="stepper"><button data-sdec="${p.id}" aria-label="បន្ថយ">−</button><input class="mono" value="${c.qty}" readonly aria-label="ចំនួន"><button data-sinc="${p.id}" aria-label="បន្ថែម">+</button></div>
     <span></span><button class="x" data-sdel="${p.id}" aria-label="លុប">×</button></div>`}).join('')
-   :`<div class="empty tall"><b>កន្ត្រកនៅទទេ</b><span>ចុចលើឱសថ ឬថតបញ្ជីសរសេរដៃខាងក្រោម</span></div>`;
+   :`<div class="empty tall"><b>កន្ត្រកនៅទទេ</b><span>ចុចលើឈ្មោះឱសថ ដើម្បីដាក់ចូលកន្ត្រក</span></div>`;
   const at=$('#sattach');at.hidden=!C.photo;at.innerHTML=C.photo?`<img src="${C.photo}" alt=""><span class="grow">រូបបញ្ជីនឹងផ្ញើជាមួយការបញ្ជាទិញ</span><button class="x" data-act="dropPhoto" aria-label="ដករូបចេញ">×</button>`:'';
   $('#stotals').innerHTML=`<div class="big"><span>សរុបចំនួន</span><span class="mono">${n} ឯកតា</span></div><div><span>ចំនួនមុខឱសថ</span><span class="mono">${C.cart.length} មុខ</span></div>
     ${hasRx?'<div class="rx-note">មានឱសថ Rx — សូមយកវេជ្ជបញ្ជាមកបង្ហាញពេលទទួលឱសថ</div>':''}`;
@@ -1491,7 +1486,6 @@ function drawShopCart(){
 }
 function shopAdd(pid,delta,quiet){const p=sp(pid),s=sstock(pid),c=C.cart.find(x=>x.pid===pid);
   let q=(c?c.qty:0)+delta;
-  if(q>s){q=s;if(!quiet)toast(`${p.name} មានក្នុងស្តុកតែ ${s} ${p.unit}`,'bad')}
   if(q<=0)C.cart=C.cart.filter(x=>x.pid!==pid);else if(c)c.qty=q;else C.cart.push({pid,qty:q});
   if(!quiet){drawShopGrid();drawShopCart()}}
 
@@ -1573,7 +1567,7 @@ async function handleHandwriting(file){
   items=(Array.isArray(items)?items:[]).map(i=>({p:sp(String(i&&i.id||'')),written:String(i&&i.written||'').slice(0,120),qty:Math.max(1,parseInt(i&&i.qty)||1),unit:String(i&&i.unit||'').slice(0,12)}));
   if(!items.length)return attachOnly('រកមិនឃើញបញ្ជីឱសថក្នុងរូបនេះទេ។');
   body.innerHTML=`<p class="muted" style="margin:0 0 8px">សូមពិនិត្យបញ្ជីខាងក្រោម រួចចុច «ដាក់ចូលកន្ត្រក»</p><ul class="hw-list">${items.map((i,k)=>i.p?
-    `<li><input type="checkbox" id="hw-c${k}" ${sstock(i.p.id)>0?'checked':'disabled'}><label for="hw-c${k}" style="color:var(--fg);font-size:.9rem">${esc(i.p.name)}<small>${sstock(i.p.id)>0?'សរសេរ៖ '+esc(i.written):'អស់ស្តុក'}</small></label><input type="number" id="hw-q${k}" class="inp mono" min="1" value="${i.qty}" aria-label="ចំនួន"></li>`
+    `<li><input type="checkbox" id="hw-c${k}" checked><label for="hw-c${k}" style="color:var(--fg);font-size:.9rem">${esc(i.p.name)}<small>${sstock(i.p.id)>0?'សរសេរ៖ '+esc(i.written):'អស់ស្តុក'}</small></label><input type="number" id="hw-q${k}" class="inp mono" min="1" value="${i.qty}" aria-label="ចំនួន"></li>`
     :`<li class="nomatch"><span>${esc(i.written)}<small>មិនមានក្នុងបញ្ជីឱសថ — ឱសថការីនឹងពិនិត្យ</small></span></li>`).join('')}</ul>
     <div class="sheet-actions"><span class="grow"></span><button class="btn ghost" data-act="closeModal">បោះបង់</button><button class="btn gold" id="hwAdd">ដាក់ចូលកន្ត្រក</button></div>`;
   $('#hwAdd').onclick=()=>{let added=0;const miss=[];
@@ -1581,11 +1575,19 @@ async function handleHandwriting(file){
     if(miss.length)C.note=[C.note,'ពីរូបបញ្ជី៖ '+miss.join(', ')].filter(Boolean).join(' · ');
     C.photo=photo;closeModal();renderShop();toast(`បានដាក់ ${added} មុខចូលកន្ត្រក`,'ok')};
 }
+/* the send button asks for name / phone / note in its own small form */
 function placeOrder(){
-  if(!C.cart.length&&!C.photo)return toast('សូមដាក់ឱសថចូលកន្ត្រក ឬថតបញ្ជីសរសេរដៃជាមុនសិន','bad');
-  if(!C.name.trim()){toast('សូមបញ្ចូលឈ្មោះ','bad');return $('#sname').focus()}
-  if(C.phone.replace(/\D/g,'').length<8){toast('សូមបញ្ចូលលេខទូរស័ព្ទឲ្យបានត្រឹមត្រូវ','bad');return $('#sphone').focus()}
-  for(const c of C.cart){const s=sstock(c.pid);if(c.qty>s)return toast(`${sp(c.pid).name} នៅសល់តែ ${s}`,'bad')}
+  if(!C.cart.length&&!C.photo)return toast('សូមដាក់ឱសថចូលកន្ត្រកជាមុនសិន','bad');
+  const n=C.cart.reduce((s,c)=>s+c.qty,0);
+  openModal(`<h3>ផ្ញើការបញ្ជាទិញ</h3><p class="muted" style="margin:0 0 10px">${C.cart.length} មុខ · ${n} ឯកតា</p>
+    <form id="coForm" class="form"><div class="row2"><label>ឈ្មោះ *<input id="sname" class="inp" autocomplete="name" value="${esc(C.name)}"></label><label>លេខទូរស័ព្ទ *<input id="sphone" class="inp mono" type="tel" inputmode="tel" autocomplete="tel" value="${esc(C.phone)}" placeholder="012 345 678"></label></div>
+    <label>កំណត់សម្គាល់<input id="snote" class="inp" value="${esc(C.note)}" placeholder="ឧ. ម៉ោងមកយក ឬសំណួរ"></label>
+    <div class="sheet-actions"><span class="grow"></span><button type="button" class="btn ghost" data-act="closeModal">បោះបង់</button><button class="btn gold" id="coSend">ផ្ញើការបញ្ជាទិញ</button></div></form>`,'narrow');
+  setTimeout(()=>$(C.name?'#sphone':'#sname')?.focus(),50);
+  $('#coForm').onsubmit=e=>{e.preventDefault();C.name=$('#sname').value;C.phone=$('#sphone').value;C.note=$('#snote').value;sendOrder()}}
+function sendOrder(){
+  if(!C.name.trim()){toast('សូមបញ្ចូលឈ្មោះ','bad');return $('#sname')?.focus()}
+  if(C.phone.replace(/\D/g,'').length<8){toast('សូមបញ្ចូលលេខទូរស័ព្ទឲ្យបានត្រឹមត្រូវ','bad');return $('#sphone')?.focus()}
   if(syncUrl())return placeOrderRemote();
   S.orderCounter++;
   const o={id:uid(),no:'ORD-'+String(S.orderCounter).padStart(4,'0'),ts:Date.now(),name:C.name.trim(),phone:C.phone.trim(),note:C.note.trim(),photo:C.photo||'',
@@ -1597,7 +1599,7 @@ function placeOrder(){
   showOrderDone(o,n);
 }
 async function placeOrderRemote(){
-  const btn=$('#sticket .pay');if(btn){btn.disabled=true;btn.textContent='កំពុងផ្ញើ...'}
+  const btn=$('#coSend');if(btn){btn.disabled=true;btn.textContent='កំពុងផ្ញើ...'}
   const items=C.cart.map(c=>{const p=sp(c.pid);return{pid:c.pid,name:p.name,unit:p.unit,qty:c.qty,rx:p.rx}});
   try{const r=await api(null,{action:'order',order:{name:C.name.trim(),phone:C.phone.trim(),note:C.note.trim(),photo:C.photo||'',items}});
     const o={no:r.no,name:C.name.trim(),phone:C.phone.trim(),photo:C.photo,items};
@@ -1880,8 +1882,9 @@ function applyProductData(d){
 /* ---------- product photo → clean packshot (AI redraw when available, then background cut-out) ---------- */
 function canvasFrom(src){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;c.getContext('2d').drawImage(im,0,0);res(c)};im.onerror=()=>rej(new Error('bad image'));im.src=src})}
 function shrinkCanvas(c,max){const k=Math.min(1,max/Math.max(c.width,c.height));if(k===1)return c;const o=document.createElement('canvas');o.width=Math.round(c.width*k);o.height=Math.round(c.height*k);o.getContext('2d').drawImage(c,0,0,o.width,o.height);return o}
-function cutoutProduct(src,size=420){
+function cutoutProduct(src,size=420,alpha){
   const c=shrinkCanvas(src,640),W=c.width,H=c.height,px=c.getContext('2d').getImageData(0,0,W,H).data;
+  if(alpha)return placeCutout(c,px,W,H,size);
   const border=[];for(let x=0;x<W;x++){border.push(x,(H-1)*W+x)}for(let y=1;y<H-1;y++){border.push(y*W,y*W+W-1)}
   const med=k=>{const a=border.map(i=>px[i*4+k]).sort((p,q)=>p-q);return a[a.length>>1]};
   const bg=[med(0),med(1),med(2)],dist=i=>Math.hypot(px[i*4]-bg[0],px[i*4+1]-bg[1],px[i*4+2]-bg[2]);
@@ -1904,6 +1907,25 @@ function cutoutProduct(src,size=420){
   else{ox.fillStyle='#fff';ox.fillRect(0,0,size,size)}
   ox.imageSmoothingQuality='high';ox.drawImage(cut,x0,y0,bw,bh,dx,dy,dw,dh);
   return{img:ok?out.toDataURL('image/png'):out.toDataURL('image/jpeg',.88),cut:ok}}
+/* centre an already-transparent cut-out on a square canvas with a soft floor shadow */
+function placeCutout(c,px,W,H,size){
+  let x0=W,y0=H,x1=-1,y1=-1;for(let i=0;i<W*H;i++)if(px[i*4+3]>40){const x=i%W,y=(i/W)|0;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
+  if(x1<=x0||y1<=y0)throw new Error('empty');
+  const bw=x1-x0+1,bh=y1-y0+1,k=size*.84/Math.max(bw,bh),dw=bw*k,dh=bh*k,dx=(size-dw)/2,dy=(size-dh)/2-size*.02;
+  const out=document.createElement('canvas');out.width=out.height=size;const ox=out.getContext('2d');
+  ox.save();ox.filter='blur(8px)';ox.fillStyle='rgba(20,40,20,.18)';ox.beginPath();ox.ellipse(size/2,dy+dh+size*.015,dw*.42,size*.03,0,0,Math.PI*2);ox.fill();ox.restore();
+  ox.imageSmoothingQuality='high';ox.drawImage(c,x0,y0,bw,bh,dx,dy,dw,dh);
+  return{img:out.toDataURL('image/png'),cut:true}}
+/* in-browser AI background removal (IMG.LY, runs on the device; model ~40 MB downloaded once, then cached) */
+const BGR_URL='https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/+esm';let bgrLib=null;
+async function aiRemoveBg(canvas,note){
+  if(IN_CLAUDE)throw new Error('not here');
+  if(!bgrLib)bgrLib=import(BGR_URL).catch(e=>{bgrLib=null;throw e});
+  const m=await bgrLib,blob=await new Promise(r=>shrinkCanvas(canvas,1024).toBlob(r,'image/jpeg',.92));
+  let last=0;
+  const out=await m.removeBackground(blob,{model:'small',output:{format:'image/png'},
+    progress:(key,cur,total)=>{if(!/fetch/.test(key)||!total)return;const p=Math.round(cur/total*100);if(p!==last){last=p;note(`✨ កំពុងទាញម៉ូដែល AI (លើកដំបូងតែម្តង)… ${p}%`)}}});
+  const url=URL.createObjectURL(out);try{return await canvasFrom(url)}finally{URL.revokeObjectURL(url)}}
 let phAiSeq=0;
 async function prodBeautify(big,url){
   const seq=++phAiSeq,note=m=>{const el=$('#phAiNote');if(el)el.textContent=m};
@@ -1913,10 +1935,12 @@ async function prodBeautify(big,url){
     if(!syncUrl()){note('');throw new Error('ត្រូវភ្ជាប់ Google Sheet ដើម្បីធ្វើរូប AI ពីរូបដែលបានរក្សាទុក')}
     const r=await api(null,{action:'productImage',pin:sessPin(),src:url});src=await canvasFrom(r.img);engine=r.engine?'AI':''}
   else if(syncUrl()){try{const r=await api(null,{action:'productImage',pin:sessPin(),photo:shrinkCanvas(big,1024).toDataURL('image/jpeg',.88)});src=await canvasFrom(r.img);engine='AI'}catch(e){}}
-  let res;try{res=cutoutProduct(src)}catch(e){return note('')}
+  let res,ml=false;
+  try{note(engine?'✨ កំពុងកាត់ផ្ទៃខាងក្រោយ...':'✨ AI កំពុងកាត់ផ្ទៃខាងក្រោយ...');res=cutoutProduct(await aiRemoveBg(src,note),420,true);ml=true}
+  catch(e){console.warn('AI background removal unavailable:',e&&e.message||e);try{res=cutoutProduct(src)}catch(e2){return note('')}}
   if(seq!==phAiSeq||!$('#pform')||!window.__phVar)return;
   window.__phVar.ai=res.img;window.__setProdPhoto(res.img);
-  note(engine?'✨ រូប AI គ្មានផ្ទៃខាងក្រោយ — ចុច «រូបដើម» បើចង់ប្រើរូបថតដើម':res.cut?'✨ បានកាត់ផ្ទៃខាងក្រោយចេញ (ដាក់ Gemini Key ដើម្បីបានរូប AI ស្អាតជាងនេះ)':'')}
+  note(engine||ml?'✨ រូប AI គ្មានផ្ទៃខាងក្រោយ — ចុច «រូបដើម» បើចង់ប្រើរូបថតដើម':res.cut?'✨ បានកាត់ផ្ទៃខាងក្រោយចេញ (ដាក់ Gemini Key ដើម្បីបានរូប AI ស្អាតជាងនេះ)':'')}
 async function readProductPhoto(file){
   const say=(m,bad)=>{const el=$('#phInfo');if(el){el.hidden=false;el.textContent=m;el.className='scan-status'+(bad?' bad':'')}};
   let big;try{big=await resizeImage(file,1600);const orig=(await resizeImage(file,360)).toDataURL('image/jpeg',.82);window.__phVar={orig};window.__setProdPhoto(orig)}catch(e){return say('មិនអាចបើករូបនេះបាន',true)}
