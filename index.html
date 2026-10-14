@@ -523,6 +523,24 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
 .stk-src img{width:72px;height:130px;object-fit:cover;object-position:top;border-radius:8px;border:1px solid var(--line);background:var(--panel2)}
 .stk-tip{position:fixed;z-index:70;pointer-events:none;background:#1d2b1b;color:#fff;font:600 .78rem var(--f-body);padding:5px 9px;border-radius:6px;box-shadow:0 4px 14px rgba(0,0,0,.2);white-space:nowrap}
 
+/* customer shop: medicine list full width, basket opens from the header button */
+.shopmode .pos{grid-template-columns:minmax(0,1fr)!important}.shopmode .catalog{min-width:0}
+.shopmode #sticket{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);z-index:61;border-radius:18px 0 0 18px;margin:0;max-height:none;height:100%;overflow:auto;
+  transform:translateX(105%);transition:transform .25s ease;box-shadow:-12px 0 40px rgba(20,50,20,.22);padding-bottom:env(safe-area-inset-bottom,0px)}
+.shopmode.cart-open #sticket{transform:none}
+@media(prefers-reduced-motion:reduce){.shopmode #sticket{transition:none}}
+.cart-shade{position:fixed;inset:0;z-index:60;background:rgba(20,40,20,.35)}
+.cart-shade[hidden]{display:none}
+.cart-btn{position:relative;display:inline-flex;align-items:center;gap:7px;border:0;cursor:pointer;font:700 .9rem var(--f-body);padding:9px 14px;border-radius:12px;
+  background:var(--sun);color:#173d14;box-shadow:0 3px 0 #c9a800}
+.cart-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #c9a800}
+.cart-n{position:absolute;top:-7px;right:-7px;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:var(--bad);color:#fff;font-size:.75rem;display:grid;place-items:center;border:2px solid #fff}
+.cart-n[hidden]{display:none}
+.cart-btn.has{animation:cartpop .3s ease}
+@keyframes cartpop{50%{transform:scale(1.08)}}
+.cart-x{border:0;background:var(--panel2);width:34px;height:34px;border-radius:50%;font-size:1.3rem;line-height:1;cursor:pointer;color:var(--fg);margin-left:6px;flex:none}
+.shopmode .top-meta{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+
 /* staff orders */
 .olist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));gap:12px;align-items:start}
 .ocard header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:12px 14px;border-bottom:1px dashed var(--line)}
@@ -676,7 +694,8 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
 <div id="shop" class="app shopmode" hidden>
   <main class="main">
     <header class="top"><div class="shop-brand"><img data-logo alt=""><div><b id="shopTitle">ឱសថស្ថានកែប</b><small>បញ្ជាទិញឱសថ · Order online</small></div></div>
-      <div class="top-meta"><button class="btn ghost sm" data-act="exitShop">ទំព័រដើម</button></div></header>
+      <div class="top-meta"><button class="btn ghost sm" data-act="exitShop">ទំព័រដើម</button><button class="cart-btn" id="scartBtn" data-act="toSTicket" aria-label="កន្ត្រក"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.2 10.4a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.5L21 8H6.2"/><circle cx="10" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg><span>កន្ត្រក</span><b class="cart-n mono" id="scartN" hidden>0</b></button></div></header>
+    <div class="cart-shade" id="cartShade" data-act="closeCart" hidden></div>
     <section id="shopView" class="view view-pos"></section>
   </main>
 </div>
@@ -1396,7 +1415,7 @@ function renderShop(){
     <div class="pgrid" id="sgrid"></div>
   </section>
   <section class="panel ticket" id="sticket">
-    <div class="ticket-head"><div><span class="eyebrow">កន្ត្រករបស់អ្នក</span><b id="scount">0 មុខ</b></div><button class="btn ghost sm" data-act="shopClear">សម្អាត</button></div>
+    <div class="ticket-head"><div><span class="eyebrow">កន្ត្រករបស់អ្នក</span><b id="scount">0 មុខ</b></div><button class="btn ghost sm" data-act="shopClear">សម្អាត</button><button class="cart-x" data-act="closeCart" aria-label="បិទ">×</button></div>
     <div class="lines" id="slines"></div>
     <div class="checkout">
       <div class="attach" id="sattach" hidden></div>
@@ -1409,7 +1428,7 @@ function renderShop(){
       <button class="btn gold pay" data-act="placeOrder">ផ្ញើការបញ្ជាទិញ</button>
     </div>
   </section></div>
-  <button class="cartbar" id="scartbar" data-act="toSTicket" hidden><span id="scartbarN"></span><span id="scartbarT">មើលកន្ត្រក</span></button>`;
+`;
   drawShopGrid();drawShopCart();
 }
 function drawShopGrid(){const g=$('#sgrid');if(!g)return;g.className='pgrid slist';const q=($('#shopq')?.value||'').trim().toLowerCase();
@@ -1419,6 +1438,8 @@ function drawShopGrid(){const g=$('#sgrid');if(!g)return;g.className='pgrid slis
       <span class="srow-img">${pImgHTML(p)}</span>
       <span class="srow-txt"><b>${esc(p.name)}</b><small>${esc(p.generic&&p.generic!=='—'?p.generic+' · '+p.unit:p.unit)}</small></span>
       <span class="srow-tag">${p.rx?'<span class="chip bad sm" title="ត្រូវការវេជ្ជបញ្ជា">Rx</span>':''}${s===0?'<span class="chip sm bad">អស់ស្តុក</span>':''}${c?`<span class="incart mono">×${c.qty}</span>`:''}</span></button>`}).join(''):`<div class="empty">រកមិនឃើញឱសថ</div>`}
+function shopCart(open){const sh=$('#shop');if(!sh)return;sh.classList.toggle('cart-open',!!open);$('#cartShade').hidden=!open;if(open)$('#sticket')?.scrollTo(0,0)}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#shop')?.classList.contains('cart-open')&&$('#modal').hidden)shopCart(false)});
 function drawShopCart(){
   const n=C.cart.reduce((s,c)=>s+c.qty,0),hasRx=C.cart.some(c=>sp(c.pid)?.rx);
   $('#scount').textContent=`${C.cart.length} មុខ`;
@@ -1430,7 +1451,7 @@ function drawShopCart(){
   const at=$('#sattach');at.hidden=!C.photo;at.innerHTML=C.photo?`<img src="${C.photo}" alt=""><span class="grow">រូបបញ្ជីនឹងផ្ញើជាមួយការបញ្ជាទិញ</span><button class="x" data-act="dropPhoto" aria-label="ដករូបចេញ">×</button>`:'';
   $('#stotals').innerHTML=`<div class="big"><span>សរុបចំនួន</span><span class="mono">${n} ឯកតា</span></div><div><span>ចំនួនមុខឱសថ</span><span class="mono">${C.cart.length} មុខ</span></div>
     ${hasRx?'<div class="rx-note">មានឱសថ Rx — សូមយកវេជ្ជបញ្ជាមកបង្ហាញពេលទទួលឱសថ</div>':''}`;
-  const bar=$('#scartbar');if(bar){bar.hidden=!n&&!C.photo;$('#scartbarN').textContent=`កន្ត្រក · ${n} ឯកតា`}
+  const cn=$('#scartN');if(cn){cn.hidden=!C.cart.length&&!C.photo;cn.textContent=C.cart.length||'📷';$('#scartBtn').classList.toggle('has',!!(C.cart.length||C.photo))}
 }
 function shopAdd(pid,delta,quiet){const p=sp(pid),s=sstock(pid),c=C.cart.find(x=>x.pid===pid);
   let q=(c?c.qty:0)+delta;
@@ -1536,7 +1557,7 @@ function placeOrder(){
   o.total=round2(o.items.reduce((s,i)=>s+i.qty*i.price,0));
   const n=o.items.reduce((s,i)=>s+i.qty,0);
   try{S.orders.push(o);localStorage.setItem(KEY,JSON.stringify(S))}catch(e){if(o.photo){o.photo='';save()}}
-  resetC();renderShop();
+  resetC();shopCart(false);renderShop();
   showOrderDone(o,n);
 }
 async function placeOrderRemote(){
@@ -1544,7 +1565,7 @@ async function placeOrderRemote(){
   const items=C.cart.map(c=>{const p=sp(c.pid);return{pid:c.pid,name:p.name,unit:p.unit,qty:c.qty,rx:p.rx}});
   try{const r=await api(null,{action:'order',order:{name:C.name.trim(),phone:C.phone.trim(),note:C.note.trim(),photo:C.photo||'',items}});
     const o={no:r.no,name:C.name.trim(),phone:C.phone.trim(),photo:C.photo,items};
-    resetC();renderShop();loadCatalog();showOrderDone(o,items.reduce((s,i)=>s+i.qty,0))}
+    resetC();shopCart(false);renderShop();loadCatalog();showOrderDone(o,items.reduce((s,i)=>s+i.qty,0))}
   catch(e){if(btn){btn.disabled=false;btn.textContent='ផ្ញើការបញ្ជាទិញ'}toast('ផ្ញើមិនបានសម្រេច — សូមពិនិត្យអ៊ីនធឺណិត ហើយព្យាយាមម្តងទៀត','bad')}
 }
 function showOrderDone(o,n){
@@ -1666,7 +1687,7 @@ Object.assign(ACTS,{
   logout(){showGate()},
   shopClear(){C.cart=[];drawShopGrid();drawShopCart()},
   dropPhoto(){C.photo='';drawShopCart()},
-  toSTicket(){$('#sticket')?.scrollIntoView({behavior:'smooth',block:'start'})},
+  toSTicket(){shopCart(true)},closeCart(){shopCart(false)},
   orderToPOS(el){orderToPOS(el.dataset.id)},
   orderInvoice(el){const o=S.orders.find(x=>x.id===el.dataset.id);if(o)showInvoice(o,true)},
   invAddRow(){const o=invOrder;if(!o)return;o.items.push({pid:'',name:'',unit:'',rx:false,qty:''});save();showInvoice(o);const ins=document.querySelectorAll('.inv-name');ins[ins.length-1]?.focus()},
