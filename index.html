@@ -578,6 +578,36 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
 .srow-img.big img,.srow-img.big svg{width:100%;height:100%;object-fit:contain}
 .scan-acts{display:grid;gap:8px}.scan-acts .btn{justify-content:center;padding:12px}
 
+.plist .srow{cursor:pointer}
+
+.pgrid.ptiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));grid-auto-rows:min-content;gap:10px;align-content:start}
+.pgrid.ptiles .ptile{width:100%;height:auto;min-height:0}
+@media(max-width:640px){.pgrid.ptiles{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}}
+.ptile{position:relative;aspect-ratio:1;padding:8px;border:1px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;overflow:hidden;display:block;font:inherit;color:var(--fg);transition:transform .08s,box-shadow .15s,border-color .15s}
+.ptile:hover{border-color:var(--gold);box-shadow:0 6px 16px rgba(20,60,30,.12)}
+.ptile:active{transform:scale(.97)}
+.ptile:disabled{opacity:.4;cursor:not-allowed}
+.ptile.in{border:2px solid var(--gold);background:#f6fbf2}
+.pt-img{display:grid;place-items:center;width:100%;height:100%}
+.pt-img img,.pt-img svg{width:100%;height:100%;object-fit:contain;display:block}
+.pt-name{position:absolute;left:0;right:0;bottom:0;padding:8px 8px 7px;background:rgba(29,43,27,.82);color:#fff;font-size:.78rem;font-weight:600;line-height:1.3;text-align:center;
+  transform:translateY(101%);transition:transform .18s ease;display:flex;flex-direction:column;gap:2px}
+.pt-name em{font-style:normal;font-weight:400;font-size:.66rem;opacity:.8}
+.ptile.show .pt-name{transform:none}
+@media(hover:hover){.ptile:hover .pt-name{transform:none}.ptile:hover .pt-name em{display:none}.ptile.show .pt-name em{display:block}}
+.pt-rx{position:absolute;top:6px;left:6px;background:var(--bad);color:#fff;font:700 .62rem var(--f-mono);padding:2px 6px;border-radius:6px}
+.pt-qty{position:absolute;top:6px;right:6px;background:var(--sun);color:#173d14;font-weight:700;font-size:.78rem;padding:2px 7px;border-radius:9px;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+@media(prefers-reduced-motion:reduce){.pt-name,.ptile{transition:none}}
+
+.shoptiles.pgrid.ptiles{grid-template-columns:repeat(auto-fill,minmax(124px,1fr));gap:10px}
+@media(max-width:640px){.shoptiles.pgrid.ptiles{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}}
+.shoptiles.pgrid{max-height:none;overflow:visible}
+.shoptiles .ptile{padding:8px;border-radius:14px}
+.shoptiles .pt-name{font-size:.76rem;padding:7px 6px;gap:5px}
+.pt-add{border:0;border-radius:8px;padding:5px 6px;background:var(--sun);color:#173d14;font:700 .8rem var(--f-body);cursor:pointer}
+.pt-add:active{transform:scale(.97)}
+.shoptiles .pt-qty{font-size:.86rem;padding:3px 9px}
+
 /* staff orders */
 .olist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));gap:12px;align-items:start}
 .ocard header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:12px 14px;border-bottom:1px dashed var(--line)}
@@ -1000,12 +1030,14 @@ function renderPOS(){
 }
 function catalogList(){const q=($('#q')?.value||'').trim().toLowerCase();
   return S.products.filter(p=>(catF==='all'||p.cat===catF)&&(!q||[p.name,p.generic,p.code,p.barcode].join(' ').toLowerCase().includes(q)))}
-function drawGrid(){const g=$('#grid');if(!g)return;g.className='pgrid slist';const list=catalogList();
+function drawGrid(){const g=$('#grid');if(!g)return;g.className='pgrid ptiles';const list=catalogList();
   g.innerHTML=list.length?list.map(p=>{const q=sellable(p.id),st=pStatus(p),c=P.cart.find(x=>x.pid===p.id);
-    return `<button class="srow ${c?'in':''} ${st}" data-add="${p.id}" ${q===0?'disabled':''}>
-      <span class="srow-img">${pImgHTML(p)}</span>
-      <span class="srow-txt"><b>${esc(p.name)}</b><small>${esc(p.code)} · <span class="pos-stock">${q===0?'អស់ស្តុក':q+' '+esc(p.unit)}</span></small></span>
-      <span class="srow-tag">${p.rx?'<span class="chip bad sm">Rx</span>':''}${c?`<span class="incart mono">×${c.qty}</span>`:''}</span></button>`}).join(''):`<div class="empty">រកមិនឃើញឱសថ</div>`}
+    return `<button class="ptile ${c?'in':''} ${st} ${tileShow===p.id?'show':''}" data-add="${p.id}" title="${esc(p.name)}" aria-label="${esc(p.name)}" ${q===0?'disabled':''}>
+      <span class="pt-img">${pImgHTML(p)}</span><span class="pt-name">${esc(p.name)}</span>
+      ${p.rx?'<span class="pt-rx">Rx</span>':''}${c?`<span class="pt-qty mono">×${c.qty}</span>`:''}</button>`}).join(''):`<div class="empty">រកមិនឃើញឱសថ</div>`}
+/* image-only tiles: the name appears when a tile is tapped */
+let tileShow='',tileT;
+function flashTile(id){tileShow=id;clearTimeout(tileT);tileT=setTimeout(()=>{tileShow='';document.querySelectorAll('.ptile.show').forEach(t=>{if(t.dataset.ptile===undefined)t.classList.remove('show')})},2200)}
 function drawLines(){
   $('#lines').innerHTML=P.cart.length?P.cart.map(c=>{const p=prod(c.pid);return `<div class="line">
     <div class="l-name"><b>${esc(p.name)}</b><small>${usd(p.price)} / ${esc(p.unit)}${p.rx?' · <span class="rxt">Rx</span>':''}</small></div>
@@ -1103,10 +1135,11 @@ function renderProducts(){
   fixCodes();const demo=demoSet();
   V().innerHTML=`<div class="toolbar"><input id="pq" class="inp grow" placeholder="ស្វែងរកឱសថ..."><select id="pcat" class="inp"><option value="all">គ្រប់ប្រភេទ</option>${CATS.map(c=>`<option>${esc(c)}</option>`).join('')}</select><button class="btn gold" data-act="newProduct">+ បន្ថែមឱសថ</button></div>
   ${demo.n?`<div class="rx-note" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 12px"><span class="grow">មានទិន្នន័យគំរូ (ឱសថ ${demo.prods.size} មុខ${demo.sups.size?`, អ្នកផ្គត់ផ្គង់ ${demo.sups.size}`:''}) ដែលមិនមែនជាទិន្នន័យពិត។</span><button class="btn sm danger" data-act="purgeDemo">លុបទិន្នន័យគំរូ</button></div>`:''}
-  <div class="panel tablewrap"><table class="tbl"><thead><tr><th>កូដ</th><th>ឈ្មោះឱសថ</th><th>ប្រភេទ</th><th>ទម្រង់ / ឯកតា</th><th class="r">ថ្លៃដើម</th><th class="r">តម្លៃលក់</th><th class="r">Margin</th><th class="r">ស្តុក</th><th class="r">កម្រិតបញ្ជាទិញ</th><th>ស្ថានភាព</th><th></th></tr></thead><tbody id="ptbody"></tbody></table></div>`;drawProducts()}
+  <div class="pgrid ptiles plist" id="plist"></div>`;drawProducts()}
 function drawProducts(){const q=($('#pq')?.value||'').toLowerCase(),c=$('#pcat')?.value||'all';
   const list=S.products.filter(p=>(c==='all'||p.cat===c)&&(!q||[p.name,p.generic,p.code,p.barcode].join(' ').toLowerCase().includes(q)));
-  $('#ptbody').innerHTML=list.map(p=>{const m=p.price?(p.price-p.cost)/p.price*100:0;return `<tr><td class="mono">${esc(p.code)}</td><td><span class="thumb">${p.img?`<img src="${p.img}" alt="" class="thumb" style="margin:0">`:drugArt(p)}</span><b>${esc(p.name)}</b>${p.rx?' <span class="chip bad sm">Rx</span>':''}<small class="sub">${esc(p.generic)}</small></td><td>${esc(p.cat)}</td><td>${esc(p.form)}<small class="sub">${esc(p.unit)}</small></td><td class="r mono">${usd(p.cost)}</td><td class="r mono">${usd(p.price)}</td><td class="r mono">${m.toFixed(0)}%</td><td class="r mono">${sellable(p.id)}</td><td class="r mono">${p.reorder}</td><td>${statusChip(p)}</td><td class="r"><button class="btn ghost sm" data-editp="${p.id}">កែ</button></td></tr>`}).join('')||'<tr><td colspan="11" class="empty">គ្មានទិន្នន័យ</td></tr>'}
+  $('#plist').innerHTML=list.length?list.map(p=>`<button class="ptile" data-ptile="${p.id}" title="${esc(p.name)}" aria-label="${esc(p.name)}">
+      <span class="pt-img">${pImgHTML(p)}</span><span class="pt-name">${esc(p.name)}<em>ចុចម្តងទៀតដើម្បីកែ</em></span>${p.rx?'<span class="pt-rx">Rx</span>':''}</button>`).join(''):'<div class="empty">គ្មានទិន្នន័យ</div>'}
 function productForm(id){
   const p=id?prod(id):{code:nextCode(),barcode:'',name:'',generic:'',cat:CATS[0],form:'',unit:'',rx:false,cost:'',price:'',reorder:10};
   openModal(`<h3>${id?'កែប្រែឱសថ':'បន្ថែមឱសថថ្មី'}</h3><form id="pform" class="form">
@@ -1334,9 +1367,11 @@ const ACTS={
   wipe(){confirmBox('លុបទិន្នន័យទាំងអស់?','ឱសថ ស្តុក ប្រវត្តិលក់ និងអ្នកផ្គត់ផ្គង់ នឹងត្រូវលុប។ ការកំណត់នៅដដែល។','លុបទាំងអស់',()=>{Object.assign(S,{products:[],batches:[],suppliers:[],sales:[],moves:[],counter:0,orders:[],orderCounter:0});save();resetP();resetR();render();toast('បានលុបទិន្នន័យ','ok')})}
 };
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-docfile],[data-docback],[data-book],[data-lib],[data-libopen],[data-libpub],[data-photo],[data-sadd],[data-sinc],[data-sdec],[data-sdel],[data-scat],[data-of],[data-view],[data-act],[data-add],[data-inc],[data-dec],[data-del],[data-cat],[data-sale],[data-editp],[data-adj],[data-tab],[data-bf],[data-range],[data-rmline],[data-editsup],[data-goto]');
+  const t=e.target.closest('[data-sadd],[data-stile],[data-ptile],[data-docfile],[data-docback],[data-book],[data-lib],[data-libopen],[data-libpub],[data-photo],[data-sadd],[data-sinc],[data-sdec],[data-sdel],[data-scat],[data-of],[data-view],[data-act],[data-add],[data-inc],[data-dec],[data-del],[data-cat],[data-sale],[data-editp],[data-adj],[data-tab],[data-bf],[data-range],[data-rmline],[data-editsup],[data-goto]');
   if(e.target.id==='modal')return closeModal();
   if(!t)return;const d=t.dataset;
+  if(d.stile){shopShow=shopShow===d.stile?'':d.stile;document.querySelectorAll('#sgrid .ptile').forEach(x=>x.classList.toggle('show',x.dataset.stile===shopShow));return}
+  if(d.ptile){if(t.classList.contains('show'))return productForm(d.ptile);document.querySelectorAll('#plist .ptile.show').forEach(x=>x.classList.remove('show'));t.classList.add('show');return}
   if(d.docfile){docView(d.docfile);return}
   if(d.docback){const s=docOpen;if(s)docShow(s.key,s);return}
   if(d.book){bookView(d.book);return}
@@ -1353,7 +1388,7 @@ document.addEventListener('click',e=>{
   else if(d.of){orderF=d.of;renderOrders()}
   else if(d.view)go(d.view);
   else if(d.act)ACTS[d.act]?.(t);
-  else if(d.add)addToCart(d.add);
+  else if(d.add){flashTile(d.add);addToCart(d.add)}
   else if(d.inc){const c=P.cart.find(x=>x.pid===d.inc);setQty(d.inc,c.qty+1)}
   else if(d.dec){const c=P.cart.find(x=>x.pid===d.dec);setQty(d.dec,c.qty-1)}
   else if(d.del)setQty(d.del,0);
@@ -1519,7 +1554,9 @@ function drugArt(p){
   else g=`<rect x="50" y="8" width="20" height="12" rx="2" fill="${c}"/><path d="M44 24h32l5 9v45a5 5 0 0 1-5 5H44a5 5 0 0 1-5-5V33z" fill="#f3f5f7" stroke="#c4cbd4"/><rect x="39" y="44" width="42" height="24" fill="${c}"/><path d="M56 49h8v5h5v8h-5v5h-8v-5h-5v-8h5z" fill="#fff"/>`;
   return `<svg viewBox="0 0 120 90" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(p.name)}">${g}</svg>`;
 }
-const pImgHTML=p=>p.img?`<img src="${p.img}" alt="${esc(p.name)}" loading="lazy">`:drugArt(p);
+/* ask Drive for a picture only as big as it is shown (much faster on phones) */
+const imgAt=(u,w)=>String(u).replace(/([?&]sz=)w\d+/,'$1w'+w).replace(/=s\d+(-[a-z]+)?$/,'=s'+w);
+const pImgHTML=(p,w=400)=>p.img?`<img src="${/^data:/.test(p.img)?p.img:imgAt(p.img,w)}" alt="${esc(p.name)}" loading="lazy" decoding="async" referrerpolicy="no-referrer">`:drugArt(p);
 function resizeImage(file,max){return new Promise((res,rej)=>{const url=URL.createObjectURL(file),im=new Image();
   im.onload=()=>{const k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.naturalWidth*k));c.height=Math.max(1,Math.round(im.naturalHeight*k));
     const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(url);res(c)};
@@ -1537,9 +1574,12 @@ let CAT=null;
 const sprods=()=>CAT?CAT.products:S.products;
 const sp=id=>sprods().find(p=>p.id===id);
 const sstock=id=>CAT?(CAT.stock[id]||0):sellable(id);
-function enterShop(){setMode('shop');CAT=null;renderShop();fitText();if(syncUrl())loadCatalog()}
-async function loadCatalog(){const g=$('#sgrid');if(g)g.innerHTML='<div class="empty">កំពុងទាញបញ្ជីឱសថ...</div>';
-  try{const r=await api(null,{action:'catalog'});CAT={products:r.products||[],stock:r.stock||{}};
+let catP=null;
+const catCache=()=>{try{const c=JSON.parse(localStorage.getItem('kep-catalog')||'null');return c&&c.products?c:null}catch(e){return null}};
+function enterShop(){setMode('shop');CAT=catCache()||CAT;renderShop();fitText();if(syncUrl())loadCatalog()}
+async function loadCatalog(){const g=$('#sgrid');if(g&&!sprods().length)g.innerHTML='<div class="empty">កំពុងទាញបញ្ជីឱសថ...</div>';
+  try{const r=await (catP=catP||api(null,{action:'catalog'}).finally(()=>catP=null));CAT={products:r.products||[],stock:r.stock||{}};
+    try{localStorage.setItem('kep-catalog',JSON.stringify(CAT))}catch(e){}
     if(r.settings&&r.settings.shop){$('#shopTitle').textContent=r.settings.shop}
     try{const a=JSON.parse(r.settings&&r.settings.cats||'[]');if(Array.isArray(a)&&a.length&&a.join('|')!==CATS.join('|')){CATS=a.map(String);if(!CATS.includes(shopCat))shopCat='all';renderShop()}}catch(e){}
     C.cart=C.cart.filter(c=>sp(c.pid));drawShopGrid();drawShopCart()}
@@ -1564,13 +1604,14 @@ function renderShop(){
 `;
   drawShopGrid();drawShopCart();
 }
-function drawShopGrid(){const g=$('#sgrid');if(!g)return;g.className='pgrid slist';const q=($('#shopq')?.value||'').trim().toLowerCase();
+function drawShopGrid(){const g=$('#sgrid');if(!g)return;g.className='pgrid ptiles shoptiles';const q=($('#shopq')?.value||'').trim().toLowerCase();
   const list=sprods().filter(p=>(shopCat==='all'||p.cat===shopCat)&&(!q||[p.name,p.generic].join(' ').toLowerCase().includes(q)));
-  g.innerHTML=list.length?list.map(p=>{const s=sstock(p.id),c=C.cart.find(x=>x.pid===p.id);
-    return `<button class="srow ${c?'in':''}" data-sadd="${p.id}">
-      <span class="srow-img">${pImgHTML(p)}</span>
-      <span class="srow-txt"><b>${esc(p.name)}</b><small>${esc(p.generic&&p.generic!=='—'?p.generic+' · '+p.unit:p.unit)}</small></span>
-      <span class="srow-tag">${p.rx?'<span class="chip bad sm" title="ត្រូវការវេជ្ជបញ្ជា">Rx</span>':''}${c?`<span class="incart mono">×${c.qty}</span>`:''}</span></button>`}).join(''):`<div class="empty">រកមិនឃើញឱសថ</div>`}
+  g.innerHTML=list.length?list.map(p=>{const c=C.cart.find(x=>x.pid===p.id);
+    return `<div class="ptile ${c?'in':''} ${shopShow===p.id?'show':''}" data-stile="${p.id}" role="button" tabindex="0" aria-label="${esc(p.name)}">
+      <span class="pt-img">${pImgHTML(p,500)}</span>
+      <span class="pt-name">${esc(p.name)}<button type="button" class="pt-add" data-sadd="${p.id}">+ កន្ត្រក</button></span>
+      ${p.rx?'<span class="pt-rx">Rx</span>':''}${c?`<span class="pt-qty mono">×${c.qty}</span>`:''}</div>`}).join(''):`<div class="empty">រកមិនឃើញឱសថ</div>`}
+let shopShow='';
 function shopCart(open){const sh=$('#shop');if(!sh)return;sh.classList.toggle('cart-open',!!open);$('#cartShade').hidden=!open;if(open)$('#sticket')?.scrollTo(0,0)}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#shop')?.classList.contains('cart-open')&&$('#modal').hidden)shopCart(false)});
 function drawShopCart(){
@@ -2501,6 +2542,8 @@ document.querySelectorAll('img[data-logo]').forEach(i=>i.src=LOGO);
 tick();setInterval(tick,15000);
 let authed=false;try{authed=sessionStorage.getItem(AUTH)==='1'}catch(e){}
 if(location.hash==='#shop')enterShop();else if(authed)enterStaff();else showGate();
+/* fetch the shop list in the background while the start screen is showing, so «បញ្ជីថ្នាំ» opens instantly */
+if(mode==='gate'&&syncUrl())setTimeout(()=>{if(!catP)catP=api(null,{action:'catalog'}).then(r=>{CAT={products:r.products||[],stock:r.stock||{}};try{localStorage.setItem('kep-catalog',JSON.stringify(CAT))}catch(e){}if(mode==='shop'){drawShopGrid();drawShopCart()}return r}).catch(()=>{}).finally(()=>catP=null)},400);
 </script>
 
 </html>
