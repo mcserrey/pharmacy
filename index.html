@@ -567,6 +567,10 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
 
 .sheet.docs-wide{width:min(980px,100%);max-width:980px}
 
+.gt-tx b,.gt-tx small,.gp-head b,.gp-head small,.brand b,.brand small,.brand-who,.brand-tel,.shop-brand b,.shop-brand small{white-space:nowrap;overflow:hidden;display:block;max-width:100%}
+.gp-head span{min-width:0;flex:1}.shop-brand>div{min-width:0}.brand>div{min-width:0;max-width:100%}
+@media(max-width:420px){.ghero,.gtile{gap:10px}.ghero{padding:14px 12px}.gtile{padding:10px 10px 10px 10px}.gh-ic{width:44px;height:44px}.gtile .gt-ic{width:40px;height:40px}}
+
 /* staff orders */
 .olist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));gap:12px;align-items:start}
 .ocard header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:12px 14px;border-bottom:1px dashed var(--line)}
@@ -1399,7 +1403,14 @@ function showGate(){closeModal();try{sessionStorage.removeItem(AUTH)}catch(e){}
   $('#gateShop').textContent=S.set.shop;$('#gateFoot').innerHTML=`<span style="white-space:nowrap">${esc(S.set.shop||'ឱសថស្ថានកែប')} (ខាងលិចផ្សារដំណាក់ចង្អើរ)</span> <span style="white-space:nowrap">ខេត្តកែប - 012-36-97-26</span>`;
   $('#gateStaffName').textContent=$('#gateStaffName2').textContent='ឱសថការី-'+(S.set.staff||'ឈឹន សុវណ្ណដាណែត');gateGo('gHome');
   setMode('gate');const i=$('#pinInput');i.value='';i.maxLength=String(S.set.pin).length;pinMsg('')}
-function gateGo(id){['gHome','gCust','gStaff'].forEach(p=>$('#'+p).hidden=p!==id);$('#pinBox').hidden=true;$('#gateLoginBtn')?.classList.remove('on');pinMsg('')}
+function gateGo(id){['gHome','gCust','gStaff'].forEach(p=>$('#'+p).hidden=p!==id);$('#pinBox').hidden=true;$('#gateLoginBtn')?.classList.remove('on');pinMsg('');fitText()}
+/* keep labels on one line: shrink the font a little instead of letting a line drop (phones) */
+const FIT_SEL='.gt-tx b,.gt-tx small,.gp-head b,.gp-head small,.brand b,.brand small,.brand-who,.brand-tel,.shop-brand b,.shop-brand small,#nav button>span';
+function fitText(){requestAnimationFrame(()=>document.querySelectorAll(FIT_SEL).forEach(el=>{
+  el.style.fontSize='';if(!el.clientWidth)return;const base=parseFloat(getComputedStyle(el).fontSize);let f=base,g=0;
+  while(el.scrollWidth>el.clientWidth+1&&f>base*.6&&g++<30){f-=.5;el.style.fontSize=f+'px'}}))}
+let fitT;addEventListener('resize',()=>{clearTimeout(fitT);fitT=setTimeout(fitText,150)});
+document.fonts&&document.fonts.ready.then(fitText);
 let gateDocs=[];
 /* documents from the pharmacist's Drive folder (សញ្ញាបត្រ / អាជ្ញាប័ណ្ណ / គណៈឱសថការី) */
 let DOCS=(()=>{try{return JSON.parse(localStorage.getItem('kep-docs')||'null')}catch(e){return null}})(),docsAt=0;
@@ -1462,7 +1473,7 @@ function tryPin(force){
 $('#pinBox').addEventListener('submit',e=>{e.preventDefault();tryPin(true)});
 $('#pinInput').addEventListener('input',()=>tryPin(false));
 function enterStaff(){setTimeout(paintSync);if(!SY.url&&SHEET_API_URL&&!IN_CLAUDE){SY.url=SHEET_API_URL;SY.hashes={};SY.ver='';saveSY()}  /* connect automatically: local and Sheet records are merged, nothing is lost */
-  setMode('staff');drawNav();render();fullSync(true)}
+  setMode('staff');drawNav();render();fitText();fullSync(true)}
 
 /* ---------- product art (used when a product has no photo) ---------- */
 function drugArt(p){
@@ -1496,7 +1507,7 @@ let CAT=null;
 const sprods=()=>CAT?CAT.products:S.products;
 const sp=id=>sprods().find(p=>p.id===id);
 const sstock=id=>CAT?(CAT.stock[id]||0):sellable(id);
-function enterShop(){setMode('shop');CAT=null;renderShop();if(syncUrl())loadCatalog()}
+function enterShop(){setMode('shop');CAT=null;renderShop();fitText();if(syncUrl())loadCatalog()}
 async function loadCatalog(){const g=$('#sgrid');if(g)g.innerHTML='<div class="empty">កំពុងទាញបញ្ជីឱសថ...</div>';
   try{const r=await api(null,{action:'catalog'});CAT={products:r.products||[],stock:r.stock||{}};
     if(r.settings&&r.settings.shop){$('#shopTitle').textContent=r.settings.shop}
@@ -2421,7 +2432,7 @@ window.addEventListener('online',()=>{if(mode==='staff')fullSync()});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&mode==='staff'&&Date.now()-lastFull>=SYNC_EVERY)fullSync()});
 Object.assign(ACTS,{
   syncNow(){pullNow()},
-  toggleNav(){const o=!document.body.classList.contains('nav-open');document.body.classList.toggle('nav-open',o);$('#navShade').hidden=!o},
+  toggleNav(){const o=!document.body.classList.contains('nav-open');document.body.classList.toggle('nav-open',o);$('#navShade').hidden=!o;if(o)fitText()},
   async aiTest(el){el.disabled=true;el.textContent='កំពុងសាកល្បង...';
     const c=document.createElement('canvas');c.width=900;c.height=420;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,900,420);x.fillStyle='#1a3a8a';
     x.font='italic 54px "Segoe Script","Comic Sans MS",cursive';['1. Amoxicilin 500mg  x21','2. Doli 1g  10B','3. Bepanthen  3B'].forEach((l,i)=>x.fillText(l,40,110+i*110));
