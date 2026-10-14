@@ -446,6 +446,33 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
 .lib-pdf{display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px;background:var(--panel2);border-radius:10px}
 .lib-pdf svg{width:80px;height:100px}
 
+.shelf-tools{margin-top:-4px}
+.shelves{display:flex;flex-direction:column;gap:22px}
+.shelf header{display:flex;align-items:baseline;gap:8px;margin:0 4px 6px}
+.shelf header b{font:700 1rem var(--f-disp);color:var(--leaf-d)}
+.shelf header small{background:var(--sun-soft);color:#7a5e00;border-radius:999px;padding:0 8px;font-size:.72rem}
+.shelf-row{display:flex;gap:14px;overflow-x:auto;align-items:flex-end;padding:10px 14px 0;min-height:150px;position:relative;scrollbar-width:thin;
+  background:linear-gradient(180deg,transparent calc(100% - 14px),#e9c46a calc(100% - 14px),#d4a94a calc(100% - 4px),#b8893a 100%);
+  border-radius:10px 10px 4px 4px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.06)}
+.shelf-row::after{content:"";flex:0 0 1px}
+.shelf-empty{align-self:center;font-size:.8rem;padding-bottom:20px}
+.book{flex:0 0 76px;display:flex;flex-direction:column;align-items:center;gap:5px;border:0;background:none;cursor:pointer;padding:0 0 18px;font-family:var(--f-body);color:var(--fg)}
+.book-cov{position:relative;width:72px;height:102px;border-radius:2px 6px 6px 2px;overflow:hidden;background:#fff;
+  box-shadow:inset 3px 0 0 rgba(0,0,0,.18),inset 5px 0 0 rgba(255,255,255,.25),0 6px 10px -4px rgba(60,40,0,.45);transition:transform .15s}
+.book:hover .book-cov{transform:translateY(-6px) rotate(-1.5deg)}
+.book-cov img{width:100%;height:100%;object-fit:cover;display:block}
+.book-x{position:absolute;right:3px;bottom:3px;background:rgba(0,0,0,.6);color:#fff;font:700 .5rem/1.5 var(--f-mono);padding:0 4px;border-radius:3px}
+.book-t{height:2.6em;width:76px;font-size:.68rem;line-height:1.3;text-align:center;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--fg)}
+.gcov{display:flex;flex-direction:column;justify-content:space-between;width:100%;height:100%;padding:8px 6px 6px 9px;
+  background:linear-gradient(135deg,var(--c),color-mix(in srgb,var(--c) 70%,#000));color:#fff;text-align:left}
+.gcov-t{font:600 .62rem/1.3 var(--f-body);display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;border-top:2px solid rgba(255,255,255,.6);padding-top:5px}
+.gcov-x{font:700 .5rem var(--f-mono);opacity:.75;letter-spacing:.1em}
+.book .gcov-x{visibility:hidden}
+.shelf-tools a.btn{text-decoration:none;display:inline-flex;align-items:center}
+.book-cov.big{width:110px;height:156px;flex-shrink:0}
+.book-cov.big .gcov-t{font-size:.8rem}
+.bview{display:flex;gap:16px;align-items:flex-start}
+
 /* staff orders */
 .olist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));gap:12px;align-items:start}
 .ocard header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:12px 14px;border-bottom:1px dashed var(--line)}
@@ -1116,10 +1143,12 @@ function renderSettings(){const s=S.set;
     ${canPrint?'':'<p class="rx-note" style="margin:0">Artifact នេះមិនអនុញ្ញាតឲ្យភ្ជាប់ទៅ Google ទេ។ សូមប្រើឯកសារ KEP-Pharmacy.html ដែលបើកក្នុង Chrome។</p>'}
     <label>Web App URL (Apps Script)<input id="syncUrlInp" class="inp mono" placeholder="https://script.google.com/macros/s/…/exec" value="${esc(syncUrl())}"></label>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn gold" data-act="syncConnect">${SY.url?'តភ្ជាប់ឡើងវិញ':'តភ្ជាប់'}</button>${syncUrl()?'<button class="btn" data-act="ocrTest">សាកល្បងការអាន (OCR)</button>':''}${SY.url?'<button class="btn" data-act="syncNow">ធ្វើសមកាលកម្មឥឡូវ</button><button class="btn danger ghost" data-act="syncDisconnect">ផ្តាច់</button>':''}</div>
-    <p class="muted mono" style="margin:0;font-size:.78rem" id="syncInfo"></p></div></div>`;
+    <p class="muted mono" style="margin:0;font-size:.78rem" id="syncInfo"></p>
+    <label>Folder សៀវភៅ (Google Drive link)<input id="st-books" class="inp mono" value="${esc('https://drive.google.com/drive/folders/'+bkFolder())}"></label></div></div>`;
   paintSync();
   if($('#aiForm')){aiStatus();$('#aiForm').onsubmit=async e=>{e.preventDefault();const key=$('#aiKey').value.trim();if(key.length<20)return toast('សូមបិទភ្ជាប់ API Key ឲ្យពេញ','bad');
     try{const r=await api(null,{action:'visionKey',pin:sessPin(),engine:$('#aiEngine').value,key});$('#aiKey').value='';paintAi(r.engine);toast('បានរក្សាទុក Key — ចុច «សាកល្បងការអាន AI»','ok')}catch(err){toast(readErr(err),'bad')}}}
+  $('#st-books').onchange=e=>{const id=(e.target.value.match(/folders\/([\w-]{10,})/)||e.target.value.match(/^([\w-]{20,})$/)||[])[1];if(!id)return toast('Link Folder មិនត្រឹមត្រូវ','bad');S.set.booksFolder=id;BK=null;try{localStorage.removeItem('kep-books')}catch(_){}save();toast('បានប្តូរ Folder សៀវភៅ','ok')};
   $('#catForm').onsubmit=e=>{e.preventDefault();const v=$('#catNew').value.trim().replace(/\s+/g,' ');if(!v)return toast('សូមវាយឈ្មោះប្រភេទ','bad');
     if(CATS.some(c=>c.toLowerCase()===v.toLowerCase()))return toast('ប្រភេទនេះមានរួចហើយ','bad');S.set.cats.push(v);applyCats();save();render();toast(`បានបន្ថែម «${v}»`,'ok')};
   $('#setform').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);const rate=parseInt(f.get('rate')),w=parseInt(f.get('warnDays'));
@@ -1155,9 +1184,10 @@ const ACTS={
   wipe(){confirmBox('លុបទិន្នន័យទាំងអស់?','ឱសថ ស្តុក ប្រវត្តិលក់ និងអ្នកផ្គត់ផ្គង់ នឹងត្រូវលុប។ ការកំណត់នៅដដែល។','លុបទាំងអស់',()=>{Object.assign(S,{products:[],batches:[],suppliers:[],sales:[],moves:[],counter:0,orders:[],orderCounter:0});save();resetP();resetR();render();toast('បានលុបទិន្នន័យ','ok')})}
 };
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-lib],[data-libopen],[data-libpub],[data-photo],[data-sadd],[data-sinc],[data-sdec],[data-sdel],[data-scat],[data-of],[data-view],[data-act],[data-add],[data-inc],[data-dec],[data-del],[data-cat],[data-sale],[data-editp],[data-adj],[data-tab],[data-bf],[data-range],[data-rmline],[data-editsup],[data-goto]');
+  const t=e.target.closest('[data-book],[data-lib],[data-libopen],[data-libpub],[data-photo],[data-sadd],[data-sinc],[data-sdec],[data-sdel],[data-scat],[data-of],[data-view],[data-act],[data-add],[data-inc],[data-dec],[data-del],[data-cat],[data-sale],[data-editp],[data-adj],[data-tab],[data-bf],[data-range],[data-rmline],[data-editsup],[data-goto]');
   if(e.target.id==='modal')return closeModal();
   if(!t)return;const d=t.dataset;
+  if(d.book){bookView(d.book);return}
   if(d.lib){libTab=d.lib;renderLibrary();return}
   if(d.libopen){libView(d.libopen);return}
   if(d.libpub){libView(d.libpub,gateDocs);return}
@@ -1193,6 +1223,7 @@ document.addEventListener('input',e=>{const id=e.target.id,v=e.target.value;
   const SF={sname:'name',sphone:'phone',snote:'note'};
   if(SF[id]){C[SF[id]]=v;return}
   if(id==='shopq')return drawShopGrid();
+  if(id==='bkq'){bkQ=v;const pos=e.target.selectionStart;renderShelf();const i=$('#bkq');i.focus();i.setSelectionRange(pos,pos);return}
   if(['cust','rx','disc','rUSD','rKHR'].includes(id)){P[id]=v;if(id!=='cust'&&id!=='rx')drawTotals()}
   else if(id==='q')drawGrid();else if(id==='sq')drawSales();else if(id==='pq')drawProducts();
   else if(id==='rRef')R.ref=v;else if(id==='rDate')R.date=v});
@@ -1753,6 +1784,7 @@ function paintAi(engine){const c=$('#aiState');if(!c)return;c.className='chip '+
 async function aiStatus(){try{const r=await api(null,{action:'visionStatus',pin:sessPin()});paintAi(r.engine)}catch(e){const c=$('#aiState');if(c){c.className='chip bad';c.textContent=noKey(e)?'ត្រូវធ្វើបច្ចុប្បន្នភាព Code.gs':'មិនអាចពិនិត្យបាន'}}}
 /* ---------- library: certificates, licences, books ---------- */
 const LIB={cert:['សញ្ញាបត្រ','Certificates'],license:['អាជ្ញាប័ណ្ណ','Licences'],book:['សៀវភៅ','Books']};
+const BOOKS_FOLDER='1IX-0IrkonNFzy1GtUGUieSvCIqgLSEtE';
 let libTab='cert';
 const isPdf=x=>/pdf/i.test(x.mime||'')||/^data:application\/pdf/.test(x.file||'');
 const isImg=x=>!isPdf(x)&&!!x.file&&(/^data:image|thumbnail\?id=/.test(x.file)||/image/.test(x.mime||''));
@@ -1762,6 +1794,7 @@ function libThumb(x){
   return `<svg viewBox="0 0 60 76" aria-hidden="true"><rect x="4" y="2" width="52" height="72" rx="5" fill="#fff" stroke="${c}" stroke-width="2"/><rect x="4" y="2" width="52" height="16" rx="5" fill="${c}"/><text x="30" y="14" text-anchor="middle" font-size="10" font-weight="700" fill="#fff" font-family="Arial">${isPdf(x)?'PDF':x.type==='book'?'BOOK':'DOC'}</text><path d="M14 30h32M14 38h32M14 46h24M14 54h28" stroke="${c}" stroke-opacity=".35" stroke-width="3" stroke-linecap="round"/></svg>`}
 function libExp(x){if(!x.expires)return '';const d=daysTo(x.expires);return d<0?`<span class="chip bad sm">ផុតកំណត់ ${-d} ថ្ងៃ</span>`:d<=60?`<span class="chip warn sm">នៅ ${d} ថ្ងៃ</span>`:`<span class="chip ok sm">ដល់ ${x.expires}</span>`}
 function renderLibrary(){
+  if(libTab==='book')return renderShelf();
   const cnt=t=>S.library.filter(x=>x.type===t).length;
   const list=S.library.filter(x=>x.type===libTab).sort((a,b)=>(a.title||'').localeCompare(b.title||''));
   V().innerHTML=`<div class="toolbar"><div class="tabs" style="margin:0;flex:1;border:0">${Object.entries(LIB).map(([k,[kh]])=>`<button class="tab ${libTab===k?'on':''}" data-lib="${k}">${kh} <b class="mono">${cnt(k)}</b></button>`).join('')}</div>
@@ -1811,6 +1844,85 @@ Object.assign(ACTS,{
   libDel(el){const x=S.library.find(i=>i.id===el.dataset.id);confirmBox('លុបឯកសារ?',`«${esc(x.title)}» នឹងត្រូវលុបចេញពីបណ្ណាល័យ។`,'លុប',()=>{S.library=S.library.filter(i=>i.id!==x.id);save();render();toast('បានលុប','ok')})}
 });
 
+/* ---------- bookshelf (Google Drive folder) ---------- */
+let BK=(()=>{try{return JSON.parse(localStorage.getItem('kep-books')||'null')}catch(e){return null}})(),bkQ='',bkLoading=false;
+const bkFolder=()=>S.set.booksFolder||BOOKS_FOLDER;
+const SHELF_COLORS=['#2f9e44','#e0a800','#1f6fd1','#c2410c','#7c3aed','#0f766e','#be185d'];
+function genCover(b,i){const c=SHELF_COLORS[(i||0)%SHELF_COLORS.length],t=esc(b.title).slice(0,60);
+  return `<span class="gcov" style="--c:${c}"><span class="gcov-t">${t}</span><span class="gcov-x">${esc((b.ext||'').toUpperCase())}</span></span>`}
+function bookEl(b,i){return `<button class="book" data-book="${b.id}" title="${esc(b.title)}"><span class="book-cov">${b.cover?`<img src="${esc(b.cover)}" alt="" loading="lazy" referrerpolicy="no-referrer" data-gi="${i}">`:genCover(b,i)}<span class="book-x">${esc((b.ext||'').toUpperCase())}</span></span><span class="book-t">${esc(b.title)}</span></button>`}
+async function loadBooks(refresh){
+  if(!syncUrl()){bkLoading=false;return renderShelf('ការភ្ជាប់ Google Drive ប្រើបានតែក្នុងឯកសារ KEP-Pharmacy.html')}
+  bkLoading=true;if(view==='library'&&libTab==='book')renderShelf();
+  try{const r=await api(null,{action:'books',pin:sessPin(),folderId:bkFolder(),refresh:!!refresh});BK={folder:r.folder,shelves:r.shelves,books:r.books,ts:Date.now()};
+    try{localStorage.setItem('kep-books',JSON.stringify(BK))}catch(e){}
+    bkLoading=false;if(view==='library'&&libTab==='book')renderShelf();
+    if(r.pending)setTimeout(()=>{if(view==='library'&&libTab==='book')loadBooks()},4000)}
+  catch(e){bkLoading=false;if(view==='library'&&libTab==='book')renderShelf(noKey(e)?'សូមធ្វើបច្ចុប្បន្នភាព Code.gs ថ្មី ហើយ Deploy › New version':readErr(e))}}
+function renderShelf(err){
+  const cnt=t=>S.library.filter(x=>x.type===t).length;
+  const tabs=`<div class="tabs" style="margin:0;flex:1;border:0">${Object.entries(LIB).map(([k,[kh]])=>`<button class="tab ${libTab===k?'on':''}" data-lib="${k}">${kh} <b class="mono">${k==='book'?(BK?BK.books.length:''):cnt(k)}</b></button>`).join('')}</div>`;
+  const q=bkQ.trim().toLowerCase();
+  let body='';
+  if(BK){const shelves=BK.shelves.map((sh,si)=>({...sh,si,list:BK.books.filter(b=>b.shelf===sh.id&&(!q||b.title.toLowerCase().includes(q))).sort((a,b)=>a.title.localeCompare(b.title,'km'))})).filter(sh=>sh.list.length||(!q&&sh.si>0));
+    body=shelves.map(sh=>`<section class="shelf"><header><b>${esc(sh.name)}</b><small class="mono">${sh.list.length}</small></header><div class="shelf-row">${sh.list.map(b=>bookEl(b,sh.si)).join('')||'<span class="muted shelf-empty">ធ្នើនៅទទេ</span>'}</div></section>`).join('')||'<div class="empty panel">រកមិនឃើញសៀវភៅ</div>';
+    const local=S.library.filter(x=>x.type==='book');
+    if(local.length&&!q)body+=`<section class="shelf"><header><b>ក្នុងឧបករណ៍នេះ</b><small class="mono">${local.length}</small></header><div class="shelf-row">${local.map(x=>`<button class="book" data-libopen="${x.id}"><span class="book-cov">${isImg(x)?`<img src="${x.file}" alt="">`:genCover({title:x.title,ext:isPdf(x)?'pdf':''},3)}</span><span class="book-t">${esc(x.title)}</span></button>`).join('')}</div></section>`;}
+  else if(!err&&!bkLoading&&syncUrl())setTimeout(()=>loadBooks());
+  V().innerHTML=`<div class="toolbar">${tabs}</div>
+  <div class="toolbar shelf-tools"><input id="bkq" class="inp grow" placeholder="ស្វែងរកសៀវភៅ..." value="${esc(bkQ)}">
+    <button class="btn" data-act="bkRefresh" ${bkLoading?'disabled':''}>${bkLoading?'កំពុងទាញ...':'ធ្វើឲ្យថ្មី'}</button>
+    ${BK?`<a class="btn ghost" href="${esc(BK.folder.url)}" target="_blank" rel="noopener">បើក Drive</a>`:''}
+    <button class="btn gold" data-act="bkAdd" ${BK?'':'disabled'}>+ បន្ថែមសៀវភៅ</button></div>
+  ${err?`<p class="rx-note" style="margin:0 0 12px">${esc(err)}</p>`:''}
+  ${BK?`<p class="muted" style="margin:0 0 10px;font-size:.8rem">${esc(BK.folder.name)} · ${BK.books.length} ក្បាល · ${BK.shelves.length} ធ្នើ</p>`:bkLoading?'<div class="empty">កំពុងទាញសៀវភៅពី Google Drive...</div>':''}
+  <div class="shelves">${body}</div>`;
+  V().querySelectorAll('.book-cov img[data-gi]').forEach(img=>img.addEventListener('error',()=>{const b=BK.books.find(x=>x.id===img.closest('.book').dataset.book);if(b)img.outerHTML=genCover(b,+img.dataset.gi)},{once:true}));
+}
+function pinField(){return `<label>PIN បុគ្គលិក (ដើម្បីបញ្ជាក់)<input id="bkPin" class="inp mono" type="password" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="••••"></label>`}
+function checkPinField(){const p=($('#bkPin')?.value||'').trim();if(p!==String(S.set.pin)){toast('PIN មិនត្រឹមត្រូវ','bad');$('#bkPin')?.focus();return null}return p}
+function bookView(id){const b=BK&&BK.books.find(x=>x.id===id);if(!b)return;const si=BK.shelves.findIndex(s=>s.id===b.shelf);
+  const kb=b.size>1048576?(b.size/1048576).toFixed(1)+' MB':Math.max(1,Math.round(b.size/1024))+' KB';
+  openModal(`<div class="bview"><span class="book-cov big">${b.cover?`<img src="${esc(b.cover)}" alt="" referrerpolicy="no-referrer" onerror="this.style.display='none'">`:genCover(b,si)}</span>
+    <div class="stack" style="gap:6px;min-width:0"><h3 style="margin:0">${esc(b.title)}</h3><span class="muted">${esc((BK.shelves[si]||{}).name||'')}</span>
+    <span class="mono muted" style="font-size:.8rem">${esc((b.ext||'').toUpperCase())} · ${kb}</span>
+    <a class="btn gold" href="${esc(b.url)}" target="_blank" rel="noopener" style="align-self:flex-start;margin-top:6px">អាន / បើកសៀវភៅ</a></div></div>
+    <div class="sheet-actions"><button class="btn danger ghost" data-act="bkDel" data-id="${b.id}">លុប</button><button class="btn" data-act="bkEdit" data-id="${b.id}">កែប្រែ</button><span class="grow"></span><button class="btn ghost" data-act="closeModal">បិទ</button></div>`,'narrow')}
+function bookEditForm(id){const b=BK.books.find(x=>x.id===id);let cover='';
+  openModal(`<h3>កែប្រែសៀវភៅ</h3><form id="bkForm" class="form">
+    <label>ចំណងជើង<input id="bk-title" class="inp" value="${esc(b.title)}" required></label>
+    <label>ធ្នើ<select id="bk-shelf" class="inp">${BK.shelves.map(sh=>`<option value="${sh.id}" ${sh.id===b.shelf?'selected':''}>${esc(sh.name)}</option>`).join('')}</select></label>
+    <div class="ph-field"><div class="ph-prev" id="bk-prev" style="width:64px;height:90px">${b.cover?`<img src="${esc(b.cover)}" alt="" referrerpolicy="no-referrer">`:genCover(b,0)}</div>
+      <div class="stack" style="gap:6px"><span class="muted" style="font-size:.8rem">រូបគម្របថ្មី (ស្រេចចិត្ត)</span><span class="btn sm filebtn">ជ្រើសរូប<input type="file" id="bk-cover" accept="image/*"></span></div></div>
+    ${pinField()}
+    <div class="sheet-actions"><span class="grow"></span><button type="button" class="btn ghost" data-act="closeModal">បោះបង់</button><button class="btn gold">រក្សាទុក</button></div></form>`,'narrow');
+  $('#bk-cover').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{cover=(await resizeImage(f,600)).toDataURL('image/jpeg',.85);$('#bk-prev').innerHTML=`<img src="${cover}" alt="">`}catch(err){toast('មិនអាចបើករូបនេះបាន','bad')}};
+  $('#bkForm').onsubmit=async e=>{e.preventDefault();const pin=checkPinField();if(!pin)return;const btn=e.target.querySelector('.btn.gold');btn.disabled=true;btn.textContent='កំពុងរក្សាទុក...';
+    const title=$('#bk-title').value.trim(),shelf=$('#bk-shelf').value;
+    try{const r=await api(null,{action:'bookEdit',pin,folderId:bkFolder(),fileId:id,title:title!==b.title?title:'',shelfId:shelf!==b.shelf?shelf:'',cover});
+      Object.assign(b,{title,shelf});if(r.cover)b.cover=r.cover;try{localStorage.setItem('kep-books',JSON.stringify(BK))}catch(_){}
+      closeModal();renderShelf();toast('បានរក្សាទុក','ok')}
+    catch(err){btn.disabled=false;btn.textContent='រក្សាទុក';toast(readErr(err),'bad')}}}
+function bookDeleteForm(id){const b=BK.books.find(x=>x.id===id);
+  openModal(`<h3>លុបសៀវភៅ?</h3><p class="muted">«${esc(b.title)}» នឹងត្រូវដាក់ក្នុងធុងសំរាម (Trash) របស់ Google Drive។ អាចយកមកវិញបានក្នុងរយៈពេល ៣០ ថ្ងៃ។</p>
+    <form id="bkDelForm" class="form">${pinField()}<div class="sheet-actions"><span class="grow"></span><button type="button" class="btn ghost" data-act="closeModal">បោះបង់</button><button class="btn danger solid">លុប</button></div></form>`,'narrow');
+  $('#bkPin').focus();
+  $('#bkDelForm').onsubmit=async e=>{e.preventDefault();const pin=checkPinField();if(!pin)return;
+    try{await api(null,{action:'bookDelete',pin,folderId:bkFolder(),fileId:id});BK.books=BK.books.filter(x=>x.id!==id);try{localStorage.setItem('kep-books',JSON.stringify(BK))}catch(_){}
+      closeModal();renderShelf();toast('បានលុប','ok')}catch(err){toast(readErr(err),'bad')}}}
+function bookAddForm(){let file=null;
+  openModal(`<h3>បន្ថែមសៀវភៅ</h3><form id="bkAddForm" class="form">
+    <label>ឯកសារ (PDF · EPUB · MOBI · AZW3, មិនលើស 25MB)<input id="bk-file" type="file" class="inp" accept=".pdf,.epub,.mobi,.azw,.azw3,application/pdf,application/epub+zip"></label>
+    <label>ធ្នើ<select id="bk-shelf2" class="inp">${BK.shelves.map(sh=>`<option value="${sh.id}">${esc(sh.name)}</option>`).join('')}</select></label>
+    ${pinField()}<div class="sheet-actions"><span class="grow"></span><button type="button" class="btn ghost" data-act="closeModal">បោះបង់</button><button class="btn gold">ផ្ទុកឡើង</button></div></form>`,'narrow');
+  $('#bk-file').onchange=e=>{file=e.target.files[0]||null};
+  $('#bkAddForm').onsubmit=async e=>{e.preventDefault();if(!file)return toast('សូមជ្រើសឯកសារ','bad');if(file.size>25*1048576)return toast('ឯកសារធំពេក (លើស 25MB) — សូមដាក់ផ្ទាល់ក្នុង Google Drive','bad');
+    const pin=checkPinField();if(!pin)return;const btn=e.target.querySelector('.btn.gold');btn.disabled=true;btn.textContent='កំពុងផ្ទុកឡើង...';
+    try{const data=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)});
+      await api(null,{action:'bookAdd',pin,folderId:bkFolder(),shelfId:$('#bk-shelf2').value,name:file.name,data});closeModal();toast('បានផ្ទុកឡើង','ok');loadBooks(true)}
+    catch(err){btn.disabled=false;btn.textContent='ផ្ទុកឡើង';toast(readErr(err),'bad')}}}
+Object.assign(ACTS,{bkRefresh(){loadBooks(true)},bkAdd(){bookAddForm()},bkEdit(el){bookEditForm(el.dataset.id)},bkDel(el){bookDeleteForm(el.dataset.id)}});
+
 /* ---------- Google Sheets sync ---------- */
 /* Paste the Apps Script Web App URL here to ship the file to customers already connected */
 const SHEET_API_URL='https://script.google.com/macros/s/AKfycbwmLQLV28sAI3qBPavtwjxX6_LSgpDVFllok5wAbS-BCNLMQPgEKAsqfwfhGjCeGtd5/exec';
@@ -1824,7 +1936,7 @@ const TBL={
   orders:{cols:['id','no','ts','status','name','phone','note','total','saleNo','doneTs','photo','items'],num:['ts','total','doneTs'],json:['items']},
   library:{cols:['id','type','title','holder','number','issued','expires','file','mime','note','ts'],num:['ts']}
 };
-const SET_KEYS=['shop','shopEn','address','phone','staff','rate','warnDays','cats'];
+const SET_KEYS=['shop','shopEn','address','phone','staff','rate','warnDays','cats','booksFolder'];
 let SY=(()=>{try{return Object.assign({url:'',hashes:{},last:0},JSON.parse(localStorage.getItem(SYNC_KEY)||'{}'))}catch(e){return{url:'',hashes:{},last:0}}})();
 SY.state='';SY.busy=false;
 function saveSY(){try{localStorage.setItem(SYNC_KEY,JSON.stringify({url:SY.url,hashes:SY.hashes,last:SY.last}))}catch(e){}}
