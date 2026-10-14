@@ -248,36 +248,68 @@ textarea.inp{font:12px/1.4 var(--f-mono);min-height:160px;resize:vertical}
 .rc-foot{text-align:center;color:#555;font-size:.74rem;margin-top:10px;border-top:1px dashed #999;padding-top:8px}
 .void-stamp{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%) rotate(-18deg);font:700 3rem var(--f-mono);color:rgba(200,40,40,.35);border:4px solid rgba(200,40,40,.35);padding:0 14px;border-radius:8px}
 
-/* login gate — one compact column */
-.gate{position:fixed;inset:0;z-index:40;overflow:auto;display:flex;padding:calc(20px + env(safe-area-inset-top,0px)) 16px calc(20px + env(safe-area-inset-bottom,0px));
-  background:radial-gradient(900px 480px at 50% -14%,color-mix(in srgb,var(--gold) 15%,transparent),transparent 62%),var(--bg)}
-.gate-card{width:min(320px,100%);display:flex;flex-direction:column;align-items:stretch;gap:18px;margin:auto}
-.gate-brand{text-align:center}
-.gate-brand img{width:92px;height:92px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px var(--gold),0 10px 30px rgba(0,0,0,.3)}
-.gate-brand h1{font:700 1.45rem/1.3 var(--f-disp);color:var(--gold);margin:10px 0 0}
-.gate-brand small{letter-spacing:.24em;color:var(--muted);font:500 .68rem var(--f-mono)}
-.gate-shop{display:flex;flex-direction:column;gap:8px}
-.btn-yellow{width:100%;border:0;border-radius:10px;padding:14px;cursor:pointer;font:700 1.08rem var(--f-body);background:#f6d60f;color:#173d14;box-shadow:0 4px 0 #c9a800;transition:transform .08s,box-shadow .08s}
-.btn-yellow:hover{background:#ffe02a}
-.btn-yellow:active{transform:translateY(3px);box-shadow:0 1px 0 #c9a800}
-.btn-green{width:100%;border:0;border-radius:10px;padding:13px;cursor:pointer;font:700 1.02rem var(--f-body);background:#45c157;color:#fff;box-shadow:0 4px 0 #2e9a3e;transition:transform .08s,box-shadow .08s}
-.btn-green:hover{background:#52cd64}
-.btn-green:active,.btn-green.on{transform:translateY(3px);box-shadow:0 1px 0 #2e9a3e}
-.btn-hw{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:8px;width:100%;border:1.5px dashed #c9a800;border-radius:10px;padding:11px;cursor:pointer;font:600 .95rem var(--f-body);color:var(--fg);background:var(--panel)}
-.btn-hw:hover{border-style:solid}
-.btn-hw svg{width:20px;height:20px;flex-shrink:0;color:#c9a800}
-.gate-shop{gap:12px}
-.gate-staff{display:flex;flex-direction:column;gap:6px;margin:0}
-.gate-staff label{font-size:.78rem;color:var(--muted)}
+/* login gate — brand colours from the logo: leaf green, sun yellow, ink blue */
+.gate{--g-green:#2f9e44;--g-green-d:#227a33;--g-yellow:#f7d417;--g-yellow-d:#c9a800;--g-blue:#1f4fb0;
+  position:fixed;inset:0;z-index:40;overflow:auto;display:flex;padding:calc(20px + env(safe-area-inset-top,0px)) 16px calc(20px + env(safe-area-inset-bottom,0px));
+  background:
+    radial-gradient(620px 360px at 12% -6%,color-mix(in srgb,var(--g-yellow) 22%,transparent),transparent 70%),
+    radial-gradient(560px 380px at 100% 108%,color-mix(in srgb,var(--g-green) 20%,transparent),transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cpath d='M24 18h8v6h6v8h-6v6h-8v-6h-6v-8h6z' fill='%232f9e44' fill-opacity='.06'/%3E%3C/svg%3E"),
+    var(--bg)}
+.gate-card{width:min(380px,100%);display:flex;flex-direction:column;align-items:stretch;gap:20px;margin:auto}
+.gate-brand{text-align:center;display:flex;flex-direction:column;align-items:center}
+.gb-ring{width:118px;height:118px;border-radius:50%;padding:5px;background:conic-gradient(var(--g-green),var(--g-yellow),var(--g-green));box-shadow:0 14px 34px rgba(20,60,30,.22)}
+.gb-ring img{width:100%;height:100%;border-radius:50%;background:#fff;display:block;border:3px solid #fff}
+.gate-brand h1{font:700 1.6rem/1.3 var(--f-disp);color:var(--g-blue);margin:12px 0 0;text-wrap:balance}
+.gate-brand small{letter-spacing:.3em;color:var(--muted);font:600 .68rem var(--f-mono);margin-top:2px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .gate-brand h1{color:#8fb3ff}}
+:root[data-theme="dark"] .gate-brand h1{color:#8fb3ff}
+.gpanel{display:flex;flex-direction:column;gap:10px;animation:gin .22s ease-out}
+@keyframes gin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.ghero,.gtile{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;width:100%;border:0;cursor:pointer;text-align:left;font-family:var(--f-body);transition:transform .08s,box-shadow .15s,border-color .15s}
+.ghero{padding:16px 16px 16px 14px;border-radius:16px}
+.ghero.yellow{background:linear-gradient(135deg,#ffe24a,var(--g-yellow));color:#173d14;box-shadow:0 5px 0 var(--g-yellow-d),0 12px 24px rgba(201,168,0,.25)}
+.ghero.green{background:linear-gradient(135deg,#4cc25e,var(--g-green));color:#fff;box-shadow:0 5px 0 var(--g-green-d),0 12px 24px rgba(47,158,68,.25)}
+.ghero:active{transform:translateY(4px)}
+.ghero.yellow:active{box-shadow:0 1px 0 var(--g-yellow-d)}.ghero.green:active{box-shadow:0 1px 0 var(--g-green-d)}
+.gh-ic{width:50px;height:50px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.55)}
+.ghero.green .gh-ic{background:rgba(255,255,255,.2)}
+.gh-ic svg{width:28px;height:28px}
+.gt-tx{display:flex;flex-direction:column;line-height:1.35;min-width:0}
+.gt-tx b{font-size:1.08rem;font-weight:700}
+.gt-tx small{font-size:.78rem;opacity:.8}
+.gt-ch svg{width:20px;height:20px;opacity:.7}
+.gtile{padding:12px 14px 12px 12px;border-radius:14px;background:var(--panel);border:1px solid var(--line);color:var(--fg);box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.gtile:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,0,0,.08)}
+.gtile .gt-ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center}
+.gtile .gt-ic svg{width:24px;height:24px}
+.gtile.t-y .gt-ic{background:color-mix(in srgb,var(--g-yellow) 28%,transparent);color:#8a6f00}
+.gtile.t-g .gt-ic{background:color-mix(in srgb,var(--g-green) 18%,transparent);color:var(--g-green-d)}
+.gtile.t-y:hover{border-color:var(--g-yellow-d)}.gtile.t-g:hover{border-color:var(--g-green)}
+.gtile .gt-tx b{font-size:1rem}
+.gtile.on{border-color:var(--g-green);box-shadow:0 0 0 3px color-mix(in srgb,var(--g-green) 20%,transparent)}
+.gp-head{display:flex;align-items:center;gap:10px;margin-bottom:2px}
+.gp-head span{display:flex;flex-direction:column;line-height:1.3}
+.gp-head b{font:700 1.05rem var(--f-disp)}
+.gp-head small{color:var(--muted);font-size:.76rem}
+.gback{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--fg);display:grid;place-items:center;cursor:pointer;flex-shrink:0}
+.gback svg{width:18px;height:18px}
+.gback:hover{border-color:var(--g-green)}
+.gate-staff{display:flex;flex-direction:column;gap:4px;margin:0;padding:0 2px}
 .pin-row{display:flex;gap:8px}
-.pin-row .inp{flex:1;text-align:center;letter-spacing:.5em;font-size:1rem;padding:9px 10px}
-.pin-row .btn{padding:0 18px}
-.pin-msg{text-align:center;min-height:1.4em;font-size:.8rem;margin:0}
+.pin-row .inp{flex:1;text-align:center;letter-spacing:.5em;font-size:1rem;padding:10px}
+.pin-row .btn{padding:0 20px;background:var(--g-green);border-color:var(--g-green);color:#fff}
+.pin-msg{text-align:center;min-height:1.2em;font-size:.8rem;margin:0}
 .pin-msg.bad{color:var(--bad)}
 .shake{animation:shake .35s}
 @keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
-.gate-foot{color:var(--muted);font-size:.72rem;text-align:center;margin:0;line-height:1.6}
-@media (max-height:640px){.gate-brand img{width:64px;height:64px}.gate-card{gap:12px}}
+.gate-foot{color:var(--muted);font-size:.72rem;text-align:center;margin:0;line-height:1.6;padding-top:6px;border-top:1px dashed var(--line)}
+.doc-view{display:block;width:100%;border-radius:8px;border:1px solid var(--line);background:#fff}
+.doc-slots{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.doc-slot{display:flex;flex-direction:column;gap:6px}
+.doc-slot .ph-prev{width:100%;height:110px}
+@media (max-height:680px){.gb-ring{width:84px;height:84px}.gate-card{gap:14px}.ghero{padding:12px}.gh-ic{width:42px;height:42px}}
+@media (prefers-reduced-motion:reduce){.gpanel{animation:none}}
 
 /* customer shop */
 .shop-brand{display:flex;align-items:center;gap:10px;min-width:0}
@@ -355,6 +387,22 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
 .inv-sign{display:flex;justify-content:space-between;margin-top:34px;color:var(--ib);font-size:.82rem;font-weight:600}
 @media (max-width:520px){.inv{padding:12px}.inv-t{font-size:.76rem}.inv-t th,.inv-t td{padding:4px 5px}}
 
+.sheet.invoice{width:min(980px,100%)}
+.sheet.invoice:has(.inv-photo){display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:14px;align-items:start}
+.sheet.invoice:has(.inv-photo) .inv{grid-column:1;grid-row:1}
+.sheet.invoice:has(.inv-photo) .sheet-actions{grid-column:1/-1}
+.inv-photo{grid-column:2;grid-row:1;position:sticky;top:0;display:flex;flex-direction:column;gap:4px}
+.inv-photo img{width:100%;border-radius:8px;border:1px solid var(--line);cursor:zoom-in;background:#fff}
+.inv-photo small{color:var(--muted);font-size:.72rem;text-align:center}
+@media (max-width:760px){.sheet.invoice:has(.inv-photo){grid-template-columns:1fr}.inv-photo{grid-column:1;grid-row:auto;position:static}.inv-photo img{max-height:220px;object-fit:contain}}
+.inv-d{position:relative}
+.inv-t td.inv-d{text-align:left;padding-right:24px}
+.inv-name{text-align:left!important}
+.inv-x{position:absolute;right:4px;top:50%;transform:translateY(-50%);border:0;background:none;color:#b3352e;font-size:1rem;cursor:pointer;opacity:.35}
+.inv-t tr:hover .inv-x{opacity:1}
+.inv-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.inv-tools .inv-hint{margin:0}
+.inv-tools .btn{color:#1f4fb0;background:#f1f5ff;border-color:#c9d6f2}
 .inv-in{width:100%;min-width:46px;border:0;border-bottom:1px dashed #9db3e0;background:transparent;color:inherit;text-align:right;padding:2px 0;font-size:inherit;outline:none}
 .inv-in:focus{border-bottom:1.5px solid #1f4fb0;background:#f1f5ff}
 .inv-t td:nth-child(3){display:table-cell}
@@ -477,6 +525,7 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
   body.printing .sheet.invoice{width:auto}
   .inv-in{border:0!important;background:transparent!important}
   .inv-hint{display:none}
+  .inv-x,.inv-tools,.inv-photo{display:none!important}
   body.printing .receipt{padding:0}
 }
 </style>
@@ -484,17 +533,27 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
 <!-- Login gate -->
 <div id="gate" class="gate">
   <div class="gate-card">
-    <div class="gate-brand"><img data-logo alt="KEP Pharmacy logo"><h1 id="gateShop">ឱសថស្ថានកែប</h1><small>KEP PHARMACY</small></div>
-    <div class="gate-shop">
-      <button class="btn-yellow" data-act="enterShop">អតិថិជន-ចូលទិញឱសថ</button>
-      <button type="button" class="btn-hw" data-act="gateCam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg>ថតបញ្ជីសរសេរដៃ ផ្ញើបញ្ជាទិញ</button>
-      <button class="btn-green" id="gateStaffBtn" data-act="showPin">ឈឹន សុវណ្ណដាណែត</button>
+    <div class="gate-brand"><div class="gb-ring"><img data-logo alt="KEP Pharmacy logo"></div><h1 id="gateShop">ឱសថស្ថានកែប</h1><small>KEP PHARMACY</small></div>
+    <div class="gpanel" id="gHome">
+      <button type="button" class="ghero yellow" data-act="gateGo" data-to="gCust"><span class="gh-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><path d="M12 11v5M9.5 13.5h5"/></svg></span><span class="gt-tx"><b>អតិថិជន-ចូលទិញឱសថ</b><small>មើលឱសថ · ផ្ញើបញ្ជីបញ្ជាទិញ</small></span><span class="gt-ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></button>
+      <button type="button" class="ghero green" data-act="gateGo" data-to="gStaff"><span class="gh-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="7" r="3.5"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/><path d="M12 14.5v4M10 16.5h4"/></svg></span><span class="gt-tx"><b id="gateStaffName">ឈឹន សុវណ្ណដាណែត</b><small>ឱសថការី · Pharmacist</small></span><span class="gt-ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></button>
     </div>
-    <form class="gate-staff" id="pinBox" autocomplete="off" aria-label="ចូលសម្រាប់បុគ្គលិក" hidden>
-      <label for="pinInput">បុគ្គលិក · PIN</label>
-      <div class="pin-row"><input id="pinInput" class="inp mono" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" placeholder="••••" aria-describedby="pinMsg"><button class="btn" type="submit">ចូល</button></div>
-      <p class="pin-msg" id="pinMsg" aria-live="polite"></p>
-    </form>
+    <div class="gpanel" id="gCust" hidden>
+      <div class="gp-head"><button type="button" class="gback" data-act="gateGo" data-to="gHome" aria-label="ត្រឡប់"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><span><b>អតិថិជន</b><small>ជ្រើសរបៀបបញ្ជាទិញ</small></span></div>
+      <button type="button" class="gtile t-y" data-act="enterShop" ><span class="gt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="9" width="11" height="6" rx="3" transform="rotate(-35 8.5 12)"/><path d="M6 15.5l4.5-6.5"/><circle cx="17.5" cy="15.5" r="3.5"/><path d="M15 18l5-5"/></svg></span><span class="gt-tx"><b>បញ្ជីថ្នាំ</b><small>មើល និងជ្រើសឱសថដាក់កន្ត្រក</small></span><span class="gt-ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></button>
+      <button type="button" class="gtile t-y" data-act="gateCam" ><span class="gt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/><path d="M14 20h6"/></svg></span><span class="gt-tx"><b>ថតបញ្ជីសរសេរដៃ</b><small>ថតក្រដាសបញ្ជីឱសថ ផ្ញើមកយើង</small></span><span class="gt-ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></button>
+      <button type="button" class="gtile t-y" data-act="gateRx" ><span class="gt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h9l3 3v15H6z"/><path d="M9 8h3a2 2 0 0 1 0 4H9V8zm0 4v4m3-4l3 4"/></svg></span><span class="gt-tx"><b>វេជ្ជបញ្ជាទិញថ្នាំ</b><small>ថតវេជ្ជបញ្ជាពីគ្រូពេទ្យ ផ្ញើមកយើង</small></span><span class="gt-ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></button>
+    </div>
+    <div class="gpanel" id="gStaff" hidden>
+      <div class="gp-head"><button type="button" class="gback" data-act="gateGo" data-to="gHome" aria-label="ត្រឡប់"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><span><b id="gateStaffName2">ឈឹន សុវណ្ណដាណែត</b><small>ឱសថការី · Pharmacist</small></span></div>
+      <button type="button" class="gtile t-g" data-act="showPin" id="gateLoginBtn"><span class="gt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M15 8l2 2"/></svg></span><span class="gt-tx"><b>ចូលកម្មវិធី</b><small>សម្រាប់បុគ្គលិក · ត្រូវការ PIN</small></span><span class="gt-ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></button>
+      <form class="gate-staff" id="pinBox" autocomplete="off" aria-label="ចូលសម្រាប់បុគ្គលិក" hidden>
+        <div class="pin-row"><input id="pinInput" class="inp mono" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" placeholder="PIN" aria-label="PIN" aria-describedby="pinMsg"><button class="btn" type="submit">ចូល</button></div>
+        <p class="pin-msg" id="pinMsg" aria-live="polite"></p>
+      </form>
+      <button type="button" class="gtile t-g" data-act="gateDoc" data-doc="certImg"><span class="gt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M7 8h10M7 11h6"/><circle cx="16.5" cy="17" r="2.5"/><path d="M15 19l-1 3 2.5-1 2.5 1-1-3"/></svg></span><span class="gt-tx"><b>សញ្ញាបត្រ</b><small>សញ្ញាបត្រឱសថការី</small></span><span class="gt-ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></button>
+      <button type="button" class="gtile t-g" data-act="gateDoc" data-doc="licImg"><span class="gt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span><span class="gt-tx"><b>អាជ្ញាប័ណ្ណ</b><small>អាជ្ញាប័ណ្ណបើកឱសថស្ថាន</small></span><span class="gt-ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></button>
+    </div>
     <p class="gate-foot" id="gateFoot"></p>
   </div>
 </div>
@@ -729,7 +788,7 @@ document.addEventListener('keydown',e=>{
   }
   if(e.key.length===1&&!e.ctrlKey&&!e.metaKey&&!e.altKey){kb.buf=(now-kb.last>60?'':kb.buf)+e.key;kb.last=now}
 },true);
-let tt;function toast(msg,kind=''){const t=$('#toast');t.textContent=msg;t.className='toast '+kind;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600)}
+let tt;function toast(msg,kind=''){const t=$('#toast');t.textContent=msg;t.className='toast '+kind;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,Math.max(2600,String(msg).length*70))}
 function confirmBox(title,msg,yes,fn){openModal(`<h3>${title}</h3><p class="muted">${msg}</p><div class="sheet-actions"><span class="grow"></span><button class="btn ghost" data-act="closeModal">បោះបង់</button><button class="btn danger solid" id="yesBtn">${yes}</button></div>`,'narrow');$('#yesBtn').onclick=()=>{closeModal();fn()}}
 
 /* ---------- POS ---------- */
@@ -1002,18 +1061,29 @@ function renderSettings(){const s=S.set;
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="exportData">នាំចេញ Backup</button><label class="btn" style="flex-direction:row;color:var(--fg);font-size:inherit">នាំចូល Backup<input type="file" id="importFile" accept=".json,application/json" hidden></label></div>
     <div class="divider">តំបន់គ្រោះថ្នាក់</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn danger ghost" data-act="loadDemo">ផ្ទុកទិន្នន័យគំរូឡើងវិញ</button><button class="btn danger ghost" data-act="wipe">លុបទិន្នន័យទាំងអស់</button></div></div>
+  <div class="panel pad stack"><div class="card-h" style="padding:0"><h3>សញ្ញាបត្រ និងអាជ្ញាប័ណ្ណ</h3></div>
+    <p class="muted" style="margin:0">បង្ហាញនៅផ្ទាំងដំបូង ពេលចុចលើឈ្មោះឱសថការី។</p>
+    <div class="doc-slots">${[['certImg','សញ្ញាបត្រ'],['licImg','អាជ្ញាប័ណ្ណ']].map(([k,t])=>`<div class="doc-slot"><b style="font-size:.86rem">${t}</b><div class="ph-prev">${s[k]?`<img src="${s[k]}" alt="${t}">`:'<span class="muted" style="font-size:.78rem">មិនទាន់មាន</span>'}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="btn sm filebtn">ជ្រើសរូប<input type="file" accept="image/*" data-doc="${k}" id="doc-${k}"></span>${s[k]?`<button type="button" class="btn ghost sm" data-act="docDel" data-k="${k}">លុប</button>`:''}</div></div>`).join('')}</div></div>
   <div class="panel pad stack"><div class="card-h" style="padding:0"><h3>ប្រភេទឱសថ</h3><small>${CATS.length} ប្រភេទ</small></div>
     <p class="muted" style="margin:0">ប្រភេទទាំងនេះបង្ហាញក្នុងទម្រង់ឱសថ ផ្ទាំងលក់ និងហាងអតិថិជន។</p>
     <div class="catlist">${CATS.map((c,i)=>{const n=S.products.filter(p=>p.cat===c).length;return `<span class="catchip"><span>${esc(c)}</span><small class="mono">${n}</small>
       <button type="button" data-act="catUp" data-i="${i}" ${i?'':'disabled'} aria-label="ផ្លាស់ទីឡើង">↑</button><button type="button" data-act="catDel" data-i="${i}" aria-label="លុប ${esc(c)}">×</button></span>`}).join('')}</div>
     <form id="catForm" class="pin-row"><input id="catNew" class="inp" placeholder="ប្រភេទថ្មី ឧ. សារ៉ូម" maxlength="40" style="text-align:left;letter-spacing:0"><button class="btn gold">+ បន្ថែម</button></form></div>
+  ${syncUrl()?`<div class="panel pad stack"><div class="card-h" style="padding:0"><h3>ការអានរូបដោយ AI</h3><span class="chip" id="aiState">…</span></div>
+    <p class="muted" style="margin:0">អានវេជ្ជបញ្ជា អក្សរដៃ (ខ្មែរ/អង់គ្លេស) និងស្លាកប្រអប់ថ្នាំ បានល្អជាង OCR ច្រើន។ Key រក្សាទុកក្នុង Apps Script តែប៉ុណ្ណោះ។</p>
+    <form id="aiForm" class="stack" style="gap:8px"><div class="row2"><label>សេវា<select id="aiEngine" class="inp"><option value="gemini">Google Gemini (មាន Free tier)</option><option value="claude">Anthropic Claude</option></select></label>
+    <label>API Key<input id="aiKey" class="inp mono" type="password" autocomplete="off" placeholder="បិទភ្ជាប់ Key នៅទីនេះ"></label></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn gold">រក្សាទុក Key</button><button type="button" class="btn" data-act="aiTest">សាកល្បងការអាន AI</button><button type="button" class="btn danger ghost" data-act="aiClear">លុប Key</button></div></form></div>`:''}
   <div class="panel pad stack"><div class="card-h" style="padding:0"><h3>Google Sheets</h3><span class="chip" id="syncState"></span></div>
     <p class="muted" style="margin:0">រក្សាទុកទិន្នន័យក្នុង Sheet «POSPharmacy» ដោយស្វ័យប្រវត្តិ ហើយប្រើបានលើឧបករណ៍ច្រើន។ ការបញ្ជាទិញរបស់អតិថិជនក៏ចូល Sheet ដែរ។</p>
     ${canPrint?'':'<p class="rx-note" style="margin:0">Artifact នេះមិនអនុញ្ញាតឲ្យភ្ជាប់ទៅ Google ទេ។ សូមប្រើឯកសារ KEP-Pharmacy.html ដែលបើកក្នុង Chrome។</p>'}
     <label>Web App URL (Apps Script)<input id="syncUrlInp" class="inp mono" placeholder="https://script.google.com/macros/s/…/exec" value="${esc(syncUrl())}"></label>
-    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn gold" data-act="syncConnect">${SY.url?'តភ្ជាប់ឡើងវិញ':'តភ្ជាប់'}</button>${SY.url?'<button class="btn" data-act="syncNow">ធ្វើសមកាលកម្មឥឡូវ</button><button class="btn danger ghost" data-act="syncDisconnect">ផ្តាច់</button>':''}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn gold" data-act="syncConnect">${SY.url?'តភ្ជាប់ឡើងវិញ':'តភ្ជាប់'}</button>${syncUrl()?'<button class="btn" data-act="ocrTest">សាកល្បងការអាន (OCR)</button>':''}${SY.url?'<button class="btn" data-act="syncNow">ធ្វើសមកាលកម្មឥឡូវ</button><button class="btn danger ghost" data-act="syncDisconnect">ផ្តាច់</button>':''}</div>
     <p class="muted mono" style="margin:0;font-size:.78rem" id="syncInfo"></p></div></div>`;
   paintSync();
+  if($('#aiForm')){aiStatus();$('#aiForm').onsubmit=async e=>{e.preventDefault();const key=$('#aiKey').value.trim();if(key.length<20)return toast('សូមបិទភ្ជាប់ API Key ឲ្យពេញ','bad');
+    try{const r=await api(null,{action:'visionKey',pin:sessPin(),engine:$('#aiEngine').value,key});$('#aiKey').value='';paintAi(r.engine);toast('បានរក្សាទុក Key — ចុច «សាកល្បងការអាន AI»','ok')}catch(err){toast(readErr(err),'bad')}}}
   $('#catForm').onsubmit=e=>{e.preventDefault();const v=$('#catNew').value.trim().replace(/\s+/g,' ');if(!v)return toast('សូមវាយឈ្មោះប្រភេទ','bad');
     if(CATS.some(c=>c.toLowerCase()===v.toLowerCase()))return toast('ប្រភេទនេះមានរួចហើយ','bad');S.set.cats.push(v);applyCats();save();render();toast(`បានបន្ថែម «${v}»`,'ok')};
   $('#setform').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);const rate=parseInt(f.get('rate')),w=parseInt(f.get('warnDays'));
@@ -1052,7 +1122,8 @@ document.addEventListener('click',e=>{
   const t=e.target.closest('[data-photo],[data-sadd],[data-sinc],[data-sdec],[data-sdel],[data-scat],[data-of],[data-view],[data-act],[data-add],[data-inc],[data-dec],[data-del],[data-cat],[data-sale],[data-editp],[data-adj],[data-tab],[data-bf],[data-range],[data-rmline],[data-editsup],[data-goto]');
   if(e.target.id==='modal')return closeModal();
   if(!t)return;const d=t.dataset;
-  if(d.photo){const o=S.orders.find(x=>x.id===d.photo);if(o&&o.photo)openModal(`<h3>${o.no} · រូបបញ្ជី</h3><img src="${o.photo}" alt="" style="width:100%;border-radius:8px"><div class="sheet-actions"><span class="grow"></span><button class="btn gold" data-act="closeModal">បិទ</button></div>`)}
+  if(d.photo&&t.closest('.inv-photo')){const o=S.orders.find(x=>x.id===d.photo);if(o)openModal(`<h3>${esc(o.no)} · រូបបញ្ជី</h3><img src="${o.photo}" alt="" style="width:100%;border-radius:8px"><div class="sheet-actions"><span class="grow"></span><button class="btn gold" data-act="backInvoice" data-id="${o.id}">ត្រឡប់ទៅវិក្កយបត្រ</button></div>`)}
+  else if(d.photo){const o=S.orders.find(x=>x.id===d.photo);if(o&&o.photo)openModal(`<h3>${o.no} · រូបបញ្ជី</h3><img src="${o.photo}" alt="" style="width:100%;border-radius:8px"><div class="sheet-actions"><span class="grow"></span><button class="btn gold" data-act="closeModal">បិទ</button></div>`)}
   else if(d.sadd)shopAdd(d.sadd,1);
   else if(d.sinc)shopAdd(d.sinc,1);
   else if(d.sdec)shopAdd(d.sdec,-1);
@@ -1086,6 +1157,7 @@ document.addEventListener('input',e=>{const id=e.target.id,v=e.target.value;
   else if(id==='q')drawGrid();else if(id==='sq')drawSales();else if(id==='pq')drawProducts();
   else if(id==='rRef')R.ref=v;else if(id==='rDate')R.date=v});
 document.addEventListener('change',e=>{const id=e.target.id,v=e.target.value;
+  if(e.target.dataset&&e.target.dataset.doc&&e.target.type==='file'){const f=e.target.files[0],k=e.target.dataset.doc;e.target.value='';if(f)resizeImage(f,1400).then(c=>{S.set[k]=c.toDataURL('image/jpeg',.8);save();render();toast('បានរក្សាទុករូប','ok')}).catch(()=>toast('មិនអាចបើករូបនេះបាន','bad'));return}
   if(id==='gateHw'){const f=e.target.files[0];e.target.value='';if(f)quickOrder(f);return}
   if(id==='hwFile'||id==='hwFile2'){const f=e.target.files[0];e.target.value='';if(f)handleHandwriting(f);return}
   if(id==='pay'){P.pay=v;drawTotals()}else if(id==='pcat')drawProducts();else if(id==='rSup')R.sup=v;
@@ -1113,8 +1185,15 @@ let mode='gate',pinFails=0,pinLockUntil=0;
 function setMode(m){mode=m;$('#appRoot').hidden=m!=='staff';$('#shop').hidden=m!=='shop';$('#gate').hidden=m!=='gate';window.scrollTo(0,0)}
 function showGate(){closeModal();try{sessionStorage.removeItem(AUTH)}catch(e){}
   $('#gateShop').textContent=S.set.shop;$('#gateFoot').innerHTML=[S.set.shop,S.set.staff,...String(S.set.phone||'').split('-')].filter(Boolean).map(x=>`<span style="white-space:nowrap">${esc(x)}</span>`).join('-');
-  $('#gateStaffBtn').textContent=S.set.staff||'បុគ្គលិក';$('#gateStaffBtn').classList.remove('on');$('#pinBox').hidden=true;
+  $('#gateStaffName').textContent=$('#gateStaffName2').textContent=S.set.staff||'ឱសថការី';gateGo('gHome');
   setMode('gate');const i=$('#pinInput');i.value='';i.maxLength=String(S.set.pin).length;pinMsg('')}
+function gateGo(id){['gHome','gCust','gStaff'].forEach(p=>$('#'+p).hidden=p!==id);$('#pinBox').hidden=true;$('#gateLoginBtn')?.classList.remove('on');pinMsg('')}
+async function gateDoc(key){
+  const title=key==='certImg'?'សញ្ញាបត្រ':'អាជ្ញាប័ណ្ណ';let src=S.set[key]||'';
+  if(!src&&syncUrl()){openModal(`<h3>${title}</h3><p class="muted">កំពុងទាញ...</p>`,'narrow');try{const r=await api(null,{action:'catalog'});src=(r.settings&&r.settings[key])||''}catch(e){}}
+  if(mode!=='gate')return;
+  openModal(`<h3>${title}</h3>${src?`<img class="doc-view" src="${src}" alt="${title}">`:'<p class="muted">មិនទាន់មានរូប។ ឱសថការីអាចដាក់រូបនៅក្នុង ការកំណត់ › សញ្ញាបត្រ និងអាជ្ញាប័ណ្ណ។</p>'}
+    <p class="muted" style="margin:10px 0 0;font-size:.82rem">${esc(S.set.staff||'')} · ${esc(S.set.shop||'')}</p><div class="sheet-actions"><span class="grow"></span><button class="btn gold" data-act="closeModal">បិទ</button></div>`)}
 function pinMsg(m,bad){const el=$('#pinMsg');el.textContent=m;el.className='pin-msg'+(bad?' bad':'')}
 function tryPin(force){
   const i=$('#pinInput'),pin=String(S.set.pin);i.value=i.value.replace(/\D/g,'');
@@ -1249,11 +1328,11 @@ async function submitOrder(d){
   return o.no;
 }
 /* gate: photograph a handwritten list and send it straight in as an order */
-async function quickOrder(file){
+async function quickOrder(file,kind){
   let photo,big;
   try{photo=(await resizeImage(file,1000)).toDataURL('image/jpeg',.6);big=await resizeImage(file,1600)}catch(e){return toast('មិនអាចបើករូបនេះបាន','bad')}
   let items=[],token={};quickOrder.token=token;
-  openModal(`<h3>បញ្ជាទិញតាមរូបថត</h3><img class="hw-prev" src="${photo}" alt="រូបបញ្ជី"><div id="qoList"></div>
+  openModal(`<h3>${kind==='rx'?'បញ្ជាទិញតាមវេជ្ជបញ្ជា':'បញ្ជាទិញតាមបញ្ជីសរសេរដៃ'}</h3><img class="hw-prev" src="${photo}" alt="រូបបញ្ជី"><div id="qoList"></div>
     <div class="form" style="margin-top:10px"><div class="row2"><label>ឈ្មោះ *<input id="qoName" class="inp" autocomplete="name"></label><label>លេខទូរស័ព្ទ *<input id="qoPhone" class="inp mono" type="tel" inputmode="tel" autocomplete="tel" placeholder="012 345 678"></label></div></div>
     <div class="sheet-actions"><span class="grow"></span><button class="btn ghost" data-act="closeModal">បោះបង់</button><button class="btn gold" id="qoSend">ផ្ញើការបញ្ជាទិញ</button></div>`,'narrow');
   const list=$('#qoList'),msg=m=>{list.innerHTML=`<p class="muted" style="margin:0">${m}</p>`};
@@ -1267,7 +1346,7 @@ async function quickOrder(file){
         picked.push(p?{pid:p.id,name:p.name,unit:p.unit,rx:!!p.rx,qty:''}:{pid:'',name:nm,unit:'',rx:false,qty:''});return}
       picked.push({pid:i.p.id,name:i.p.name,unit:i.p.unit,rx:!!i.p.rx,qty:''})});
     const btn=$('#qoSend');btn.disabled=true;btn.textContent='កំពុងផ្ញើ...';
-    try{const no=await submitOrder({name,phone,note:miss.length?'ពីរូបបញ្ជី៖ '+miss.join(', '):'',photo,items:picked});
+    try{const no=await submitOrder({name,phone,note:[kind==='rx'?'វេជ្ជបញ្ជា':'',miss.length?'ពីរូបបញ្ជី៖ '+miss.join(', '):''].filter(Boolean).join(' · '),photo,items:picked});
       quickOrder.token=null;showOrderDone({no,name,phone,photo,items:picked},0)}
     catch(e){btn.disabled=false;btn.textContent='ផ្ញើការបញ្ជាទិញ';toast('ផ្ញើមិនបានសម្រេច — សូមពិនិត្យអ៊ីនធឺណិត ហើយព្យាយាមម្តងទៀត','bad')}
   };
@@ -1275,7 +1354,7 @@ async function quickOrder(file){
   msg('កំពុងអានបញ្ជី... (អាចចំណាយពេល ១៥–៦០ វិនាទី) អ្នកអាចបំពេញឈ្មោះ និងលេខទូរស័ព្ទសិន។');
   if(syncUrl()&&!CAT){try{const r=await api(null,{action:'catalog'});CAT={products:r.products||[],stock:r.stock||{}}}catch(e){}}
   const blob=await new Promise(r=>big.toBlob(r,'image/jpeg',.85));
-  let raw;try{raw=await readList(blob,big)}catch(e){if(quickOrder.token===token)msg((HW_WHY[e&&e.code]||'អានមិនបានសម្រេច។')+' រូបនេះនៅតែផ្ញើទៅឱសថការីបាន។');return}
+  let raw;try{raw=await readList(blob,big)}catch(e){if(quickOrder.token===token)msg(readErr(e)+' · រូបនេះនៅតែផ្ញើទៅឱសថការីបាន។');return}
   if(quickOrder.token!==token||$('#modal').hidden||!$('#qoList'))return;
   items=(Array.isArray(raw)?raw:[]).map(i=>({p:sp(String(i&&i.id||'')),written:String(i&&i.written||'').slice(0,120),qty:Math.max(1,parseInt(i&&i.qty)||1),unit:String(i&&i.unit||'').slice(0,12)}));
   if(!items.length)return msg('រកមិនឃើញបញ្ជីឱសថក្នុងរូបនេះទេ។ រូបនេះនៅតែផ្ញើទៅឱសថការីបាន។');
@@ -1295,7 +1374,7 @@ async function handleHandwriting(file){
   if(syncUrl()&&!sampleFn&&!CAT){try{const r=await api(null,{action:'catalog'});CAT={products:r.products||[],stock:r.stock||{}}}catch(e){}}
   try{items=await readList(blob,big)}
   catch(e){if($('#modal').hidden)return;
-    const why={not_granted:'មិនបានអនុញ្ញាតឲ្យប្រើ Claude។',rate_limited:'ប្រើញឹកពេក សូមសាកម្តងទៀតបន្តិចក្រោយ។',invalid_json:'អានមិនចេញ។',refused:'អានមិនចេញ។',image_rejected:'រូបនេះមិនអាចប្រើបាន។'}[e&&e.code]||'អានមិនបានសម្រេច។';
+    const why=readErr(e)+'។';
     return attachOnly(why+' អ្នកនៅតែអាចភ្ជាប់រូបនេះទៅការបញ្ជាទិញ ហើយឱសថការីនឹងអានវា។')}
   if($('#modal').hidden)return;
   items=(Array.isArray(items)?items:[]).map(i=>({p:sp(String(i&&i.id||'')),written:String(i&&i.written||'').slice(0,120),qty:Math.max(1,parseInt(i&&i.qty)||1),unit:String(i&&i.unit||'').slice(0,12)}));
@@ -1354,6 +1433,7 @@ function renderOrders(){
     <header><div><b class="mono">${o.no}</b> <span class="chip ${OST[o.status][1]}">${OST[o.status][0]}</span><small>${fmtDT(o.ts)}</small></div><span class="ototal">${usd(o.total)}</span></header>
     <div class="ometa"><span><b>${esc(o.name)}</b> · <span class="mono">${esc(o.phone)}</span></span>${o.pick?`<span><span class="k">ទទួល៖</span> ${PICK[o.pick]}${o.addr?' — '+esc(o.addr):''}</span>`:''}${o.note?`<span><span class="k">សម្គាល់៖</span> ${esc(o.note)}</span>`:''}</div>
     ${o.photo?`<img class="ophoto" src="${o.photo}" alt="រូបបញ្ជីរបស់អតិថិជន" data-photo="${o.id}">`:''}
+    ${!o.items.length&&o.photo?'<p class="muted" style="margin:0 14px 8px;font-size:.8rem">មានតែរូប — ចុច «វិក្កយបត្រ» ដើម្បីទាញឈ្មោះឱសថពីរូប</p>':''}
     <ul class="oitems">${o.items.map((i,k)=>{const p=prod(i.pid);return `<li><span>${k+1}. ${esc(i.name)}${i.qty?' × '+i.qty+(i.wunit||(!p&&i.unit)?' '+esc(i.wunit||i.unit):''):''}${i.rx?' <span class="chip bad sm">Rx</span>':''}${p?'':' <span class="chip warn sm">មិនមានក្នុងបញ្ជី</span>'}</span><span class="mono">${iAmount(i)!==''?usd(iAmount(i)):'—'}</span></li>`}).join('')}</ul>
     <footer><button class="btn ghost sm" data-act="orderInvoice" data-id="${o.id}">វិក្កយបត្រ</button>${canPrint?`<button class="btn ghost sm" data-act="orderPrint58" data-id="${o.id}">Print 58mm</button>`:''}<span class="grow"></span>${o.status==='new'?`<button class="btn danger ghost sm" data-act="cancelOrder" data-id="${o.id}">បោះបង់</button><button class="btn gold sm" data-act="orderToPOS" data-id="${o.id}">យកទៅលក់ (POS)</button>`
       :o.status==='done'?`<span class="muted mono">${esc(o.saleNo||'')}</span>`:'<span class="muted">បានបោះបង់</span>'}</footer></article>`).join('')||`<div class="empty panel">មិនមានការបញ្ជាទិញក្នុងបញ្ជីនេះ</div>`}</div>`}
@@ -1365,26 +1445,53 @@ let invOrder=null;
 function invoiceHTML(o){
   invOrder=o;
   const blank=Math.max(0,10-o.items.length);
-  const rows=o.items.map((i,k)=>{const u=iUnitPrice(i),a=iAmount(i);return `<tr><td>${k+1}</td><td>${esc(i.name)}</td>
+  const rows=o.items.map((i,k)=>{const u=iUnitPrice(i),a=iAmount(i);return `<tr><td>${k+1}</td><td class="inv-d"><input class="inv-in inv-name" data-k="${k}" data-f="name" value="${esc(i.name)}" aria-label="រាយមុខឱសថ ${k+1}"><button type="button" class="inv-x no-print" data-act="invDelRow" data-k="${k}" aria-label="លុបជួរ ${k+1}">×</button></td>
     <td><input class="inv-in mono" data-k="${k}" data-f="qty" inputmode="decimal" value="${i.qty===''||i.qty==null?'':esc(i.qty)}" aria-label="ចំនួន ${k+1}"><span class="inv-u">${esc(i.wunit||i.unit||'')}</span></td>
     <td><input class="inv-in mono" data-k="${k}" data-f="uprice" inputmode="decimal" value="${u===''?'':u}" aria-label="តម្លៃរាយ ${k+1}"></td>
     <td class="mono" id="inv-a${k}">${a===''?'':usd(a)}</td></tr>`}).join('')+'<tr><td>&nbsp;</td><td></td><td></td><td></td><td></td></tr>'.repeat(blank);
-  return `<div class="inv"><div class="inv-head"><img src="${LOGO}" alt=""><div class="inv-shop"><b>${esc(S.set.shop)}</b><span>${esc(S.set.shopEn)}</span><small>Tel: ${esc(S.set.phone)}</small></div>
+  return `${o.photo?`<div class="inv-photo no-print"><img src="${o.photo}" alt="រូបបញ្ជីរបស់អតិថិជន" data-photo="${o.id}"><small>រូបពីអតិថិជន · ចុចដើម្បីពង្រីក</small></div>`:''}<div class="inv"><div class="inv-head"><img src="${LOGO}" alt=""><div class="inv-shop"><b>${esc(S.set.shop)}</b><span>${esc(S.set.shopEn)}</span><small>Tel: ${esc(S.set.phone)}</small></div>
     <div class="inv-no"><b>វិក្កយបត្រ</b><span>INVOICE</span><span class="mono">${esc(o.no)}</span></div></div>
     <div class="inv-info"><span>ឈ្មោះអតិថិជន៖ <b>${esc(o.name)}</b></span><span>ទូរស័ព្ទ៖ <b class="mono">${esc(o.phone)}</b></span><span>កាលបរិច្ឆេទ៖ <b class="mono">${fmtDT(o.ts)}</b></span></div>
     <table class="inv-t"><thead><tr><th>ល.រ<small>No</small></th><th>រាយមុខឱសថ<small>Description</small></th><th>ចំនួន<small>Quantity</small></th><th>តម្លៃរាយ<small>Unit Price</small></th><th>តម្លៃសរុប<small>Amount</small></th></tr></thead>
     <tbody>${rows}</tbody>
     <tfoot><tr><td colspan="4">សរុប TOTAL</td><td class="mono" id="inv-tot"></td></tr><tr><td colspan="4">ជាប្រាក់រៀល</td><td class="mono" id="inv-khr"></td></tr></tfoot></table>
-    <p class="inv-hint no-print">វាយចំនួន និងតម្លៃរាយ ក្នុងតារាង — រក្សាទុកដោយស្វ័យប្រវត្តិ</p>
+    <div class="inv-tools no-print"><button type="button" class="btn sm" data-act="invAddRow">+ បន្ថែមជួរ</button>${o.photo?`<button type="button" class="btn sm" data-act="invRead">${o.items.length?'អានពីរូបម្តងទៀត':'អានពីរូប'}</button>`:''}<span class="inv-hint" id="invStatus">វាយ ឬកែក្នុងតារាង — រក្សាទុកដោយស្វ័យប្រវត្តិ</span></div>
     <div class="inv-sign"><span>អ្នកទិញ / The Buyer</span><span>អ្នកលក់ / The Seller</span></div></div>`}
 function invTotals(){const o=invOrder;if(!o)return;let t=0,any=false;o.items.forEach(i=>{const a=iAmount(i);if(a!==''){t+=a;any=true}});
   const a=$('#inv-tot'),b=$('#inv-khr');if(a)a.textContent=any?usd(t):'';if(b)b.textContent=any?khr(t):'';
   o.total=round2(t)}
 let invSaveT;
 function invEdit(el){const o=invOrder;if(!o)return;const i=o.items[+el.dataset.k];if(!i)return;const v=el.value.replace(',','.').trim();
-  if(el.dataset.f==='qty')i.qty=v===''?'':(parseFloat(v)||'');else i.uprice=v===''?'':(parseFloat(v)>=0?parseFloat(v):'');
+  if(el.dataset.f==='name'){const nm=el.value.trim();i.name=nm;const p=S.products.find(x=>x.name.toLowerCase()===nm.toLowerCase());i.pid=p?p.id:'';if(p){i.unit=p.unit;i.rx=!!p.rx}}
+  else if(el.dataset.f==='qty')i.qty=v===''?'':(parseFloat(v)||'');else i.uprice=v===''?'':(parseFloat(v)>=0?parseFloat(v):'');
   const a=iAmount(i),cell=$('#inv-a'+el.dataset.k);if(cell)cell.textContent=a===''?'':usd(a);invTotals();
   clearTimeout(invSaveT);invSaveT=setTimeout(()=>{save();if(view==='orders'&&$('#modal').hidden)render()},600)}
+
+function invActions(o){return `<div class="sheet-actions no-print"><span class="grow"></span>${canPrint?`<button class="btn" data-act="print">បោះពុម្ព A4/A5</button><button class="btn" data-act="orderPrint58" data-id="${o.id}">Print 58mm</button>`:'<span class="muted" style="font-size:.8rem">ការបោះពុម្ពប្រើបានក្នុងឯកសារ HTML</span>'}<button class="btn gold" data-act="closeModal">បិទ</button></div>`}
+function showInvoice(o,autoRead){
+  const st=$('#modal').hidden?0:$('#sheet').scrollTop;
+  openModal(invoiceHTML(o)+invActions(o),'invoice');$('#sheet').scrollTop=st;invTotals();
+  if(autoRead&&o.photo&&!o.items.length&&!o.readTried){o.readTried=true;readOrderPhoto(o)}
+}
+const cleanName=t=>{t=String(t||'').replace(/^\s*(\d{1,2}\s*[.)\-:]|[-•*·]+)\s*/,'').replace(/[|_~`"]+/g,' ').replace(/\s{2,}/g,' ').trim();return t?t[0].toUpperCase()+t.slice(1):''};
+async function photoCanvas(src){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{const k=Math.min(1,1600/Math.max(im.naturalWidth,im.naturalHeight)),c=document.createElement('canvas');c.width=Math.round(im.naturalWidth*k);c.height=Math.round(im.naturalHeight*k);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);res(c)};im.onerror=rej;im.src=src})}
+async function readOrderPhoto(o){
+  const say=(m,bad)=>{const el=$('#invStatus');if(el){el.textContent=m;el.style.color=bad?'#b3352e':''}};
+  const isData=/^data:image/.test(o.photo||''),fileId=((o.photo||'').match(/[?&]id=([\w-]{10,})/)||[])[1];
+  if(!sampleFn&&!syncUrl())return say('ឧបករណ៍នេះមិនអាចអានរូបបានទេ — សូមវាយឈ្មោះឱសថដោយដៃ',true);
+  say('កំពុងអានរូប... (១០–៤០ វិនាទី)');
+  let items;
+  try{
+    if(sampleFn&&isData){const c=await photoCanvas(o.photo);items=await hwRead(await new Promise(r=>c.toBlob(r,'image/jpeg',.85)))}
+    else if(syncUrl()&&isData){items=await readList(null,await photoCanvas(o.photo))}
+    else if(syncUrl()&&fileId){try{items=await visionRead('list',null,fileId)}catch(e){if(!noKey(e))throw e;const r=await api(null,{action:'ocr',fileId,pin:sessPin()});const t=String(r.text||'').trim();if(!t)throw{error:'EMPTY'};items=matchText(t)}}
+    else throw{error:'រូបនេះមិនអាចអានពីឧបករណ៍នេះបានទេ'};
+  }catch(e){if(invOrder===o)say(readErr(e)+' — សូមវាយឈ្មោះឱសថដោយដៃ',true);return}
+  const rows=(Array.isArray(items)?items:[]).map(i=>{const p=prod(String(i&&i.id||''));const nm=p?p.name:cleanName(i&&i.written);return nm?{pid:p?p.id:'',name:nm,unit:p?p.unit:'',wunit:String(i&&i.unit||'').slice(0,12),rx:!!(p&&p.rx),qty:''}:null}).filter(Boolean);
+  if(!rows.length){if(invOrder===o)say('រកមិនឃើញឈ្មោះឱសថក្នុងរូប — សូមវាយដោយដៃ',true);return}
+  o.items=rows;save();if(view==='orders'&&$('#modal').hidden)render();
+  if(invOrder===o&&!$('#modal').hidden){showInvoice(o);say(`បានទាញ ${rows.length} មុខពីរូប — សូមពិនិត្យ ហើយកែបើខុស`)}
+}
 /* 58mm thermal slip — same content as the invoice */
 function slip58(o){let t=0,any=false;
   const rows=o.items.map((i,k)=>{const u=iUnitPrice(i),a=iAmount(i);if(a!==''){t+=a;any=true}
@@ -1411,18 +1518,26 @@ function orderToPOS(id){const o=S.orders.find(x=>x.id===id);resetP();const miss=
 Object.assign(ACTS,{
   enterShop,placeOrder,
   exitShop(){showGate()},
-  gateCam(){openCamera(quickOrder)},
+  gateCam(){openCamera(f=>quickOrder(f,'hw'))},
+  gateRx(){openCamera(f=>quickOrder(f,'rx'))},
+  gateGo(el){gateGo(el.dataset.to)},
+  gateDoc(el){gateDoc(el.dataset.doc)},
   hwCam(){openCamera(handleHandwriting)},
   prodCam(){const keep=$('#sheet').innerHTML,vals=[...$('#pform').elements].map(x=>x.type==='checkbox'?x.checked:x.type==='file'?null:x.value),handler=$('#pform').onsubmit;
     const restore=()=>{openModal(keep);[...$('#pform').elements].forEach((x,i)=>{if(x.type==='file'||vals[i]===null)return;x.type==='checkbox'?x.checked=vals[i]:x.value=vals[i]});$('#pform').onsubmit=handler;window.__rebindPhoto&&window.__rebindPhoto()};
     openCamera(f=>{restore();readProductPhoto(f)},restore)},
   showPin(el){const box=$('#pinBox'),open=box.hidden;box.hidden=!open;el.classList.toggle('on',open);if(open)$('#pinInput').focus()},
+  docDel(el){const k=el.dataset.k;confirmBox('លុបរូប?','រូបនេះនឹងលែងបង្ហាញនៅផ្ទាំងដំបូង។','លុប',()=>{S.set[k]='';save();render()})},
   logout(){showGate()},
   shopClear(){C.cart=[];drawShopGrid();drawShopCart()},
   dropPhoto(){C.photo='';drawShopCart()},
   toSTicket(){$('#sticket')?.scrollIntoView({behavior:'smooth',block:'start'})},
   orderToPOS(el){orderToPOS(el.dataset.id)},
-  orderInvoice(el){const o=S.orders.find(x=>x.id===el.dataset.id);setTimeout(invTotals);openModal(invoiceHTML(o)+`<div class="sheet-actions no-print"><span class="grow"></span>${canPrint?`<button class="btn" data-act="print">បោះពុម្ព A4/A5</button><button class="btn" data-act="orderPrint58" data-id="${o.id}">Print 58mm</button>`:'<span class="muted" style="font-size:.8rem">ការបោះពុម្ពប្រើបានក្នុងឯកសារ HTML</span>'}<button class="btn gold" data-act="closeModal">បិទ</button></div>`,'invoice')},
+  orderInvoice(el){const o=S.orders.find(x=>x.id===el.dataset.id);if(o)showInvoice(o,true)},
+  invAddRow(){const o=invOrder;if(!o)return;o.items.push({pid:'',name:'',unit:'',rx:false,qty:''});save();showInvoice(o);const ins=document.querySelectorAll('.inv-name');ins[ins.length-1]?.focus()},
+  invDelRow(el){const o=invOrder;if(!o)return;o.items.splice(+el.dataset.k,1);save();showInvoice(o);if(view==='orders')setTimeout(()=>{})},
+  backInvoice(el){const o=S.orders.find(x=>x.id===el.dataset.id);if(o)showInvoice(o)},
+  invRead(){const o=invOrder;if(o)readOrderPhoto(o)},
   orderPrint58(el){const o=S.orders.find(x=>x.id===el.dataset.id);if(o)print58(slip58(o))},
   cancelOrder(el){const o=S.orders.find(x=>x.id===el.dataset.id);confirmBox(`បោះបង់ ${o.no}?`,`ការបញ្ជាទិញរបស់ ${esc(o.name)} នឹងត្រូវបោះបង់។`,'បោះបង់ការបញ្ជាទិញ',()=>{o.status='cancel';save();drawNav();render();toast('បានបោះបង់','ok')})}
 });
@@ -1457,10 +1572,29 @@ async function openCamera(cb,back){
   }
 }
 /* read the photo: Claude (inside the Claude viewer) or Google OCR through the Sheet's Apps Script */
+function readErr(e){
+  const m=String(e&&(e.error||e.message)||'');
+  if(e&&e.code)return HW_WHY[e.code]||`Claude អានមិនបានសម្រេច (${e.code})`;
+  if(/^Gemini 4(00|03)|^Claude 40[13]|API key not valid|invalid x-api-key/i.test(m))return 'AI Key មិនត្រឹមត្រូវ — សូមពិនិត្យ Key ក្នុង ការកំណត់ › ការអានរូបដោយ AI';
+  if(/^Gemini 429|^Claude 429|busy/i.test(m))return 'AI កំពុងមមាញឹក ឬអស់កំណត់ប្រចាំថ្ងៃ — សូមសាកម្តងទៀតបន្តិចក្រោយ';
+  if(/UrlFetchApp|external_request|script\.external/i.test(m))return 'Apps Script ត្រូវការការអនុញ្ញាតថ្មី — សូម Run មុខងារ authorize ម្តងទៀត ហើយ Deploy › New version';
+  if(m==='EMPTY')return 'Google OCR មិនឃើញអក្សរក្នុងរូប — សូមថតឲ្យជិត ត្រង់ ច្បាស់ និងមានពន្លឺល្អ';
+  if(/unknown action/i.test(m))return 'Apps Script មិនទាន់មានមុខងារអាន (OCR) — សូមបិទភ្ជាប់កូដ Code.gs ថ្មី ហើយ Deploy › Manage deployments › New version';
+  if(/Drive API/i.test(m)||/Drive is not defined/i.test(m))return 'សូមបើក Drive API ក្នុង Apps Script › Services (+) › Drive API › Add ហើយ Deploy › New version';
+  if(/permission|authori|not have access|scope/i.test(m))return 'Apps Script ត្រូវការការអនុញ្ញាតថ្មី — សូមជ្រើសមុខងារ authorize ហើយចុច Run ម្តង ក្នុង Apps Script';
+  if(e instanceof TypeError||/fetch|network|failed/i.test(m))return 'មិនអាចភ្ជាប់ Apps Script — សូមពិនិត្យអ៊ីនធឺណិត';
+  return 'Apps Script៖ '+(m||'កំហុសមិនស្គាល់').slice(0,140);
+}
+async function ocrText(canvas){const r=await api(null,{action:'ocr',photo:canvas.toDataURL('image/jpeg',.85)});const t=String(r.text||'').trim();if(!t)throw{error:'EMPTY'};return t}
+/* AI reading through the Sheet's Apps Script (Gemini / Claude). Falls back to OCR when no AI key is set. */
+async function visionRead(kind,canvas,fileId){
+  const body={action:'vision',kind};if(canvas)body.photo=canvas.toDataURL('image/jpeg',.85);else{body.fileId=fileId;body.pin=sessPin()}
+  const r=await api(null,body);return r.data}
+const noKey=e=>/NO_KEY|unknown action/.test(String(e&&(e.error||e.message)||''));
 async function readList(blob,bigCanvas){
   if(sampleFn)return hwRead(blob);
-  const r=await api(null,{action:'ocr',photo:bigCanvas.toDataURL('image/jpeg',.85)});
-  return matchText(r.text||'');
+  try{const d=await visionRead('list',bigCanvas);return Array.isArray(d)?d:[]}catch(e){if(!noKey(e))throw e}
+  return matchText(await ocrText(bigCanvas));
 }
 function lev(a,b){const m=a.length,n=b.length;if(!m||!n)return m||n;let p=Array.from({length:n+1},(_,j)=>j);
   for(let i=1;i<=m;i++){const c=[i];for(let j=1;j<=n;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c}return p[n]}
@@ -1485,7 +1619,7 @@ function matchText(text){
   const prods=sprods(),res=[];
   descs.forEach((line,idx)=>{
     let qu=paired&&qtyLines[idx]?(()=>{const m=qtyLines[idx].match(/^(\d{1,3})\s*(.*)$/);return [parseInt(m[1]),(m[2]||'').toUpperCase()]})():qtyUnit(line);
-    const clean=paired?line:line.replace(/\s*(?:x|×|\*|#)?\s*\d{1,3}\s*[a-z]{0,2}\s*$/i,'');
+    const clean=paired?line:line.replace(/\s*(?:(?:x|×|\*|#|qty|sl)\s*\d{1,3}\s*[a-zក-៿]{0,5}|\d{1,3}\s*(?!mg|ml|mcg|g\b|iu)(?:[a-z]{1,2}|tabs?|caps?|viên|box|btls?|[ក-៿]{1,8}))\s*$/i,'').replace(/(\d+\s*(?:mg|ml|g|mcg)?)\s+\d{1,3}\s*$/i,'$1');
     const lt=toks(clean),flat=clean.toLowerCase().replace(/\s/g,'');let best=null,bs=0;
     prods.forEach(p=>{let sc=0;
       [...new Set(toks(p.name+' '+(p.generic||'')).filter(w=>w.length>=4&&!/^\d/.test(w)))].forEach(w=>{
@@ -1556,21 +1690,23 @@ async function readProductPhoto(file){
   const canRead=!!sampleFn||!!syncUrl();
   say(canRead?'កំពុងអានស្លាកផលិតផល... (អាចចំណាយពេល ១០–៤០ វិនាទី)':'កំពុងស្វែងរក Barcode...');
   const bcP=readBarcodeFromFile(file).catch(()=>'');
-  let d=null;
+  let d=null,err=null,raw='';
   try{
     if(sampleFn){const blob=await new Promise(r=>big.toBlob(r,'image/jpeg',.85));d=await sampleFn.json(PROD_PROMPT(),{images:[blob],cache:false})}
-    else if(syncUrl()){const r=await api(null,{action:'ocr',photo:big.toDataURL('image/jpeg',.85)});d=parseLabel(r.text||'')}
-  }catch(e){}
+    else if(syncUrl()){try{d=await visionRead('product',big)}catch(e){if(!noKey(e))throw e;raw=await ocrText(big);d=parseLabel(raw)}}
+  }catch(e){err=e}
   const bc=await bcP;if(bc){d=d||{};if(!/^\d{8,14}$/.test(String(d.barcode||'')))d.barcode=bc}
   if(!$('#pform'))return;
-  if(!d||typeof d!=='object')return say(canRead?'បានដាក់រូប ប៉ុន្តែអានស្លាកមិនចេញ — សូមបំពេញដោយដៃ':'បានដាក់រូប។ ការអានស្លាកស្វ័យប្រវត្តិ ត្រូវភ្ជាប់ Google Sheet ឬប្រើក្នុង Artifact',true);
+  if(!d||typeof d!=='object')return say(canRead?'បានដាក់រូប ប៉ុន្តែអានស្លាកមិនចេញ — '+readErr(err):'បានដាក់រូប។ ការអានស្លាកស្វ័យប្រវត្តិ ត្រូវភ្ជាប់ Google Sheet ឬប្រើក្នុង Artifact',true);
   const r=applyProductData(d);
   const extra=[d.lot&&'Lot '+d.lot,d.exp&&'EXP '+d.exp,d.maker].filter(Boolean).join(' · ');
   const dup=d.name&&S.products.find(p=>p.name.toLowerCase()===String(d.name).toLowerCase().trim());
-  say((r.n?`បានបំពេញ៖ ${r.done.join(', ')} — សូមពិនិត្យ និងបញ្ចូលថ្លៃដើម/តម្លៃលក់`:'មិនមានចំណុចថ្មីដែលត្រូវបំពេញ')+(extra?` · ${extra} (ប្រើពេលទទួលស្តុក)`:'')+(dup?` · ចំណាំ៖ «${dup.name}» មានរួចហើយ`:''),!r.n||!!dup);
+  say((r.n?`បានបំពេញ៖ ${r.done.join(', ')} — សូមពិនិត្យ និងបញ្ចូលថ្លៃដើម/តម្លៃលក់`:raw?`OCR អានបាន៖ «${raw.replace(/\s+/g,' ').slice(0,90)}» ប៉ុន្តែរកឈ្មោះឱសថមិនឃើញ`:'មិនមានចំណុចថ្មីដែលត្រូវបំពេញ')+(extra?` · ${extra} (ប្រើពេលទទួលស្តុក)`:'')+(dup?` · ចំណាំ៖ «${dup.name}» មានរួចហើយ`:''),!r.n||!!dup);
   if(r.n)$('#f-cost')?.focus();
 }
 
+function paintAi(engine){const c=$('#aiState');if(!c)return;c.className='chip '+(engine?'ok':'warn');c.textContent=engine==='gemini'?'Gemini ✓':engine==='claude'?'Claude ✓':'មិនទាន់មាន Key';if(engine&&$('#aiEngine'))$('#aiEngine').value=engine}
+async function aiStatus(){try{const r=await api(null,{action:'visionStatus',pin:sessPin()});paintAi(r.engine)}catch(e){const c=$('#aiState');if(c){c.className='chip bad';c.textContent=noKey(e)?'ត្រូវធ្វើបច្ចុប្បន្នភាព Code.gs':'មិនអាចពិនិត្យបាន'}}}
 /* ---------- Google Sheets sync ---------- */
 /* Paste the Apps Script Web App URL here to ship the file to customers already connected */
 const SHEET_API_URL='https://script.google.com/macros/s/AKfycbwmLQLV28sAI3qBPavtwjxX6_LSgpDVFllok5wAbS-BCNLMQPgEKAsqfwfhGjCeGtd5/exec';
@@ -1583,7 +1719,7 @@ const TBL={
   moves:{cols:['id','ts','type','pid','bid','qty','note'],num:['ts','qty']},
   orders:{cols:['id','no','ts','status','name','phone','note','total','saleNo','doneTs','photo','items'],num:['ts','total','doneTs'],json:['items']}
 };
-const SET_KEYS=['shop','shopEn','address','phone','staff','rate','warnDays','cats'];
+const SET_KEYS=['shop','shopEn','address','phone','staff','rate','warnDays','cats','certImg','licImg'];
 let SY=(()=>{try{return Object.assign({url:'',hashes:{},last:0},JSON.parse(localStorage.getItem(SYNC_KEY)||'{}'))}catch(e){return{url:'',hashes:{},last:0}}})();
 SY.state='';SY.busy=false;
 function saveSY(){try{localStorage.setItem(SYNC_KEY,JSON.stringify({url:SY.url,hashes:SY.hashes,last:SY.last}))}catch(e){}}
@@ -1632,6 +1768,7 @@ async function pushNow(){
     Object.keys(deleted).forEach(c=>deleted[c].forEach(id=>delete SY.hashes[c+':'+id]));
     if(sendSet)SY.hashes['set']=sh;
     if(SY.pendingPin){setSessPin(SY.pendingPin);SY.pendingPin=''}
+    if(r.setUrls){Object.assign(S.set,r.setUrls);SY.hashes['set']=fnv(JSON.stringify(setPayload()))}
     Object.entries(r.urls||{}).forEach(([coll,m])=>Object.entries(m).forEach(([id,f])=>{const rec=(S[coll]||[]).find(x=>x.id===id);if(rec){Object.assign(rec,f);SY.hashes[coll+':'+id]=recHash(coll,rec)}}));
     SY.last=Date.now();saveLocal();saveSY();setSync('ok');
   }catch(e){setSync(e&&e.error==='PIN'?'pin':'error')}
@@ -1692,6 +1829,19 @@ setInterval(()=>{if(mode==='staff'&&document.visibilityState==='visible')pullNow
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&mode==='staff')pullNow()});
 Object.assign(ACTS,{
   syncNow(){pullNow()},
+  async aiTest(el){el.disabled=true;el.textContent='កំពុងសាកល្បង...';
+    const c=document.createElement('canvas');c.width=900;c.height=420;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,900,420);x.fillStyle='#1a3a8a';
+    x.font='italic 54px "Segoe Script","Comic Sans MS",cursive';['1. Amoxicilin 500mg  x21','2. Doli 1g  10B','3. Bepanthen  3B'].forEach((l,i)=>x.fillText(l,40,110+i*110));
+    try{const d=await visionRead('list',c);const n=Array.isArray(d)?d.length:0;toast(n?`AI អានបាន ${n} ជួរ៖ `+d.map(i=>i.written).join(', '):'AI ឆ្លើយ ប៉ុន្តែរកមិនឃើញបញ្ជី',n?'ok':'bad')}
+    catch(e){toast(noKey(e)?'មិនទាន់មាន Key ឬ Code.gs ចាស់ — សូមរក្សាទុក Key ហើយធ្វើបច្ចុប្បន្នភាព Code.gs':readErr(e),'bad')}
+    el.disabled=false;el.textContent='សាកល្បងការអាន AI'},
+  aiClear(){confirmBox('លុប AI Key?','ការអានរូបនឹងត្រឡប់ទៅប្រើ Google OCR វិញ។','លុប',async()=>{try{const r=await api(null,{action:'visionKey',pin:sessPin(),engine:'gemini',key:''});paintAi(r.engine);toast('បានលុប Key','ok')}catch(e){toast(readErr(e),'bad')}})},
+  async ocrTest(el){el.disabled=true;el.textContent='កំពុងសាកល្បង...';
+    const c=document.createElement('canvas');c.width=900;c.height=300;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,900,300);x.fillStyle='#000';
+    x.font='bold 64px Arial';x.fillText('PARACETAMOL 500 mg',40,110);x.font='44px Arial';x.fillText('Batch: TEST01   Exp: 08/2027',40,210);
+    try{const t=await ocrText(c);toast(/paracetamol/i.test(t)?'OCR ដំណើរការល្អ ✓':'OCR អានបាន៖ '+t.slice(0,60),'ok')}
+    catch(e){toast(readErr(e),'bad')}
+    el.disabled=false;el.textContent='សាកល្បងការអាន (OCR)'},
   catUp(el){const i=+el.dataset.i;if(i<1)return;const a=S.set.cats;[a[i-1],a[i]]=[a[i],a[i-1]];applyCats();save();render()},
   catDel(el){const i=+el.dataset.i,c=S.set.cats[i],n=S.products.filter(p=>p.cat===c).length;
     if(n)return toast(`មិនអាចលុប «${c}» បានទេ ព្រោះមានឱសថ ${n} មុខ — សូមប្តូរប្រភេទឱសថទាំងនោះសិន`,'bad');
