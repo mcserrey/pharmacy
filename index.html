@@ -874,15 +874,25 @@ function openScanner(title,cb){
     return scanner.start({facingMode:'environment'},{fps:12,qrbox:(w,h)=>({width:Math.min(300,w*.85)|0,height:Math.min(150,h*.6)|0})},t=>scanResult(t),()=>{});
   }).catch(()=>{stopScan();const r=$('#reader');if(r)r.textContent='កាមេរ៉ាមិនអាចប្រើបាននៅទីនេះ';status('ប្រើប៊ូតុង «ថតរូប» ខាងក្រោម ឬម៉ាស៊ីនស្កេន USB ជំនួសវិញ',true)});
 }
-const findCode=c=>{c=String(c).trim().toLowerCase();return S.products.find(p=>(p.barcode&&p.barcode.toLowerCase()===c)||p.code.toLowerCase()===c)};
+const bcNorm=v=>String(v==null?'':v).trim().toLowerCase().replace(/\.0+$/,'');
+const bcDigits=v=>{const d=bcNorm(v).replace(/[\s\-]/g,'');return /^\d{6,14}$/.test(d)?d.replace(/^0+/,''):''};
+const findCode=c=>{const n=bcNorm(c),d=bcDigits(c);
+  return S.products.find(p=>bcNorm(p.barcode)===n||bcNorm(p.code)===n)
+    ||(d&&S.products.find(p=>bcDigits(p.barcode)===d||bcDigits(p.code)===d))};
 function posCode(code){
   if(view!=='pos')go('pos');
   const p=findCode(code);if(p)return addToCart(p.id);
   unknownCode(code);
 }
+/* products whose stored barcode is almost the scanned one (one digit misread, extra/missing digit) */
+function nearCodes(code){const d=bcDigits(code);if(!d)return[];
+  const lev=(a,b)=>{if(Math.abs(a.length-b.length)>2)return 9;const m=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){let p=m[0];m[0]=i;for(let j=1;j<=b.length;j++){const t=m[j];m[j]=Math.min(m[j]+1,m[j-1]+1,p+(a[i-1]===b[j-1]?0:1));p=t}}return m[b.length]};
+  return S.products.map(p=>({p,k:bcDigits(p.barcode)})).filter(x=>x.k).map(x=>({...x,dist:lev(d,x.k)})).filter(x=>x.dist<=2).sort((a,b)=>a.dist-b.dist).slice(0,3)}
 function unknownCode(code){
+  const near=nearCodes(code);
   openModal(`<h3>Barcode មិនទាន់មានក្នុងប្រព័ន្ធ</h3><p class="muted">Barcode <b class="mono">${esc(code)}</b> មិនទាន់ភ្ជាប់ជាមួយឱសថណាមួយទេ។</p>
-  <div class="form"><label>ភ្ជាប់ទៅឱសថដែលមានស្រាប់<select id="assignSel" class="inp"><option value="">ជ្រើសរើស...</option>${[...S.products].sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`<option value="${p.id}">${esc(p.name)}${p.barcode?' (មាន Barcode រួច)':''}</option>`).join('')}</select></label></div>
+  ${near.length?`<div class="rx-note" style="margin:0 0 10px">ប្រហែលជា៖ ${near.map(x=>`<b>${esc(x.p.name)}</b> (Barcode ដែលបានរក្សាទុក <span class="mono">${esc(x.p.barcode)}</span>)`).join(', ')} — លេខខុសគ្នាបន្តិច។ ចុច «ភ្ជាប់ និងបន្ថែម» ដើម្បីកែទៅលេខត្រឹមត្រូវ។</div>`:''}
+  <div class="form"><label>ភ្ជាប់ទៅឱសថដែលមានស្រាប់<select id="assignSel" class="inp"><option value="">ជ្រើសរើស...</option>${[...S.products].sort((a,b)=>a.name.localeCompare(b.name)).map(p=>`<option value="${p.id}" ${near[0]&&near[0].p.id===p.id?'selected':''}>${esc(p.name)}${p.barcode?' · '+esc(p.barcode):''}</option>`).join('')}</select></label></div>
   <div class="sheet-actions"><button class="btn ghost" id="newWithCode">+ បង្កើតឱសថថ្មី</button><span class="grow"></span><button class="btn ghost" data-act="closeModal">បោះបង់</button><button class="btn gold" id="assignBtn">ភ្ជាប់ និងបន្ថែម</button></div>`,'narrow');
   $('#assignBtn').onclick=()=>{const p=prod($('#assignSel').value);if(!p)return toast('សូមជ្រើសរើសឱសថ','bad');p.barcode=code;save();closeModal();toast(`បានភ្ជាប់ Barcode ទៅ ${p.name}`,'ok');if(view==='pos')addToCart(p.id);else render()};
   $('#newWithCode').onclick=()=>{productForm();$('#f-bc').value=code};
@@ -1026,18 +1036,21 @@ function productForm(id){
   <div class="row3"><label>ថ្លៃដើម ($)<input name="cost" id="f-cost" type="number" step="0.01" min="0" class="inp mono" value="${p.cost}"></label><label>តម្លៃលក់ ($)<input name="price" id="f-price" type="number" step="0.01" min="0" required class="inp mono" value="${p.price}"></label><label>កម្រិតបញ្ជាទិញ<input name="reorder" id="f-re" type="number" min="0" class="inp mono" value="${p.reorder}"></label></div>
   <div class="ph-field"><div class="ph-prev" id="phPrev">${p.img?`<img src="${p.img}" alt="">`:drugArt(p.name?p:{code:'new',name:'',form:'',cat:CATS[0],unit:''})}</div>
     <div class="stack" style="gap:6px"><span class="muted" style="font-size:.8rem">រូបថតឱសថ (បង្ហាញក្នុងហាងអតិថិជន)</span>
-    <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="btn sm filebtn">ជ្រើស / ថតរូប<input type="file" id="phFile" accept="image/*"></span><button type="button" class="btn ghost sm" id="phDel">លុបរូប</button></div></div></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="btn sm filebtn">ជ្រើស / ថតរូប<input type="file" id="phFile" accept="image/*"></span><button type="button" class="btn ghost sm" id="phDel">លុបរូប</button><button type="button" class="btn ghost sm" id="phAi" hidden>✨ រូប AI</button><button type="button" class="btn ghost sm" id="phOrig" hidden>រូបដើម</button></div><small class="muted" id="phAiNote" style="font-size:.74rem"></small></div></div>
   <label class="check"><input type="checkbox" name="rx" id="f-rx" ${p.rx?'checked':''}> ត្រូវការវេជ្ជបញ្ជា (Prescription only)</label>
   <div class="sheet-actions">${id?`<button type="button" class="btn danger ghost" data-act="delProduct" data-id="${id}">លុប</button>`:''}<span class="grow"></span><button type="button" class="btn ghost" data-act="closeModal">បោះបង់</button><button class="btn gold">រក្សាទុក</button></div></form>`);
   let pImg=p.img||'';
-  window.__setProdPhoto=d=>{pImg=d;const pv=$('#phPrev');if(pv)pv.innerHTML=`<img src="${d}" alt="">`};
+  window.__setProdPhoto=d=>{pImg=d;const pv=$('#phPrev');if(pv)pv.innerHTML=`<img src="${d}" alt="">`;
+    const V2=window.__phVar||{},a=$('#phAi'),o=$('#phOrig');if(a)a.hidden=!V2.ai||d===V2.ai;if(o)o.hidden=!V2.orig||d===V2.orig};
+  window.__phVar={};
   const bindPhoto=()=>{$('#phFile').onchange=e=>{const f=e.target.files[0];e.target.value='';if(f)readProductPhoto(f)};
-    $('#phDel').onclick=()=>{pImg='';$('#phPrev').innerHTML=drugArt(p.name?p:{code:'new',name:'',form:'',cat:CATS[0],unit:''})}};
+    $('#phAi').onclick=()=>window.__setProdPhoto(window.__phVar.ai);$('#phOrig').onclick=()=>window.__setProdPhoto(window.__phVar.orig);
+    $('#phDel').onclick=()=>{pImg='';window.__phVar={};$('#phAi').hidden=$('#phOrig').hidden=true;$('#phPrev').innerHTML=drugArt(p.name?p:{code:'new',name:'',form:'',cat:CATS[0],unit:''})}};
   bindPhoto();window.__rebindPhoto=bindPhoto;
   $('#pform').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);
     const d={code:f.get('code').trim(),barcode:f.get('barcode').trim(),name:f.get('name').trim(),generic:f.get('generic').trim(),cat:f.get('cat'),form:f.get('form').trim(),unit:f.get('unit').trim(),rx:f.get('rx')==='on',cost:round2(f.get('cost')),price:round2(f.get('price')),reorder:parseInt(f.get('reorder'))||0};
     if(!d.name||!d.unit||!(d.price>0))return toast('សូមបំពេញឈ្មោះ ឯកតា និងតម្លៃលក់','bad');
-    if(S.products.some(x=>x.id!==id&&(x.code===d.code||(d.barcode&&x.barcode===d.barcode))))return toast('កូដ ឬ Barcode នេះមានរួចហើយ','bad');
+    if(S.products.some(x=>x.id!==id&&(bcNorm(x.code)===bcNorm(d.code)||(d.barcode&&(bcNorm(x.barcode)===bcNorm(d.barcode)||(bcDigits(d.barcode)&&bcDigits(x.barcode)===bcDigits(d.barcode)))))))return toast('កូដ ឬ Barcode នេះមានរួចហើយ','bad');
     if(d.cost>d.price)toast('ចំណាំ៖ ថ្លៃដើមខ្ពស់ជាងតម្លៃលក់','bad');
     d.img=pImg;id?Object.assign(prod(id),d):S.products.push({id:uid(),...d});save();closeModal();toast('បានរក្សាទុក','ok');render()}}
 
@@ -1807,9 +1820,47 @@ function applyProductData(d){
   const rx=$('#f-rx');if(rx&&d.rx===true&&!rx.checked){rx.checked=true;n++;done.push('Rx')}
   return {n,done};
 }
+/* ---------- product photo → clean packshot (AI redraw when available, then background cut-out) ---------- */
+function canvasFrom(src){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=im.naturalWidth;c.height=im.naturalHeight;c.getContext('2d').drawImage(im,0,0);res(c)};im.onerror=()=>rej(new Error('bad image'));im.src=src})}
+function shrinkCanvas(c,max){const k=Math.min(1,max/Math.max(c.width,c.height));if(k===1)return c;const o=document.createElement('canvas');o.width=Math.round(c.width*k);o.height=Math.round(c.height*k);o.getContext('2d').drawImage(c,0,0,o.width,o.height);return o}
+function cutoutProduct(src,size=420){
+  const c=shrinkCanvas(src,640),W=c.width,H=c.height,px=c.getContext('2d').getImageData(0,0,W,H).data;
+  const border=[];for(let x=0;x<W;x++){border.push(x,(H-1)*W+x)}for(let y=1;y<H-1;y++){border.push(y*W,y*W+W-1)}
+  const med=k=>{const a=border.map(i=>px[i*4+k]).sort((p,q)=>p-q);return a[a.length>>1]};
+  const bg=[med(0),med(1),med(2)],dist=i=>Math.hypot(px[i*4]-bg[0],px[i*4+1]-bg[1],px[i*4+2]-bg[2]);
+  const bd=border.map(dist).sort((p,q)=>p-q),p85=bd[Math.floor(bd.length*.85)],thr=p85<4?12:Math.max(26,Math.min(72,p85+20));
+  const isBg=new Uint8Array(W*H),q=new Int32Array(W*H);let h=0,t=0;
+  border.forEach(i=>{if(!isBg[i]&&dist(i)<thr){isBg[i]=1;q[t++]=i}});
+  while(h<t){const i=q[h++],x=i%W,y=(i/W)|0;for(const j of [x>0?i-1:-1,x<W-1?i+1:-1,y>0?i-W:-1,y<H-1?i+W:-1])if(j>=0&&!isBg[j]&&dist(j)<thr){isBg[j]=1;q[t++]=j}}
+  let x0=W,y0=H,x1=-1,y1=-1,fg=0;for(let i=0;i<W*H;i++)if(!isBg[i]){fg++;const x=i%W,y=(i/W)|0;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
+  const ratio=fg/(W*H),ok=ratio>.03&&ratio<.96&&x1>x0&&y1>y0;
+  const cut=document.createElement('canvas');cut.width=W;cut.height=H;const cx=cut.getContext('2d'),id=cx.createImageData(W,H),o=id.data;
+  for(let i=0;i<W*H;i++){o[i*4]=px[i*4];o[i*4+1]=px[i*4+1];o[i*4+2]=px[i*4+2];
+    if(!ok){o[i*4+3]=255;continue}
+    let n=0,s=0;const x=i%W,y=(i/W)|0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const xx=x+dx,yy=y+dy;if(xx<0||yy<0||xx>=W||yy>=H)continue;n++;s+=isBg[yy*W+xx]?0:1}
+    o[i*4+3]=Math.round(255*s/n)}
+  cx.putImageData(id,0,0);
+  if(!ok){x0=0;y0=0;x1=W-1;y1=H-1}
+  const bw=x1-x0+1,bh=y1-y0+1,k=size*.84/Math.max(bw,bh),dw=bw*k,dh=bh*k,dx=(size-dw)/2,dy=(size-dh)/2-size*.02;
+  const out=document.createElement('canvas');out.width=out.height=size;const ox=out.getContext('2d');
+  if(ok){ox.save();ox.filter='blur(8px)';ox.fillStyle='rgba(20,40,20,.18)';ox.beginPath();ox.ellipse(size/2,dy+dh+size*.015,dw*.42,size*.03,0,0,Math.PI*2);ox.fill();ox.restore()}
+  else{ox.fillStyle='#fff';ox.fillRect(0,0,size,size)}
+  ox.imageSmoothingQuality='high';ox.drawImage(cut,x0,y0,bw,bh,dx,dy,dw,dh);
+  return{img:ok?out.toDataURL('image/png'):out.toDataURL('image/jpeg',.88),cut:ok}}
+let phAiSeq=0;
+async function prodBeautify(big){
+  const seq=++phAiSeq,note=m=>{const el=$('#phAiNote');if(el)el.textContent=m};
+  note('✨ កំពុងធ្វើរូប AI...');
+  let src=big,engine='';
+  if(syncUrl()){try{const r=await api(null,{action:'productImage',pin:sessPin(),photo:shrinkCanvas(big,1024).toDataURL('image/jpeg',.88)});src=await canvasFrom(r.img);engine='AI'}catch(e){}}
+  let res;try{res=cutoutProduct(src)}catch(e){return note('')}
+  if(seq!==phAiSeq||!$('#pform')||!window.__phVar)return;
+  window.__phVar.ai=res.img;window.__setProdPhoto(res.img);
+  note(engine?'✨ រូប AI គ្មានផ្ទៃខាងក្រោយ — ចុច «រូបដើម» បើចង់ប្រើរូបថតដើម':res.cut?'✨ បានកាត់ផ្ទៃខាងក្រោយចេញ (ដាក់ Gemini Key ដើម្បីបានរូប AI ស្អាតជាងនេះ)':'')}
 async function readProductPhoto(file){
   const say=(m,bad)=>{const el=$('#phInfo');if(el){el.hidden=false;el.textContent=m;el.className='scan-status'+(bad?' bad':'')}};
-  let big;try{big=await resizeImage(file,1600);window.__setProdPhoto((await resizeImage(file,360)).toDataURL('image/jpeg',.82))}catch(e){return say('មិនអាចបើករូបនេះបាន',true)}
+  let big;try{big=await resizeImage(file,1600);const orig=(await resizeImage(file,360)).toDataURL('image/jpeg',.82);window.__phVar={orig};window.__setProdPhoto(orig)}catch(e){return say('មិនអាចបើករូបនេះបាន',true)}
+  prodBeautify(big);
   const canRead=!!sampleFn||!!syncUrl();
   say(canRead?'កំពុងអានស្លាកផលិតផល... (អាចចំណាយពេល ១០–៤០ វិនាទី)':'កំពុងស្វែងរក Barcode...');
   const bcP=readBarcodeFromFile(file).catch(()=>'');
@@ -1818,7 +1869,7 @@ async function readProductPhoto(file){
     if(sampleFn){const blob=await new Promise(r=>big.toBlob(r,'image/jpeg',.85));d=await sampleFn.json(PROD_PROMPT(),{images:[blob],cache:false})}
     else if(syncUrl()){try{d=await visionRead('product',big)}catch(e){if(!noKey(e))throw e;raw=await ocrText(big);d=parseLabel(raw)}}
   }catch(e){err=e}
-  const bc=await bcP;if(bc){d=d||{};if(!/^\d{8,14}$/.test(String(d.barcode||'')))d.barcode=bc}
+  const bc=await bcP;if(bc){d=d||{};d.barcode=bc}
   if(!$('#pform'))return;
   if(!d||typeof d!=='object')return say(canRead?'បានដាក់រូប ប៉ុន្តែអានស្លាកមិនចេញ — '+readErr(err):'បានដាក់រូប។ ការអានស្លាកស្វ័យប្រវត្តិ ត្រូវភ្ជាប់ Google Sheet ឬប្រើក្នុង Artifact',true);
   const r=applyProductData(d);
