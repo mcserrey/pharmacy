@@ -649,10 +649,23 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
 .bpr-p .srow-img{width:36px;height:36px;flex:none}
 .bpr-v{color:var(--leaf-d);font-size:1rem}
 .buyers-tbl td{vertical-align:middle}
-@media(max-width:640px){.bpr-wrap th:nth-child(4),.bpr-wrap td:nth-child(4){display:none}.bpr-wrap .tbl{font-size:.8rem}.bpr-wrap td,.bpr-wrap th{padding:7px 6px}.bpr-p{gap:6px}.bpr-p .srow-img{width:28px;height:28px}}
+@media(max-width:640px){.bpr-wrap:not(.mpw) th:nth-child(4),.bpr-wrap:not(.mpw) td:nth-child(4){display:none}.bpr-wrap .tbl{font-size:.8rem}.bpr-wrap td,.bpr-wrap th{padding:7px 6px}.bpr-p{gap:6px}.bpr-p .srow-img{width:28px;height:28px}}
 
 .price-chip{background:#fff!important;border:1px solid #e6c200!important;box-shadow:0 3px 0 #e6c200!important}
 @media(max-width:420px){.price-chip span{display:none}}
+
+.mp-chips{margin:10px 0 8px}
+.mp-add{min-width:40px;height:34px;border-radius:10px;border:0;background:var(--sun);color:#173d14;font:800 1rem var(--f-mono);cursor:pointer;padding:0 8px}
+.mp-in td{background:#fffbe6}
+.mp-foot{display:flex;gap:8px;align-items:center;margin-top:12px}
+.mp-cartbar{flex:1;display:flex;justify-content:space-between;align-items:center;gap:10px;border:0;border-radius:12px;padding:12px 16px;background:var(--gold);color:#fff;font:700 .95rem var(--f-body);cursor:pointer}
+.mp-cartbar:disabled{opacity:.5;cursor:default}.mp-cartbar b{font-size:1.05rem}
+.mp-lines .line{grid-template-columns:minmax(0,1fr) auto auto auto}
+.l-sum{font-weight:700;min-width:64px;text-align:right}
+@media(max-width:640px){.mp-riel{display:none}}
+
+.mpgrid.pgrid{max-height:min(56vh,560px);overflow-y:auto;padding:2px}
+.pt-price{font-size:.95rem;color:var(--sun)}
 
 /* staff orders */
 .olist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));gap:12px;align-items:start}
@@ -1413,11 +1426,14 @@ const ACTS={
   wipe(){confirmBox('លុបទិន្នន័យទាំងអស់?','ឱសថ ស្តុក ប្រវត្តិលក់ និងអ្នកផ្គត់ផ្គង់ នឹងត្រូវលុប។ ការកំណត់នៅដដែល។','លុបទាំងអស់',()=>{Object.assign(S,{products:[],batches:[],suppliers:[],sales:[],moves:[],counter:0,orders:[],orderCounter:0});save();resetP();resetR();render();toast('បានលុបទិន្នន័យ','ok')})}
 };
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-arch],[data-docadd],[data-docdel],[data-sadd],[data-stile],[data-ptile],[data-docfile],[data-docback],[data-book],[data-lib],[data-libopen],[data-libpub],[data-photo],[data-sadd],[data-sinc],[data-sdec],[data-sdel],[data-scat],[data-of],[data-view],[data-act],[data-add],[data-inc],[data-dec],[data-del],[data-cat],[data-sale],[data-editp],[data-adj],[data-tab],[data-bf],[data-range],[data-rmline],[data-editsup],[data-goto]');
+  const t=e.target.closest('[data-mp],[data-mptile],[data-mpcat],[data-arch],[data-docadd],[data-docdel],[data-sadd],[data-stile],[data-ptile],[data-docfile],[data-docback],[data-book],[data-lib],[data-libopen],[data-libpub],[data-photo],[data-sadd],[data-sinc],[data-sdec],[data-sdel],[data-scat],[data-of],[data-view],[data-act],[data-add],[data-inc],[data-dec],[data-del],[data-cat],[data-sale],[data-editp],[data-adj],[data-tab],[data-bf],[data-range],[data-rmline],[data-editsup],[data-goto]');
   if(e.target.id==='modal')return closeModal();
   if(!t)return;const d=t.dataset;
   if(d.stile){shopShow=shopShow===d.stile?'':d.stile;document.querySelectorAll('#sgrid .ptile').forEach(x=>x.classList.toggle('show',x.dataset.stile===shopShow));return}
   if(d.ptile){if(t.classList.contains('show'))return productForm(d.ptile);document.querySelectorAll('#plist .ptile.show').forEach(x=>x.classList.remove('show'));t.classList.add('show');return}
+  if(d.mp){mpAct(d.mp,t);return}
+  if(d.mptile){mpShow=mpShow===d.mptile?'':d.mptile;document.querySelectorAll('#mpbody .ptile').forEach(x=>x.classList.toggle('show',x.dataset.mptile===mpShow));return}
+  if(d.mpcat){mpCat=d.mpcat;document.querySelectorAll('.mp-chips .chipbtn').forEach(b=>b.classList.toggle('on',b.dataset.mpcat===mpCat));drawMyPrices();return}
   if(d.arch!==undefined&&t.dataset.arch){archAct(d.arch);return}
   if(d.docadd){docAddForm(d.docadd);return}
   if(d.docdel){docDelForm(d.docdel);return}
@@ -1648,7 +1664,10 @@ const sp=id=>sprods().find(p=>p.id===id);
 const sstock=id=>CAT?(CAT.stock[id]||0):sellable(id);
 let catP=null;
 /* customer: see my own prices — pick my name, then type my phone number */
-const shopBuyers=()=>(CAT&&CAT.buyers)||(syncUrl()?[]:(S.buyers||[]).map(b=>({id:b.id,name:b.name})));
+/* names come from the shop list (Sheet); a staff device can also use the buyers it already holds */
+const shopBuyers=()=>{const m=new Map();((CAT&&CAT.buyers)||[]).forEach(b=>m.set(b.id,{id:b.id,name:b.name}));(S.buyers||[]).forEach(b=>{if(!m.has(b.id))m.set(b.id,{id:b.id,name:b.name})});return [...m.values()]};
+function localPrices(id,ph){const lb=(S.buyers||[]).find(x=>x.id===id);if(!lb||!bcDigits(lb.phone)||bcDigits(lb.phone).replace(/^855/,'')!==bcDigits(ph).replace(/^855/,''))throw{error:'phone'};
+  return{name:lb.name,items:S.products.filter(p=>p.price>0).map(p=>({id:p.id,name:p.name,unit:p.unit,img:p.img,cat:p.cat,price:buyerPrice(p,lb)})).sort((a,b)=>a.name.localeCompare(b.name))}}
 let myPrices=null;
 function shopPrices(){
   if(myPrices)return showMyPrices();
@@ -1667,21 +1686,69 @@ function shopPricePhone(id){const b=shopBuyers().find(x=>x.id===id);if(!b)return
   $('#spForm').onsubmit=async e=>{e.preventDefault();const ph=$('#spPhone').value;if(ph.replace(/\D/g,'').length<8)return toast('សូមវាយលេខទូរស័ព្ទឲ្យបានត្រឹមត្រូវ','bad');
     const btn=e.target.querySelector('.btn.gold');btn.disabled=true;btn.textContent='កំពុងពិនិត្យ...';
     try{
-      if(syncUrl()){const r=await api(null,{action:'buyerPrices',id,phone:ph});myPrices={name:r.name,items:r.items}}
-      else{const lb=(S.buyers||[]).find(x=>x.id===id);if(!lb||bcDigits(lb.phone)!==bcDigits(ph))throw{error:'phone'};
-        myPrices={name:lb.name,items:S.products.filter(p=>p.price>0).map(p=>({id:p.id,name:p.name,unit:p.unit,img:p.img,price:buyerPrice(p,lb)}))}}
+      const hasLocal=(S.buyers||[]).some(x=>x.id===id);
+      if(syncUrl()){try{const r=await api(null,{action:'buyerPrices',id,phone:ph});myPrices={name:r.name,items:r.items}}
+        catch(e){if(hasLocal&&(noKey(e)||/no url|fetch|network/i.test(String(e&&(e.error||e.message)||''))))myPrices=localPrices(id,ph);else throw e}}
+      else myPrices=localPrices(id,ph);
+      myPrices.id=id;myPrices.phone=ph.trim();myPrices.cart=[];
       showMyPrices()}
     catch(err){btn.disabled=false;btn.textContent='ចូល';const m=String(err&&(err.error||err.message)||'');
       toast(/phone/.test(m)?'លេខទូរស័ព្ទមិនត្រឹមត្រូវ':/too many/.test(m)?'ព្យាយាមច្រើនដងពេក — សូមរង់ចាំ ១ ម៉ោង':noKey(err)?'មុខងារនេះមិនទាន់ដំណើរការ — សូមទាក់ទងឱសថស្ថាន':'មិនអាចភ្ជាប់បាន — សូមពិនិត្យអ៊ីនធឺណិត','bad')}}}
-function showMyPrices(){const P2=myPrices;
+/* the buyer's own price list: category chips, + to put in their basket, basket with totals, send as an order */
+let mpCat='all',mpView='list';
+const mpCart=()=>myPrices.cart||(myPrices.cart=[]);
+const mpItem=id=>myPrices.items.find(x=>x.id===id);
+const mpTotals=()=>{const c=mpCart();return{lines:c.length,units:c.reduce((a,x)=>a+x.qty,0),total:round2(c.reduce((a,x)=>a+x.qty*(mpItem(x.id)?.price||0),0))}};
+const riel=v=>Math.round(v*(S.set.rate||4100)).toLocaleString('en-US')+' ៛';
+function showMyPrices(){const P2=myPrices;mpView='list';
+  const cats=[...new Set(P2.items.map(p=>p.cat).filter(Boolean))];const order=CATS.filter(c=>cats.includes(c)).concat(cats.filter(c=>!CATS.includes(c)));
+  if(mpCat!=='all'&&!order.includes(mpCat))mpCat='all';
   openModal(`<div class="bpr-head"><div><h3 style="margin:0">តម្លៃសម្រាប់ ${esc(P2.name)}</h3><small class="muted">${P2.items.length} មុខ</small></div><button class="btn ghost sm" data-act="shopPriceOut">ចាកចេញ</button></div>
-    <input id="mpq" class="inp" placeholder="ស្វែងរកផលិតផល..." style="margin:10px 0">
-    <div class="tablewrap bpr-wrap"><table class="tbl"><thead><tr><th>ផលិតផល</th><th class="r">តម្លៃ</th><th class="r">៛</th></tr></thead><tbody id="mpbody"></tbody></table></div>
-    <div class="sheet-actions"><span class="grow"></span><button class="btn gold" data-act="closeModal">បិទ</button></div>`,'docs-wide');
-  const draw=()=>{const q=$('#mpq').value.trim().toLowerCase();
-    $('#mpbody').innerHTML=P2.items.filter(p=>!q||p.name.toLowerCase().includes(q)).map(p=>`<tr><td><span class="bpr-p"><span class="srow-img">${pImgHTML(p,120)}</span><span><b>${esc(p.name)}</b><small class="muted">${esc(p.unit||'')}</small></span></span></td>
-      <td class="r mono"><b class="bpr-v">${usd(p.price)}</b></td><td class="r mono muted">${Math.round(p.price*(S.set.rate||4100)).toLocaleString('en-US')} ៛</td></tr>`).join('')||'<tr><td colspan="3" class="empty">រកមិនឃើញ</td></tr>'};
-  draw();$('#mpq').oninput=draw}
+    <div class="chips mp-chips">${['all',...order].map(c=>`<button class="chipbtn ${mpCat===c?'on':''}" data-mpcat="${esc(c)}">${c==='all'?'ទាំងអស់':esc(c)}</button>`).join('')}</div>
+    <input id="mpq" class="inp" placeholder="ស្វែងរកផលិតផល..." style="margin:0 0 10px">
+    <div class="pgrid ptiles shoptiles mpgrid" id="mpbody"></div>
+    <div class="mp-foot"><button class="mp-cartbar" data-mp="cart" id="mpBar"></button><button class="btn ghost" data-act="closeModal">បិទ</button></div>`,'docs-wide');
+  $('#mpq').oninput=drawMyPrices;drawMyPrices()}
+let mpShow='';
+function drawMyPrices(){const P2=myPrices,q=($('#mpq')?.value||'').trim().toLowerCase(),c=mpCart();
+  $('#mpbody').innerHTML=P2.items.filter(p=>(mpCat==='all'||p.cat===mpCat)&&(!q||p.name.toLowerCase().includes(q))).map(p=>{const inC=c.find(x=>x.id===p.id);
+    return `<div class="ptile ${inC?'in':''} ${mpShow===p.id?'show':''}" data-mptile="${esc(p.id)}" role="button" tabindex="0" aria-label="${esc(p.name)}">
+      <span class="pt-img">${pImgHTML(p,500)}</span>
+      <span class="pt-name">${esc(p.name)}<b class="pt-price mono">${usd(p.price)}</b><button type="button" class="pt-add" data-mp="add:${esc(p.id)}">+ កន្ត្រក</button></span>
+      ${inC?`<span class="pt-qty mono">×${inC.qty}</span>`:''}</div>`}).join('')||'<div class="empty">រកមិនឃើញ</div>';
+  const t=mpTotals(),bar=$('#mpBar');if(bar){bar.disabled=!t.lines;bar.innerHTML=`🛒 កន្ត្រក · ${t.lines} មុខ<b class="mono">${usd(t.total)}</b>`}}
+function showMyCart(){const P2=myPrices,c=mpCart();mpView='cart';const t=mpTotals();
+  openModal(`<div class="bpr-head"><div><h3 style="margin:0">កន្ត្រករបស់ ${esc(P2.name)}</h3><small class="muted">${t.lines} មុខ · ${t.units} ឯកតា</small></div><button class="btn ghost sm" data-mp="list">‹ បន្តរើស</button></div>
+    ${c.length?`<div class="lines mp-lines">${c.map(x=>{const p=mpItem(x.id);if(!p)return'';return `<div class="line"><div class="l-name"><b>${esc(p.name)}</b><small>${usd(p.price)} / ${esc(p.unit||'')}</small></div>
+      <div class="stepper"><button data-mp="dec:${esc(p.id)}" aria-label="បន្ថយ">−</button><input class="mono" value="${x.qty}" readonly aria-label="ចំនួន"><button data-mp="inc:${esc(p.id)}" aria-label="បន្ថែម">+</button></div>
+      <span class="mono l-sum">${usd(round2(x.qty*p.price))}</span><button class="x" data-mp="del:${esc(p.id)}" aria-label="លុប">×</button></div>`}).join('')}</div>
+    <div class="totals" style="margin-top:12px"><div class="big"><span>សរុប</span><span class="mono">${usd(t.total)}</span></div><div><span>ជាប្រាក់រៀល</span><span class="mono">${riel(t.total)}</span></div>
+      <div><span>ចំនួនមុខទំនិញ</span><span class="mono">${t.lines} មុខ</span></div><div><span>ចំនួនឯកតា</span><span class="mono">${t.units}</span></div></div>
+    <label style="display:block;margin-top:10px">កំណត់សម្គាល់<input id="mpNote" class="inp" placeholder="ឧ. ម៉ោងមកយក ឬដឹកជញ្ជូន" value="${esc(P2.note||'')}"></label>`
+    :'<div class="empty tall"><b>កន្ត្រកនៅទទេ</b><span>ចុច + នៅក្បែរផលិតផល ដើម្បីដាក់ចូល</span></div>'}
+    <div class="sheet-actions"><span class="grow"></span><button class="btn ghost" data-mp="list">‹ បន្តរើស</button><button class="btn gold" data-mp="send" ${c.length?'':'disabled'}>ដាក់ការបញ្ជាទិញ</button></div>`,'narrow');
+  const n=$('#mpNote');if(n)n.oninput=()=>P2.note=n.value}
+async function sendMyOrder(btn){const P2=myPrices,c=mpCart();if(!c.length)return;
+  const items=c.map(x=>{const p=mpItem(x.id);return{pid:p.id,name:p.name,unit:p.unit,qty:x.qty,price:p.price}});
+  btn.disabled=true;btn.textContent='កំពុងផ្ញើ...';
+  try{let no;
+    if(syncUrl()){const r=await api(null,{action:'order',order:{name:P2.name,phone:P2.phone,note:P2.note||'',buyerId:P2.id,items}});no=r.no}
+    else{S.orderCounter++;no='ORD-'+String(S.orderCounter).padStart(4,'0');
+      S.orders.push({id:uid(),no,ts:Date.now(),status:'new',name:P2.name,phone:P2.phone,note:['តម្លៃអ្នកទិញ: '+P2.name,P2.note].filter(Boolean).join(' · '),photo:'',
+        items:items.map(i=>({...i,rx:!!prod(i.pid)?.rx})),total:round2(items.reduce((a,i)=>a+i.qty*i.price,0))});save()}
+    const t=mpTotals();P2.cart=[];P2.note='';
+    openModal(`<div class="done-big"><img src="${LOGO}" alt=""><span class="muted">អរគុណ ${esc(P2.name)}! យើងបានទទួលការបញ្ជាទិញ</span><b>${esc(no)}</b></div>
+      <div class="totals" style="margin-top:8px"><div class="big"><span>សរុប</span><span class="mono">${usd(t.total)}</span></div><div><span>ចំនួនមុខទំនិញ</span><span class="mono">${t.lines} មុខ</span></div></div>
+      <div class="sheet-actions"><span class="grow"></span><button class="btn ghost" data-mp="list">បញ្ជាទិញបន្ថែម</button><button class="btn gold" data-act="closeModal">បិទ</button></div>`,'narrow')}
+  catch(e){btn.disabled=false;btn.textContent='ដាក់ការបញ្ជាទិញ';toast('ផ្ញើមិនបានសម្រេច — សូមពិនិត្យអ៊ីនធឺណិត','bad')}}
+function mpAct(spec,el){const [op,id]=spec.split(/:(.*)/s);const c=mpCart(),x=c.find(i=>i.id===id);
+  if(op==='add'){if(x)x.qty++;else c.push({id,qty:1});const p=mpItem(id);if(p&&!x)toast(`បានដាក់ ${p.name}`,'ok');return drawMyPrices()}
+  if(op==='inc'&&x){x.qty++;return showMyCart()}
+  if(op==='dec'&&x){x.qty--;if(x.qty<=0)c.splice(c.indexOf(x),1);return showMyCart()}
+  if(op==='del'&&x){c.splice(c.indexOf(x),1);return showMyCart()}
+  if(op==='cart')return showMyCart();
+  if(op==='list')return showMyPrices();
+  if(op==='send')return sendMyOrder(el)}
 Object.assign(ACTS,{shopPrices(){shopPrices()},shopPricePhone(el){shopPricePhone(el.dataset.id)},shopPriceOut(){myPrices=null;closeModal();toast('បានចាកចេញ','ok')}});
 const catCache=()=>{try{const c=JSON.parse(localStorage.getItem('kep-catalog')||'null');return c&&c.products?c:null}catch(e){return null}};
 function enterShop(){setMode('shop');CAT=catCache()||CAT;renderShop();fitText();if(syncUrl())loadCatalog()}
