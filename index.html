@@ -1012,7 +1012,7 @@ function openScanner(title,cb){
   scanCb=cb;scanDone=false;
   openModal(`<h3>${title}</h3><div id="reader">កំពុងបើកកាមេរ៉ា...</div><p class="scan-status" id="scanStatus">តម្រង់ Barcode ឲ្យនៅកណ្តាលស៊ុម</p>
   <div class="usb-hint">${SCAN_ICON}<span>ម៉ាស៊ីនស្កេន USB/Bluetooth៖ គ្រាន់តែស្កេន ពុំចាំបាច់បើកផ្ទាំងនេះទេ</span></div>
-  <div class="sheet-actions"><span class="btn filebtn">ថតរូប / ជ្រើសរូប Barcode<input type="file" id="scanFile" accept="image/*" capture="environment"></span><span class="grow"></span><button class="btn ghost" data-act="closeModal">បិទ</button></div>`,'narrow');
+  <div class="sheet-actions"><span class="btn filebtn">ថតរូប / ជ្រើសរូប Barcode<input type="file" id="scanFile" accept="image/*" capture="environment"></span><button class="btn gold" data-act="scanAddProduct">+ បន្ថែមឱសថ</button><span class="grow"></span><button class="btn ghost" data-act="closeModal">បិទ</button></div>`,'narrow');
   const status=(m,bad)=>{const el=$('#scanStatus');if(el){el.textContent=m;el.className='scan-status'+(bad?' bad':'')}};
   $('#scanFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;status('កំពុងអានរូប...');
     try{await loadScanLib();stopScan();const tmp=new Html5Qrcode('reader',{verbose:false,experimentalFeatures:{useBarCodeDetectorIfSupported:true}});const r=await tmp.scanFile(f,false);try{tmp.clear()}catch(_){}scanResult(r)}
@@ -2034,7 +2034,13 @@ Object.assign(ACTS,{
   gateCam(){openCamera(f=>quickOrder(f,'hw'))},
   gateRx(){openCamera(f=>quickOrder(f,'rx'))},
   gateGo(el){gateGo(el.dataset.to)},
-  gateDoc(el){gateDoc(el.dataset.doc)},gateScan(){gateScan()},
+  gateDoc(el){gateDoc(el.dataset.doc)},
+  /* from any barcode scanner: jump straight to «add a new medicine» (front screen asks for the PIN first) */
+  scanAddProduct(){stopScan();
+    if(mode==='staff'){closeModal();if(view!=='products')go('products');setTimeout(()=>productForm(),40);return}
+    openModal(`<h3>បន្ថែមឱសថថ្មី</h3><form id="scPinForm" class="form">${pinField()}<div class="sheet-actions"><span class="grow"></span><button type="button" class="btn ghost" data-act="closeModal">បោះបង់</button><button class="btn gold">បន្ត</button></div></form>`,'narrow');
+    setTimeout(()=>$('#bkPin')?.focus(),50);
+    $('#scPinForm').onsubmit=e=>{e.preventDefault();const pin=checkPinField();if(!pin)return;setSessPin(pin);try{sessionStorage.setItem(AUTH,'1')}catch(_){}closeModal();enterStaff();go('products');setTimeout(()=>productForm(),60)}},gateScan(){gateScan()},
   hwCam(){openCamera(handleHandwriting)},
   prodCam(){const keep=$('#sheet').innerHTML,vals=[...$('#pform').elements].map(x=>x.type==='checkbox'?x.checked:x.type==='file'?null:x.value),handler=$('#pform').onsubmit;
     const restore=()=>{openModal(keep);[...$('#pform').elements].forEach((x,i)=>{if(x.type==='file'||vals[i]===null)return;x.type==='checkbox'?x.checked=vals[i]:x.value=vals[i]});$('#pform').onsubmit=handler;window.__rebindPhoto&&window.__rebindPhoto()};
