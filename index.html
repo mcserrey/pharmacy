@@ -452,6 +452,21 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
 .lib-pdf svg{width:80px;height:100px}
 
 .shelf-tools{margin-top:-4px}
+.dl-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));grid-auto-rows:min-content}
+@media(min-width:700px){.dl-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}}
+.dl-item{display:flex;flex-direction:column;gap:6px;background:none;border:0;padding:0;cursor:pointer;font:inherit;color:inherit;text-align:center;min-width:0}
+.dl-cov{position:relative;display:grid;place-items:center;aspect-ratio:3/4;border-radius:10px;overflow:hidden;background:#fff;border:1px solid var(--line);box-shadow:0 2px 6px rgba(0,0,0,.06);border-top:4px solid var(--c,#6b7a67)}
+.dl-cov img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;background:#fff}
+.dl-ext{font:700 .8rem var(--f-mono);color:var(--c);letter-spacing:.05em}
+.dl-dir{border-top:1px solid var(--line);background:var(--panel2);aspect-ratio:4/3}.dl-dir svg{width:56%;height:auto}
+.dl-item:hover .dl-cov{border-color:var(--gold)}
+.dl-nm{font-size:.84rem;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.dl-modal{max-width:min(1000px,100%)!important;width:100%}
+.dl-view-h{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}.dl-view-h h3{margin:0;min-width:0;overflow-wrap:anywhere}.dl-view-h a.btn{text-decoration:none;display:inline-flex;align-items:center}
+.dl-frame{width:100%;height:min(78vh,900px);border:1px solid var(--line);border-radius:8px;background:#fff}
+.dl-fig{margin:0;text-align:center}.dl-fig img{max-width:100%;max-height:78vh;border-radius:8px}
+.dl-read{box-shadow:none;border:0;padding:4px 2px}
+#libView{padding-top:6px}
 .art-chips{margin:6px 0 12px}
 .art-list{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr))}
 .art-card{display:flex;gap:12px;align-items:flex-start;text-align:left;background:var(--card,#fff);border:1px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer;font:inherit;color:inherit;min-width:0}
@@ -687,6 +702,115 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
 .mpgrid.pgrid{max-height:min(56vh,560px);overflow-y:auto;padding:2px}
 .pt-price{font-size:.95rem;color:var(--sun)}
 
+/* PIN pad */
+.ppad{display:flex;flex-direction:column;align-items:center;gap:14px;padding:6px 0 4px;position:relative}
+.pp-lbl{font-size:.86rem;color:var(--muted);text-align:center}
+.pp-in{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;top:0;left:50%}
+.pp-dots{display:flex;gap:16px;justify-content:center;padding:4px 0}
+.pp-dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--leaf,#2f9e44);background:transparent;transition:transform .15s,background .15s}
+.pp-dots i.on{background:var(--leaf,#2f9e44);transform:scale(1.12)}
+.ppad.focus .pp-dots i:not(.on):first-child, .ppad.focus .pp-dots i.on+i:not(.on){box-shadow:0 0 0 4px rgba(47,158,68,.15)}
+.pp-keys{display:grid;grid-template-columns:repeat(3,64px);gap:12px 20px;justify-content:center}
+.pp-keys button{width:64px;height:64px;border-radius:50%;border:1px solid var(--line);background:var(--panel,#fff);font:600 1.5rem var(--f-mono);color:var(--fg);cursor:pointer;
+  box-shadow:0 1px 2px rgba(0,0,0,.06);transition:background .12s,transform .08s;-webkit-tap-highlight-color:transparent;display:grid;place-items:center;padding:0}
+.pp-keys button:hover{background:var(--panel2)}
+.pp-keys button:active{transform:scale(.92);background:rgba(47,158,68,.14)}
+.pp-keys .pp-fn{border-color:transparent;background:transparent;box-shadow:none;font:500 .82rem var(--f-body);color:var(--muted)}
+.pp-keys .pp-fn svg{width:26px;height:26px}
+.ppad.shake .pp-dots{animation:ppshake .4s}.ppad.shake .pp-dots i{border-color:var(--bad)}
+@keyframes ppshake{0%,100%{transform:none}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.pp-field{border:1px solid var(--line);border-radius:14px;padding:12px 8px 14px;background:var(--panel2)}
+.pp-field .pp-keys{grid-template-columns:repeat(3,56px);gap:10px 18px}.pp-field .pp-keys button{width:56px;height:56px;font-size:1.3rem}
+.gate-staff .ppad{background:rgba(255,255,255,.85);border:1px solid var(--line);border-radius:18px;padding:16px 10px 14px;margin-top:4px}
+@media(max-height:640px){.pp-keys{grid-template-columns:repeat(3,54px);gap:8px 16px}.pp-keys button{width:54px;height:54px;font-size:1.25rem}}
+/* library home */
+.lb-tabs{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 12px;scrollbar-width:none}
+.lb-tab{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--panel,#fff);border-radius:999px;padding:8px 16px;cursor:pointer;white-space:nowrap;font:inherit;color:var(--fg)}
+.lb-tab span{font-size:1.1rem}.lb-tab b{font-weight:600;font-size:.92rem}
+.lb-tab.on{background:var(--g-green,#2f9e44);border-color:transparent;color:#fff}
+.lb-tools{margin-top:0}
+.lb-arts{list-style:none;margin:0;padding:0;display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(min(100%,380px),1fr))}
+.lb-arts button{width:100%;display:flex;align-items:center;gap:12px;text-align:left;background:var(--panel,#fff);border:1px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer;font:inherit;color:inherit}
+.lb-arts button:hover{border-color:var(--gold)}.lb-arts b{flex:1;font-weight:600;line-height:1.55;min-width:0;overflow-wrap:anywhere}
+.lb-art-ic{font-size:1.2rem}.lb-chev{color:var(--muted);font-size:1.3rem}
+/* music */
+.mu-lists{display:flex;gap:12px;overflow-x:auto;padding:2px 2px 10px;scrollbar-width:thin}
+.mu-list{flex:0 0 132px;display:flex;flex-direction:column;gap:4px;text-align:left;background:none;border:0;padding:0;cursor:pointer;font:inherit;color:inherit}
+.mu-cov{position:relative;aspect-ratio:1;border-radius:14px;overflow:hidden;display:grid;place-items:center;color:#fff;
+  background:linear-gradient(135deg,hsl(var(--h) 55% 45%),hsl(calc(var(--h) + 50) 60% 32%));box-shadow:0 4px 12px rgba(0,0,0,.12);transition:transform .15s}
+.mu-cov img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.mu-cov svg{width:44%;height:44%}
+.mu-list.on .mu-cov{outline:3px solid var(--gold);outline-offset:2px}.mu-list:hover .mu-cov{transform:translateY(-2px)}
+.mu-list b{font-size:.9rem;line-height:1.4;overflow-wrap:anywhere}.mu-list small{color:var(--muted);font-size:.76rem}
+.mu-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0 6px}.mu-head h3{margin:0}
+.mu-tracks{list-style:none;margin:0;padding:0;background:var(--panel,#fff);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.mu-tracks li+li{border-top:1px solid var(--line)}
+.mu-tr{width:100%;display:flex;align-items:center;gap:12px;background:none;border:0;padding:12px 14px;text-align:left;cursor:pointer;font:inherit;color:inherit}
+.mu-tr:hover{background:var(--panel2)}.mu-tr.on{background:rgba(47,158,68,.08)}.mu-tr.on .mu-t{color:var(--leaf-d,#1f7a33);font-weight:700}
+.mu-n{width:26px;text-align:center;color:var(--muted);font:600 .82rem var(--f-mono);flex-shrink:0;display:grid;place-items:center}
+.mu-t{flex:1;min-width:0;line-height:1.5;overflow-wrap:anywhere}
+.eq{display:inline-flex;gap:2px;align-items:flex-end;height:14px}.eq b{width:3px;background:var(--leaf,#2f9e44);border-radius:1px;animation:eq 1s infinite ease-in-out}
+.eq b:nth-child(2){animation-delay:.25s}.eq b:nth-child(3){animation-delay:.5s}
+.eq.paused b,.mpbar:not(.playing) .eq b{animation:none;height:5px}
+@keyframes eq{0%,100%{height:4px}50%{height:14px}}
+@media(prefers-reduced-motion:reduce){.eq b{animation:none;height:8px}}
+.mpbar{position:fixed;left:50%;transform:translateX(-50%);bottom:max(10px,env(safe-area-inset-bottom));z-index:80;width:min(760px,calc(100% - 20px));
+  display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"info ctl x" "seek seek seek";gap:4px 10px;align-items:center;
+  background:#183020;color:#fff;border-radius:18px;padding:10px 12px 8px;box-shadow:0 10px 30px rgba(0,0,0,.28)}
+.mp-info{grid-area:info;display:flex;gap:10px;align-items:center;min-width:0}
+.mp-art{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.12);display:grid;place-items:center;flex-shrink:0}.mp-art .eq b{background:#ffd43b}
+.mp-tx{display:flex;flex-direction:column;min-width:0}.mp-tx b{font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mp-tx small{opacity:.7;font-size:.74rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mp-ctl{grid-area:ctl;display:flex;gap:4px;align-items:center}
+.mp-ctl button,.mp-x{background:none;border:0;color:#fff;width:38px;height:38px;border-radius:50%;cursor:pointer;display:grid;place-items:center;padding:0}
+.mp-ctl button:hover,.mp-x:hover{background:rgba(255,255,255,.12)}
+.mp-ctl svg{width:20px;height:20px;fill:currentColor}
+.mp-ctl .mp-play{width:44px;height:44px;background:#ffd43b;color:#183020}.mp-ctl .mp-play:hover{background:#ffe066}.mp-ctl .mp-play svg{width:22px;height:22px}
+.mpbar.loading .mp-play{animation:mppulse 1s infinite}@keyframes mppulse{50%{opacity:.6}}
+.mp-x{grid-area:x;width:30px;height:30px;opacity:.7;font-size:.9rem}
+.mp-seek{grid-area:seek;display:flex;align-items:center;gap:8px;font-size:.7rem;opacity:.9}
+.mp-seek input{flex:1;accent-color:#ffd43b;height:4px}
+body.has-mp .main{padding-bottom:110px}
+
+/* music, like a player app */
+.lb-tab .lb-n{background:rgba(0,0,0,.07);border-radius:999px;padding:0 8px;font-size:.72rem;min-width:1.4em;text-align:center}.lb-tab .lb-n:empty{display:none}
+.lb-tab.on .lb-n{background:rgba(255,255,255,.25)}
+.lb-tools .lb-grp,.lb-grp{display:flex;flex-direction:row;align-items:center;margin:0;gap:8px;font-size:.86rem;color:var(--muted);white-space:nowrap}
+.lb-grp select{appearance:none;-webkit-appearance:none;border:1px solid var(--line);border-radius:12px;background:var(--panel,#fff) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23555' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 12px center/16px;
+  padding:9px 38px 9px 14px;font:600 .9rem var(--f-body);color:var(--fg);min-width:min(260px,60vw);max-width:100%;cursor:pointer}
+@media(max-width:640px){.lb-tools{flex-wrap:wrap}.lb-grp{width:100%}.lb-grp select{flex:1;min-width:0}}
+.np{position:relative;display:flex;gap:22px;align-items:center;border-radius:22px;padding:22px;margin:4px 0 18px;color:#fff;overflow:hidden;
+  background:radial-gradient(120% 140% at 0% 0%,hsl(var(--h) 70% 42%),hsl(calc(var(--h) + 40) 65% 22%) 70%);box-shadow:0 14px 34px hsla(var(--h),60%,30%,.35)}
+.np::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.035) 0 2px,transparent 2px 7px);pointer-events:none}
+.np-cov{flex:0 0 150px;aspect-ratio:1;border-radius:18px;display:grid;place-items:end center;padding-bottom:22px;
+  background:linear-gradient(150deg,hsl(calc(var(--h) - 20) 80% 62%),hsl(calc(var(--h) + 30) 70% 45%));box-shadow:0 10px 24px rgba(0,0,0,.3)}
+.np-cov .eq{display:flex;align-items:flex-end;height:30px;gap:4px}.np-cov .eq b{height:10px}.np-cov .eq b{width:6px;background:#fff;border-radius:2px}
+.np.playing .np-cov .eq b{animation-name:eqbig}@keyframes eqbig{0%,100%{height:8px}50%{height:30px}}
+.np-cov .eq.paused b{height:10px}
+.np-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;position:relative;z-index:1}
+.np-k{font:600 .7rem var(--f-mono);letter-spacing:.18em;opacity:.75}
+.np-t{font:700 clamp(1.05rem,2.6vw,1.6rem)/1.35 var(--f-disp,inherit);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.np-s{opacity:.85;font-size:.88rem}
+.np-seek{display:flex;align-items:center;gap:10px;font-size:.76rem;margin-top:6px}
+.np-seek input,.np-vol input{flex:1;accent-color:#fff;height:4px;cursor:pointer}
+.np-ctl{display:flex;align-items:center;gap:6px;margin-top:4px}
+.np-b{position:relative;width:42px;height:42px;border-radius:50%;border:0;background:none;color:#fff;opacity:.8;cursor:pointer;display:grid;place-items:center;padding:0}
+.np-b:hover{opacity:1;background:rgba(255,255,255,.12)}.np-b svg{width:22px;height:22px}
+.np-b.on{opacity:1;color:#7ff0d0}.np-b.on::after{content:"";position:absolute;bottom:3px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:currentColor}
+.np-one{position:absolute;top:6px;right:6px;font:700 .55rem var(--f-mono);background:#7ff0d0;color:#123;border-radius:50%;width:12px;height:12px;display:grid;place-items:center}
+.np-play{width:62px;height:62px;border-radius:50%;border:0;background:#fff;color:hsl(var(--h) 60% 30%);cursor:pointer;display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.3);margin:0 4px;transition:transform .1s}
+.np-play:active{transform:scale(.94)}.np-play svg{width:28px;height:28px;fill:currentColor}
+.np-vol{display:flex;align-items:center;gap:8px;width:min(180px,30%)}.np-vol svg{width:20px;height:20px;flex-shrink:0;opacity:.9}
+@media(max-width:640px){.np{padding:18px 16px}.np-cov{display:none}.np-ctl{justify-content:center;gap:2px}.np-ctl .grow,.np-vol{display:none}.np-play{width:58px;height:58px}}
+.mu-head h3{display:flex;align-items:baseline;gap:8px}.mu-head h3 small{font-size:.8rem;font-weight:400}
+.mu-allbtn{background:#0f766e;border-color:#0f766e;color:#fff}.mu-allbtn:hover{background:#0b5e58}
+.mu-ic{width:40px;height:40px;border-radius:10px;flex-shrink:0;display:grid;place-items:center;color:#fff;font-size:1rem;
+  background:linear-gradient(140deg,hsl(var(--h) 60% 45%),hsl(calc(var(--h) + 40) 60% 30%))}
+.mu-ic .eq b{background:#fff}
+.mu-tx{flex:1;min-width:0;display:flex;flex-direction:column}.mu-tx small{color:var(--muted);font-size:.76rem}
+.mu-meta{color:var(--muted);font-size:.72rem;white-space:nowrap}.mu-ok{color:#0f766e;font-weight:700}
+.mu-tr .mu-n{width:22px}
+@media(max-width:520px){.mu-meta{display:none}}
+body.mu-view .mpbar{display:none}body.mu-view.has-mp .main{padding-bottom:0}
+
 /* staff orders */
 .olist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));gap:12px;align-items:start}
 .ocard header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;padding:12px 14px;border-bottom:1px dashed var(--line)}
@@ -827,16 +951,25 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
       <div class="gp-head"><button type="button" class="gback" data-act="gateGo" data-to="gHome" aria-label="ត្រឡប់"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button><span><b id="gateStaffName2">ឱសថការី-ឈឹន សុវណ្ណដាណែត</b><small>គ្រប់គ្រង សញ្ញាបត្រ អាជ្ញាប័ណ្ណ គណៈឱសថការី</small></span></div>
       <button type="button" class="gtile t-g" data-act="showPin" id="gateLoginBtn"><span class="gt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M15 8l2 2"/></svg></span><span class="gt-tx"><b>ចូលកម្មវិធី</b><small>សម្រាប់បុគ្គលិក · ត្រូវការ PIN</small></span><span class="gt-ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></button>
       <form class="gate-staff" id="pinBox" autocomplete="off" aria-label="ចូលសម្រាប់បុគ្គលិក" hidden>
-        <div class="pin-row"><input id="pinInput" class="inp mono" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" placeholder="PIN" aria-label="PIN" aria-describedby="pinMsg"><button class="btn" type="submit">ចូល</button></div>
+        <div id="pinPadSlot"></div>
         <p class="pin-msg" id="pinMsg" aria-live="polite"></p>
       </form>
       <button type="button" class="gtile t-g" data-act="gateDoc" data-doc="certImg"><span class="gt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M7 8h10M7 11h6"/><circle cx="16.5" cy="17" r="2.5"/><path d="M15 19l-1 3 2.5-1 2.5 1-1-3"/></svg></span><span class="gt-tx"><b>សញ្ញាបត្រ</b><small>សញ្ញាបត្រឱសថការី</small></span><span class="gt-ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></button>
       <button type="button" class="gtile t-g" data-act="gateDoc" data-doc="licImg"><span class="gt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span><span class="gt-tx"><b>អាជ្ញាប័ណ្ណ</b><small>អាជ្ញាប័ណ្ណបើកឱសថស្ថាន</small></span><span class="gt-ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></button>
       <button type="button" class="gtile t-g" data-act="gateDoc" data-doc="council"><span class="gt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-1a6 6 0 0 1 12 0v1"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2A5 5 0 0 1 21 19v1"/></svg></span><span class="gt-tx"><b>គណៈឱសថការី</b><small>ឯកសារគណៈឱសថការី</small></span><span class="gt-ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></button>
-      <button type="button" class="gtile t-g" data-act="gateLibrary"><span class="gt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h4v16H4zM10 4h4v16h-4z"/><path d="M16 5.5l3.6-1 3 14.6-3.6 1z"/></svg></span><span class="gt-tx"><b>បណ្ណាល័យ</b><small>សៀវភៅ អត្ថបទ ឃ្លាំងឯកសារ · ត្រូវការ PIN</small></span><span class="gt-ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></button>
+      <button type="button" class="gtile t-g" data-act="gateLibrary"><span class="gt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h4v16H4zM10 4h4v16h-4z"/><path d="M16 5.5l3.6-1 3 14.6-3.6 1z"/></svg></span><span class="gt-tx"><b>បណ្ណាល័យ</b><small>សៀវភៅ និងឯកសារ ពី Google Drive</small></span><span class="gt-ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></button>
     </div>
     <p class="gate-foot" id="gateFoot"></p>
   </div>
+</div>
+
+<!-- Public library (Drive folder) -->
+<div id="libApp" class="app shopmode" hidden>
+  <main class="main">
+    <header class="top"><div class="shop-brand"><img data-logo alt=""><div><b>បណ្ណាល័យ</b><small>ឱសថស្ថានកែប · Library</small></div></div>
+      <div class="top-meta"><button class="btn ghost sm" data-act="exitShop">ទំព័រដើម</button></div></header>
+    <section id="libView" class="view"></section>
+  </main>
 </div>
 
 <!-- Customer shop -->
@@ -872,7 +1005,7 @@ let CATS=[...DEFAULT_CATS];  /* the pharmacy's own list lives in S.set.cats (ក
 function applyCats(){if(!Array.isArray(S.set.cats)||!S.set.cats.length)S.set.cats=[...DEFAULT_CATS];CATS=S.set.cats}
 const PAYS={cash:'សាច់ប្រាក់ (Cash)',aba:'ABA / KHQR',wing:'Wing',card:'កាត (Card)'};
 const ADJ=['រាប់ស្តុកឡើងវិញ (Count)','ខូចខាត (Damaged)','បោះចោល ផុតកំណត់ (Disposal)','ត្រឡប់ទៅអ្នកផ្គត់ផ្គង់ (Return)'];
-const VIEWS={pos:['ផ្ទាំងលក់','POS'],orders:['ការបញ្ជាទិញ','Orders'],buyers:['អ្នកទិញ','Buyers'],sales:['ប្រវត្តិលក់','Sales'],products:['បញ្ជីឱសថ','Products'],stock:['ស្តុក','Stock'],suppliers:['អ្នកផ្គត់ផ្គង់','Suppliers'],reports:['របាយការណ៍','Reports'],library:['បណ្ណាល័យ','Library'],settings:['ការកំណត់','Settings']};
+const VIEWS={pos:['ផ្ទាំងលក់','POS'],orders:['ការបញ្ជាទិញ','Orders'],buyers:['អ្នកទិញ','Buyers'],sales:['ប្រវត្តិលក់','Sales'],products:['បញ្ជីឱសថ','Products'],stock:['ស្តុក','Stock'],suppliers:['អ្នកផ្គត់ផ្គង់','Suppliers'],reports:['របាយការណ៍','Reports'],library:['បណ្ណាល័យ','Library'],shares:['ភាគហ៊ុន 🔒','Shares'],archive:['ឃ្លាំងឯកសារ 🔒','Archive'],settings:['ការកំណត់','Settings']};
 const MOVE={IN:['ទទួលចូល','ok'],SALE:['លក់','info'],ADJ:['កែតម្រូវ','warn'],VOID:['លុបវិក្កយបត្រ','bad']};
 
 const $=s=>document.querySelector(s);
@@ -1009,12 +1142,12 @@ function drawTop(){
   paintSync();
   $('#shopName').textContent=S.set.shop;
 }
-function go(v){view=v;document.body.classList.remove('nav-open');$('#navShade').hidden=true;drawNav();render()}
-function render(){drawTop();V().className='view';
-  ({buyers:renderBuyers,library:renderLibrary,pos:renderPOS,orders:renderOrders,sales:renderSales,products:renderProducts,stock:renderStock,suppliers:renderSuppliers,reports:renderReports,settings:renderSettings})[view]();}
+function go(v){if(view==='archive'&&v!=='archive'){ARCH.pin='';ARCH.data=null}if(view==='shares'&&v!=='shares')SHR.at=0;view=v;document.body.classList.remove('nav-open');$('#navShade').hidden=true;drawNav();render()}
+function render(){document.body.classList.remove('mu-view');drawTop();V().className='view';
+  ({shares:renderShares,archive:renderArchive,buyers:renderBuyers,library:renderLibrary,pos:renderPOS,orders:renderOrders,sales:renderSales,products:renderProducts,stock:renderStock,suppliers:renderSuppliers,reports:renderReports,settings:renderSettings})[view]();}
 
 /* ---------- modal / toast / confirm ---------- */
-function openModal(html,cls=''){$('#sheet').className='sheet '+cls;$('#sheet').innerHTML=html;$('#modal').hidden=false;setTimeout(()=>{const f=$('#sheet').querySelector('input:not([type=checkbox]),select,button.gold');f&&f.focus()},30)}
+function openModal(html,cls=''){$('#sheet').className='sheet '+cls;$('#sheet').innerHTML=html;$('#modal').hidden=false;setTimeout(()=>{const f=$('#sheet').querySelector('input:not([type=checkbox]),select,button.gold');if(f&&!(f.classList.contains('pp-in')&&!matchMedia('(pointer:fine)').matches))f.focus()},30)}
 function closeModal(){stopScan();stopCam();$('#modal').hidden=true;$('#sheet').innerHTML=''}
 
 /* ---------- barcode scanning ---------- */
@@ -1032,7 +1165,6 @@ function scanResult(code){if(scanDone)return;scanDone=true;code=String(code).tri
 function openScanner(title,cb){
   scanCb=cb;scanDone=false;
   openModal(`<h3>${title}</h3><div id="reader">កំពុងបើកកាមេរ៉ា...</div><p class="scan-status" id="scanStatus">តម្រង់ Barcode ឲ្យនៅកណ្តាលស៊ុម</p>
-  <div class="usb-hint">${SCAN_ICON}<span>ម៉ាស៊ីនស្កេន USB/Bluetooth៖ គ្រាន់តែស្កេន ពុំចាំបាច់បើកផ្ទាំងនេះទេ</span></div>
   <div class="sheet-actions"><span class="btn filebtn blue">🖼 ជ្រើសរូប<input type="file" id="scanFile" accept="image/*"></span><button class="btn gold" data-act="scanAddProduct">+ បន្ថែមឱសថ</button><span class="grow"></span><button class="btn ghost" data-act="closeModal">បិទ</button></div>`,'narrow');
   const status=(m,bad)=>{const el=$('#scanStatus');if(el){el.textContent=m;el.className='scan-status'+(bad?' bad':'')}};
   $('#scanFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;status('កំពុងអានរូប...');
@@ -1447,7 +1579,7 @@ const ACTS={
   wipe(){confirmBox('លុបទិន្នន័យទាំងអស់?','ឱសថ ស្តុក ប្រវត្តិលក់ និងអ្នកផ្គត់ផ្គង់ នឹងត្រូវលុប។ ការកំណត់នៅដដែល។','លុបទាំងអស់',()=>{Object.assign(S,{products:[],batches:[],suppliers:[],sales:[],moves:[],counter:0,orders:[],orderCounter:0});save();resetP();resetR();render();toast('បានលុបទិន្នន័យ','ok')})}
 };
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-art],[data-mp],[data-mptile],[data-mpcat],[data-arch],[data-docadd],[data-docdel],[data-sadd],[data-stile],[data-ptile],[data-docfile],[data-docback],[data-book],[data-lib],[data-libopen],[data-libpub],[data-photo],[data-sadd],[data-sinc],[data-sdec],[data-sdel],[data-scat],[data-of],[data-view],[data-act],[data-add],[data-inc],[data-dec],[data-del],[data-cat],[data-sale],[data-editp],[data-adj],[data-tab],[data-bf],[data-range],[data-rmline],[data-editsup],[data-goto]');
+  const t=e.target.closest('[data-lb],[data-mpc],[data-dl],[data-art],[data-mp],[data-mptile],[data-mpcat],[data-arch],[data-docadd],[data-docdel],[data-sadd],[data-stile],[data-ptile],[data-docfile],[data-docback],[data-book],[data-lib],[data-libopen],[data-libpub],[data-photo],[data-sadd],[data-sinc],[data-sdec],[data-sdel],[data-scat],[data-of],[data-view],[data-act],[data-add],[data-inc],[data-dec],[data-del],[data-cat],[data-sale],[data-editp],[data-adj],[data-tab],[data-bf],[data-range],[data-rmline],[data-editsup],[data-goto]');
   if(e.target.id==='modal')return closeModal();
   if(!t)return;const d=t.dataset;
   if(d.stile){shopShow=shopShow===d.stile?'':d.stile;document.querySelectorAll('#sgrid .ptile').forEach(x=>x.classList.toggle('show',x.dataset.stile===shopShow));return}
@@ -1455,6 +1587,9 @@ document.addEventListener('click',e=>{
   if(d.mp){mpAct(d.mp,t);return}
   if(d.mptile){mpShow=mpShow===d.mptile?'':d.mptile;document.querySelectorAll('#mpbody .ptile').forEach(x=>x.classList.toggle('show',x.dataset.mptile===mpShow));return}
   if(d.mpcat){mpCat=d.mpcat;document.querySelectorAll('.mp-chips .chipbtn').forEach(b=>b.classList.toggle('on',b.dataset.mpcat===mpCat));drawMyPrices();return}
+  if(d.lb!==undefined){lbAct(d.lb);return}
+  if(d.mpc){mpCtl(d.mpc);return}
+  if(d.dl!==undefined){dlAct(d.dl);return}
   if(d.art!==undefined){artAct(d.art);return}
   if(d.arch!==undefined&&t.dataset.arch){archAct(d.arch);return}
   if(d.docadd){docAddForm(d.docadd);return}
@@ -1528,11 +1663,11 @@ function tick(){const d=new Date(),c=$('#clock');if(c)c.textContent=iso(d)+' · 
 /* ---------- login gate ---------- */
 const AUTH='kep-pharmacy-auth';
 let mode='gate',pinFails=0,pinLockUntil=0;
-function setMode(m){mode=m;$('#appRoot').hidden=m!=='staff';$('#shop').hidden=m!=='shop';$('#gate').hidden=m!=='gate';window.scrollTo(0,0)}
+function setMode(m){mode=m;document.body.classList.remove('mu-view');$('#appRoot').hidden=m!=='staff';$('#shop').hidden=m!=='shop';$('#libApp').hidden=m!=='lib';$('#gate').hidden=m!=='gate';window.scrollTo(0,0)}
 function showGate(){closeModal();try{sessionStorage.removeItem(AUTH)}catch(e){}
   $('#gateShop').textContent=S.set.shop;$('#gateFoot').innerHTML=`<span style="white-space:nowrap">${esc(S.set.shop||'ឱសថស្ថានកែប')} (ខាងលិចផ្សារដំណាក់ចង្អើរ)</span> <span style="white-space:nowrap">ខេត្តកែប - 012-36-97-26</span>`;
   $('#gateStaffName').textContent=$('#gateStaffName2').textContent='ឱសថការី-'+(S.set.staff||'ឈឹន សុវណ្ណដាណែត');gateGo('gHome');
-  setMode('gate');const i=$('#pinInput');i.value='';i.maxLength=String(S.set.pin).length;pinMsg('')}
+  setMode('gate');$('#pinPadSlot').innerHTML=pinPad('pinInput','វាយលេខ PIN ដើម្បីចូលកម្មវិធី');$('#pinInput').addEventListener('input',()=>tryPin(false));pinMsg('')}
 /* front screen: scan a barcode → put it in the basket, or (staff, with PIN) receive stock / add a new product */
 const shopFind=c=>{const n=bcNorm(c),d=bcDigits(c),L=sprods();return L.find(p=>bcNorm(p.barcode)===n||bcNorm(p.code)===n)||(d&&L.find(p=>bcDigits(p.barcode)===d))};
 function gateScan(){openScanner('ស្កេន Barcode',code=>gateScanResult(code))}
@@ -1633,7 +1768,8 @@ async function gateDoc(key){
   openModal(`<h3>${title}</h3>${items.length?`<div class="libgrid">${items.map(x=>`<button class="libcard" data-libpub="${x.id}"><span class="lib-th">${libThumb(x)}</span><span class="lib-tx"><b>${esc(x.title)}</b><small>${esc(x.holder||'')}</small>${libExp(x)}</span></button>`).join('')}</div>`:'<p class="muted">មិនទាន់មានឯកសារ។ ឱសថការីអាចដាក់នៅក្នុង បណ្ណាល័យ។</p>'}
     <div class="sheet-actions"><span class="grow"></span><button class="btn gold" data-act="closeModal">បិទ</button></div>`)}
 function pinMsg(m,bad){const el=$('#pinMsg');el.textContent=m;el.className='pin-msg'+(bad?' bad':'')}
-function tryPin(force){
+const tryPin=f=>{tryPin0(f);ppRefresh()};
+function tryPin0(force){
   const i=$('#pinInput'),pin=String(S.set.pin);i.value=i.value.replace(/\D/g,'');
   if(Date.now()<pinLockUntil){i.value='';return pinMsg(`សូមរង់ចាំ ${Math.ceil((pinLockUntil-Date.now())/1000)} វិនាទី`,true)}
   if(i.value.length<pin.length){if(force)pinMsg('សូមវាយ PIN ឲ្យគ្រប់ខ្ទង់',true);else pinMsg('');return}
@@ -1641,12 +1777,11 @@ function tryPin(force){
   if(syncUrl()&&!force&&!tryPin.remote){const v=i.value;tryPin.remote=true;pinMsg('កំពុងពិនិត្យ...');
     api({action:'login',pin:v}).then(()=>{S.set.pin=v;saveLocal();setSessPin(v);i.value='';try{sessionStorage.setItem(AUTH,'1')}catch(e){}enterStaff()})
       .catch(()=>{tryPin.remote=false;i.value=v;tryPin(true)}).finally(()=>{tryPin.remote=false});return}
-  pinFails++;i.value='';const box=$('#pinBox');box.classList.remove('shake');void box.offsetWidth;box.classList.add('shake');
+  pinFails++;i.value='';ppShake(i);
   if(pinFails>=5){pinFails=0;pinLockUntil=Date.now()+30000;pinMsg('PIN ខុស ៥ ដង — សូមរង់ចាំ ៣០ វិនាទី',true)}
   else pinMsg(`PIN មិនត្រឹមត្រូវ (${pinFails}/5)`,true);
 }
 $('#pinBox').addEventListener('submit',e=>{e.preventDefault();tryPin(true)});
-$('#pinInput').addEventListener('input',()=>tryPin(false));
 function enterStaff(){setTimeout(paintSync);if(!SY.url&&SHEET_API_URL&&!IN_CLAUDE){SY.url=SHEET_API_URL;SY.hashes={};SY.ver='';saveSY()}  /* connect automatically: local and Sheet records are merged, nothing is lost */
   setMode('staff');drawNav();render();fitText();fullSync(true)}
 
@@ -2058,9 +2193,7 @@ Object.assign(ACTS,{
   gateGo(el){gateGo(el.dataset.to)},
   gateDoc(el){gateDoc(el.dataset.doc)},
   /* from any barcode scanner: jump straight to «add a new medicine» (front screen asks for the PIN first) */
-  gateLibrary(){if(mode==='staff'){libTab='book';go('library');return}
-    openModal(`<h3>បណ្ណាល័យ</h3><form id="libPinForm" class="form">${pinField()}<div class="sheet-actions"><span class="grow"></span><button type="button" class="btn ghost" data-act="closeModal">បោះបង់</button><button class="btn gold">ចូល</button></div></form>`,'narrow');setTimeout(()=>$('#bkPin')?.focus(),50);
-    $('#libPinForm').onsubmit=e=>{e.preventDefault();const pin=checkPinField();if(!pin)return;setSessPin(pin);try{sessionStorage.setItem(AUTH,'1')}catch(_){}closeModal();enterStaff();libTab='book';go('library')}},
+  gateLibrary(){if(mode==='staff'){go('library');return}enterLib()},
   scanAddProduct(){stopScan();
     if(mode==='staff'){closeModal();if(view!=='products')go('products');setTimeout(()=>productForm(),40);return}
     openModal(`<h3>បន្ថែមឱសថថ្មី</h3><form id="scPinForm" class="form">${pinField()}<div class="sheet-actions"><span class="grow"></span><button type="button" class="btn ghost" data-act="closeModal">បោះបង់</button><button class="btn gold">បន្ត</button></div></form>`,'narrow');
@@ -2070,7 +2203,7 @@ Object.assign(ACTS,{
   prodCam(){const keep=$('#sheet').innerHTML,vals=[...$('#pform').elements].map(x=>x.type==='checkbox'?x.checked:x.type==='file'?null:x.value),handler=$('#pform').onsubmit;
     const restore=()=>{openModal(keep);[...$('#pform').elements].forEach((x,i)=>{if(x.type==='file'||vals[i]===null)return;x.type==='checkbox'?x.checked=vals[i]:x.value=vals[i]});$('#pform').onsubmit=handler;window.__rebindPhoto&&window.__rebindPhoto()};
     openCamera(f=>{restore();readProductPhoto(f)},restore)},
-  showPin(el){const box=$('#pinBox'),open=box.hidden;box.hidden=!open;el.classList.toggle('on',open);if(open)$('#pinInput').focus()},
+  showPin(el){const box=$('#pinBox'),open=box.hidden;box.hidden=!open;el.classList.toggle('on',open);if(open&&matchMedia('(pointer:fine)').matches)$('#pinInput').focus()},
   docDel(el){const k=el.dataset.k;confirmBox('លុបរូប?','រូបនេះនឹងលែងបង្ហាញនៅផ្ទាំងដំបូង។','លុប',()=>{S.set[k]='';save();render()})},
   logout(){showGate()},
   shopClear(){C.cart=[];drawShopGrid();drawShopCart()},
@@ -2337,7 +2470,8 @@ function libThumb(x){
 function libExp(x){if(!x.expires)return '';const d=daysTo(x.expires);return d<0?`<span class="chip bad sm">ផុតកំណត់ ${-d} ថ្ងៃ</span>`:d<=60?`<span class="chip warn sm">នៅ ${d} ថ្ងៃ</span>`:`<span class="chip ok sm">ដល់ ${x.expires}</span>`}
 let bkFail=false;
 const bkCount=()=>BK&&BK.books?BK.books.length:(bkLoading?'…':'');
-function renderLibrary(){
+function renderLibrary(){return renderDLib()}
+function renderLibraryOld(){
   if(!BK&&!bkLoading&&!bkFail&&syncUrl())setTimeout(()=>loadBooks());
   if(libTab==='book')return renderShelf();
   if(libTab==='stock')return renderStocks();
@@ -2427,15 +2561,31 @@ function renderShelf(err){
   <div class="shelves">${body}</div>`;
   V().querySelectorAll('.book-cov img[data-gi]').forEach(img=>img.addEventListener('error',()=>{const b=BK.books.find(x=>x.id===img.closest('.book').dataset.book);if(b)img.outerHTML=genCover(b,+img.dataset.gi)},{once:true}));
 }
-function pinField(){return `<label>PIN បុគ្គលិក (ដើម្បីបញ្ជាក់)<input id="bkPin" class="inp mono" type="password" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="••••"></label>`}
-function checkPinField(){const p=($('#bkPin')?.value||'').trim();if(p!==String(S.set.pin)){toast('PIN មិនត្រឹមត្រូវ','bad');$('#bkPin')?.focus();return null}return p}
+/* ---------- PIN pad: dots + big round keys (also takes the keyboard) ---------- */
+const pinLen=()=>String(S.set.pin||'2210').length;
+function pinPad(id,label){const n=pinLen();
+  return `<div class="ppad" data-ppad>${label?`<div class="pp-lbl">${label}</div>`:''}<input id="${id}" class="pp-in" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="${n}" autocomplete="off" aria-label="PIN">
+  <div class="pp-dots" aria-hidden="true">${'<i></i>'.repeat(n)}</div>
+  <div class="pp-keys">${[1,2,3,4,5,6,7,8,9].map(k=>`<button type="button" data-ppk="${k}">${k}</button>`).join('')}<button type="button" data-ppk="c" class="pp-fn">សម្អាត</button><button type="button" data-ppk="0">0</button><button type="button" data-ppk="b" class="pp-fn" aria-label="លុបមួយខ្ទង់"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 5H9l-6 7 6 7h12z M17 9l-6 6M11 9l6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg></button></div></div>`}
+function ppRefresh(){document.querySelectorAll('[data-ppad]').forEach(p=>{const i=p.querySelector('.pp-in'),n=i.value.length;p.querySelectorAll('.pp-dots i').forEach((d,k)=>d.classList.toggle('on',k<n))})}
+function ppShake(el){const p=el&&el.closest?el.closest('[data-ppad]'):null;if(!p)return;p.classList.remove('shake');void p.offsetWidth;p.classList.add('shake')}
+function ppFull(i){const f=i.form;if(!f||i.value.length<+i.maxLength)return;
+  const others=[...f.querySelectorAll('input,select,textarea')].filter(x=>x!==i&&x.type!=='hidden'&&x.type!=='file'&&!x.hidden&&x.offsetParent!==null);
+  if(!others.length&&i.id!=='pinInput')setTimeout(()=>f.requestSubmit(),120)}
+document.addEventListener('click',e=>{const k=e.target.closest('[data-ppk]');if(!k)return;const i=k.closest('[data-ppad]').querySelector('.pp-in'),v=k.dataset.ppk;
+  if(v==='b')i.value=i.value.slice(0,-1);else if(v==='c')i.value='';else if(i.value.length<+i.maxLength)i.value+=v;
+  i.dispatchEvent(new Event('input',{bubbles:true}));if(matchMedia('(pointer:fine)').matches)i.focus({preventScroll:true})},true);
+document.addEventListener('input',e=>{if(e.target.classList&&e.target.classList.contains('pp-in')){e.target.value=e.target.value.replace(/\D/g,'');ppRefresh();ppFull(e.target)}},true);
+document.addEventListener('focusin',e=>{const p=e.target.closest&&e.target.closest('[data-ppad]');document.querySelectorAll('[data-ppad]').forEach(x=>x.classList.toggle('focus',x===p))});
+function pinField(){return `<div class="pp-field">${pinPad('bkPin','PIN បុគ្គលិក (ដើម្បីបញ្ជាក់)')}</div>`}
+function checkPinField(){const i=$('#bkPin'),p=(i?.value||'').trim();if(p!==String(S.set.pin)){toast('PIN មិនត្រឹមត្រូវ','bad');if(i){i.value='';ppRefresh();ppShake(i)}return null}return p}
 function bookView(id){const b=BK&&BK.books.find(x=>x.id===id);if(!b)return;const si=BK.shelves.findIndex(s=>s.id===b.shelf);
   const kb=b.size>1048576?(b.size/1048576).toFixed(1)+' MB':Math.max(1,Math.round(b.size/1024))+' KB';
   openModal(`<div class="bview"><span class="book-cov big">${b.cover?`<img src="${esc(b.cover)}" alt="" referrerpolicy="no-referrer" onerror="this.style.display='none'">`:genCover(b,si)}</span>
     <div class="stack" style="gap:6px;min-width:0"><h3 style="margin:0">${esc(b.title)}</h3><span class="muted">${esc((BK.shelves[si]||{}).name||'')}</span>
     <span class="mono muted" style="font-size:.8rem">${esc((b.ext||'').toUpperCase())} · ${kb}</span>
-    <a class="btn gold" href="${esc(b.url)}" target="_blank" rel="noopener" style="align-self:flex-start;margin-top:6px">អាន / បើកសៀវភៅ</a></div></div>
-    <div class="sheet-actions"><button class="btn danger ghost" data-act="bkDel" data-id="${b.id}">លុប</button><button class="btn" data-act="bkEdit" data-id="${b.id}">កែប្រែ</button><span class="grow"></span><button class="btn ghost" data-act="closeModal">បិទ</button></div>`,'narrow')}
+    <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:6px"><button class="btn gold" data-act="bkRead" data-id="${b.id}">📖 អានសៀវភៅ</button><a class="btn ghost" href="${esc(b.url)}" target="_blank" rel="noopener" style="text-decoration:none">បើកក្នុង Drive</a></div></div></div>
+    <div class="sheet-actions">${mode==='staff'?`<button class="btn danger ghost" data-act="bkDel" data-id="${b.id}">លុប</button><button class="btn" data-act="bkEdit" data-id="${b.id}">កែប្រែ</button>`:''}<span class="grow"></span><button class="btn ghost" data-act="closeModal">បិទ</button></div>`,'narrow')}
 function bookEditForm(id){const b=BK.books.find(x=>x.id===id);let cover='';
   openModal(`<h3>កែប្រែសៀវភៅ</h3><form id="bkForm" class="form">
     <label>ចំណងជើង<input id="bk-title" class="inp" value="${esc(b.title)}" required></label>
@@ -2469,7 +2619,7 @@ function bookAddForm(){let file=null;
     try{const data=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)});
       await api(null,{action:'bookAdd',pin,folderId:bkFolder(),shelfId:$('#bk-shelf2').value,name:file.name,data});closeModal();toast('បានផ្ទុកឡើង','ok');loadBooks(true)}
     catch(err){btn.disabled=false;btn.textContent='ផ្ទុកឡើង';toast(readErr(err),'bad')}}}
-Object.assign(ACTS,{bkRefresh(){loadBooks(true)},bkAdd(){bookAddForm()},bkEdit(el){bookEditForm(el.dataset.id)},bkDel(el){bookDeleteForm(el.dataset.id)}});
+Object.assign(ACTS,{bkRead(el){const b=BK&&BK.books.find(x=>x.id===el.dataset.id);if(b)dlOpen({id:b.id,name:b.title,mime:b.ext==='pdf'?'application/pdf':'application/'+b.ext,thumb:'',doc:false})},bkRefresh(){loadBooks(true)},bkAdd(){bookAddForm()},bkEdit(el){bookEditForm(el.dataset.id)},bkDel(el){bookDeleteForm(el.dataset.id)}});
 
 /* ---------- shares (ភាគហ៊ុន): portfolio read from broker screenshots in Drive ---------- */
 const CSX={PWSA:'រដ្ឋាករទឹកស្វយ័តក្រុងភ្នំពេញ',PPAP:'កំពង់ផែស្វយ័តភ្នំពេញ',PAS:'កំពង់ផែស្វយ័តក្រុងព្រះសីហនុ',PPSP:'តំបន់សេដ្ឋកិច្ចពិសេសភ្នំពេញ (Royal Group)',
@@ -2490,17 +2640,17 @@ const money=(v,c)=>c==='USD'?usd(v):Math.round(v).toLocaleString('en-US')+' ៛'
 const asUsd=(v,c)=>c==='USD'?'':'≈ '+usd(v/(S.set.rate||4100));
 const sgn=(v,f)=>(v>0?'+':v<0?'−':'')+f(Math.abs(v));
 async function scanStocks(rescan){
-  const here=()=>view==='library'&&libTab==='stock';
+  const here=()=>view==='shares';
   if(!syncUrl()){stkErr=IN_CLAUDE?'ការភ្ជាប់ Google Drive ប្រើបានតែក្នុងឯកសារ KEP-Pharmacy.html':'មិនទាន់មាន Web App URL';return here()&&renderStocks()}
   if(stkBusy)return;stkBusy=true;stkErr='';if(here())renderStocks();
   try{let more=true,guard=0;
     while(more&&guard++<6){const r=await api(null,{action:'stocksScan',pin:sessPin(),folderId:stockFolder(),rescan:!!rescan&&guard===1});
       (r.rows||[]).forEach(row=>{const i=S.stocks.findIndex(x=>x.id===row.id);if(i>=0)S.stocks[i]=row;else S.stocks.push(row);SY.hashes['stocks:'+row.id]=recHash('stocks',row)});
       if(r.removed&&r.removed.length){const rm=new Set(r.removed);S.stocks=S.stocks.filter(x=>!rm.has(x.id));r.removed.forEach(id=>delete SY.hashes['stocks:'+id])}
-      S.set.stockFolderUrl=r.folder&&r.folder.url||'';more=r.more;saveLocal();saveSY();if(view==='library'&&libTab==='stock')renderStocks()}
+      S.set.stockFolderUrl=r.folder&&r.folder.url||'';more=r.more;saveLocal();saveSY();if(view==='shares')renderStocks()}
     stkLastScan=Date.now()}
   catch(e){stkErr=noKey(e)?'សូមធ្វើបច្ចុប្បន្នភាព Code.gs ថ្មី ហើយ Deploy › New version':readErr(e)}
-  stkBusy=false;if(view==='library'&&libTab==='stock')renderStocks()}
+  stkBusy=false;if(view==='shares')renderStocks()}
 function allocBar(v){
   const shown=v.holdings.reduce((a,h)=>a+(h.eval||0),0),rest=Math.max(0,(v.total||0)-shown),base=Math.max(v.total||0,shown)||1;
   const segs=v.holdings.map((h,i)=>({k:h.symbol,v:h.eval,c:STK_COLORS[i%STK_COLORS.length]}));if(rest>base*0.005)segs.push({k:'ផ្សេងទៀត',v:rest,c:'',other:true});
@@ -2518,15 +2668,23 @@ function historyChart(){
     ${ticks.map(t=>`<line class="gridl" x1="${L}" x2="${W-R}" y1="${y(t)}" y2="${y(t)}"/><text class="ctext" x="${L-6}" y="${y(t)+4}" text-anchor="end">${Math.round(t/1000).toLocaleString('en-US')}k</text>`).join('')}
     <path d="${area}" fill="#2f9e44" fill-opacity=".12"/><path d="${path}" fill="none" stroke="#2f9e44" stroke-width="2" stroke-linejoin="round"/>
     ${pts.map((p,i)=>`<circle cx="${x(i)}" cy="${y(p.v)}" r="${i===pts.length-1?5:3.5}" fill="#2f9e44" stroke="#fff" stroke-width="2" data-tip="${p.d} · ${money(p.v,'KHR')}"/>${i===0||i===pts.length-1?`<text class="ctext" x="${x(i)}" y="${H-8}" text-anchor="${i?'end':'start'}">${dm(p.d)}</text>`:''}`).join('')}</svg></div></div>`}
+const SHR={at:0};
+function renderShares(){
+  if(Date.now()-SHR.at>15*60000){
+    V().innerHTML=`<form class="panel arch-lock" id="shrLock"><div class="arch-lock-ic">🔒</div><h3>ភាគហ៊ុន</h3><p class="muted">សូមវាយ PIN ដើម្បីចូល</p>
+      ${pinPad('shrPin')}<p class="pin-msg bad" id="shrMsg"></p></form>`;
+    if(matchMedia('(pointer:fine)').matches)setTimeout(()=>$('#shrPin')?.focus(),30);
+    $('#shrLock').onsubmit=e=>{e.preventDefault();if($('#shrPin').value.trim()!==String(S.set.pin)){$('#shrMsg').textContent='PIN មិនត្រឹមត្រូវ';$('#shrPin').value='';ppRefresh();ppShake($('#shrPin'));return}SHR.at=Date.now();renderShares()};return}
+  SHR.at=Date.now();renderStocks()}
 function renderStocks(){
+  if(view!=='shares')return;
   const cnt=t=>S.library.filter(x=>x.type===t).length;
   const v=stockView(stkPick),c=v.currency;
   const sumBuy=v.holdings.reduce((a,h)=>a+(h.buy||0),0),sumEval=v.holdings.reduce((a,h)=>a+(h.eval||0),0),gain=sumEval-sumBuy,gp=sumBuy?gain/sumBuy*100:0;
   const tabs=`<div class="tabs" style="margin:0;flex:1;border:0">${Object.entries(LIB).map(([k,[kh]])=>`<button class="tab ${libTab===k?'on':''}" data-lib="${k}">${kh} <b class="mono">${k==='book'?bkCount():k==='stock'?(v.holdings.length||''):k==='archive'?'🔒':k==='article'?artCount():cnt(k)}</b></button>`).join('')}</div>`;
   if(!stkBusy&&!stkErr&&syncUrl()&&Date.now()-stkLastScan>600000)setTimeout(()=>scanStocks());
   const maxAbs=Math.max(1,...v.holdings.map(h=>Math.abs(h.gpct)));
-  V().innerHTML=`<div class="toolbar">${tabs}</div>
-  <div class="toolbar shelf-tools">${v.days.length>1?`<select id="stkDay" class="inp">${v.days.slice().reverse().map(d=>`<option value="${d}" ${d===v.day?'selected':''}>${d}</option>`).join('')}</select>`:''}<span class="grow"></span>
+  V().innerHTML=`<div class="toolbar shelf-tools">${v.days.length>1?`<select id="stkDay" class="inp">${v.days.slice().reverse().map(d=>`<option value="${d}" ${d===v.day?'selected':''}>${d}</option>`).join('')}</select>`:''}<span class="grow"></span>
     <button class="btn" data-act="stkScan" ${stkBusy?'disabled':''}>${stkBusy?'កំពុងអានរូប...':'ស្កេនរូបថ្មី'}</button>
     <a class="btn ghost" href="${esc(S.set.stockFolderUrl||'https://drive.google.com/drive/folders/'+stockFolder())}" target="_blank" rel="noopener">បើក Drive</a>
     <button class="btn gold" data-act="stkAdd">+ បន្ថែមរូប</button></div>
@@ -2631,31 +2789,219 @@ function artAct(s){const i=s.indexOf(':'),op=i<0?s:s.slice(0,i),a=i<0?'':s.slice
   if(op==='open'){ART.open=a;window.scrollTo(0,0);return renderArticle()}
   if(op==='back'){ART.open='';renderArticles()}}
 
+/* ---------- បណ្ណាល័យ: mirror of one Drive folder, open to everyone (no PIN) ---------- */
+const DL={cache:(()=>{try{return JSON.parse(localStorage.getItem('kep-dlib')||'{}')}catch(e){return {}}})(),cur:'',busy:false,err:'',q:'',docs:{}};
+const LV=()=>mode==='lib'?$('#libView'):V();
+const dlHere=()=>mode==='lib'||(mode==='staff'&&view==='library');
+const DL_IC={pdf:['PDF','#c2410c'],doc:['DOC','#1f6fd1'],sheet:['XLS','#2f9e44'],slide:['PPT','#e0a800'],img:['IMG','#7c3aed'],vid:['VIDEO','#be185d'],aud:['AUDIO','#0f766e'],file:['FILE','#6b7a67']};
+const dlKind=f=>f.doc||/wordprocessing|msword|opendocument\.text/.test(f.mime)?'doc':/pdf/.test(f.mime)?'pdf':/sheet|excel/.test(f.mime)?'sheet':/presentation|powerpoint/.test(f.mime)?'slide':/^image\//.test(f.mime)?'img':/^video\//.test(f.mime)?'vid':/^audio\//.test(f.mime)?'aud':'file';
+const dlName=f=>f.doc?f.name:f.name.replace(/\.[a-z0-9]{2,5}$/i,'');
+async function dlLoad(id,refresh){
+  if(!syncUrl()){DL.err='បណ្ណាល័យប្រើបានតែក្នុងឯកសារ KEP-Pharmacy.html (ភ្ជាប់ Google Drive)';return renderDFiles()}
+  if(DL.busy)return;DL.busy=true;DL.err='';if(dlHere())renderDFiles();
+  try{const r=await api(null,{action:'library',folderId:id||'',refresh:!!refresh});DL.cache[r.folder.id]=r;if(!id)DL.cache.root=r;DL.cur=r.folder.id;
+    try{localStorage.setItem('kep-dlib',JSON.stringify(DL.cache))}catch(e){try{localStorage.setItem('kep-dlib',JSON.stringify({root:DL.cache.root}))}catch(_){}}}
+  catch(e){DL.err=noKey(e)?'សូមធ្វើបច្ចុប្បន្នភាព Code.gs ថ្មី ហើយ Deploy › New version':readErr(e)}
+  finally{DL.busy=false;if(dlHere())renderDFiles()}}
+function renderDFiles(){const host=$('#lbBody');if(!host)return;
+  const d=DL.cache[DL.cur]||(!DL.cur?DL.cache.root:null);
+  if(!d&&!DL.busy&&!DL.err)setTimeout(()=>dlLoad(DL.cur));
+  else if(d&&!DL.busy&&!DL.err&&Date.now()-(d.time||0)>120000)setTimeout(()=>dlLoad(d.folder.id));   /* stay in step with Drive */
+  const q=DL.q.trim().toLowerCase(),m=x=>!q||x.name.toLowerCase().includes(q);
+  const folders=d?d.folders.filter(m):[],files=d?d.files.filter(m):[];
+  host.innerHTML=`<div class="toolbar arch-bar"><nav class="arch-path">${d?d.path.slice(1).map((p,i,P)=>i<P.length-1?`<button data-dl="open:${esc(p.id)}">${esc(p.name)}</button><span>›</span>`:`<b>${esc(p.name)}</b>`).join(''):'<b>បណ្ណាល័យ</b>'}</nav>
+    <span class="grow"></span><input id="dlq" class="inp" style="max-width:220px" placeholder="ស្វែងរក..." value="${esc(DL.q)}">
+    <button class="btn ghost" data-dl="refresh" title="ធ្វើឲ្យថ្មី" ${DL.busy?'disabled':''}>${DL.busy?'…':'↻'}</button></div>
+  ${DL.err?`<p class="rx-note" style="margin:0 0 12px">${esc(DL.err)}</p>`:''}
+  ${!d?`<div class="empty panel">${DL.busy?'កំពុងបើកបណ្ណាល័យ...':'មិនទាន់មានទិន្នន័យ'}</div>`:(folders.length||files.length)?`<div class="dl-grid">
+    ${folders.map(f=>`<button class="dl-item dir" data-dl="open:${esc(f.id)}"><span class="dl-cov dl-dir">${FOLDER_IC}</span><span class="dl-nm">${esc(f.name)}</span></button>`).join('')}
+    ${files.map(f=>{const k=dlKind(f),[t,c]=DL_IC[k];return `<button class="dl-item" data-dl="file:${esc(f.id)}"><span class="dl-cov" style="--c:${c}"><b class="dl-ext">${t}</b><img src="${esc(f.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></span><span class="dl-nm">${esc(dlName(f))}</span></button>`}).join('')}</div>`
+    :`<div class="empty panel">${q?'រកមិនឃើញ':'Folder នេះនៅទទេ'}</div>`}`;
+  const i=$('#dlq');i.oninput=e=>{DL.q=e.target.value;const p=i.selectionStart;renderDFiles();const n=$('#dlq');n.focus();n.setSelectionRange(p,p)}}
+async function dlOpen(f){
+  const k=dlKind(f),drive=`<a class="btn ghost" href="https://drive.google.com/file/d/${esc(f.id)}/view" target="_blank" rel="noopener">បើកក្នុង Drive</a>`;
+  const shell=body=>openModal(`<div class="dl-view-h"><h3>${esc(dlName(f))}</h3><span class="grow"></span>${drive}<button class="btn ghost" data-act="closeModal">បិទ</button></div>${body}`,'wide dl-modal');
+  if(k==='img')return shell(`<figure class="dl-fig"><img src="${esc(f.thumb.replace(/sz=w\d+/,'sz=w2000'))}" alt="" referrerpolicy="no-referrer"></figure>`);
+  if(!f.doc)return shell(`<iframe class="dl-frame" src="https://drive.google.com/file/d/${esc(f.id)}/preview" title="${esc(f.name)}" allow="autoplay"></iframe>`);
+  const show=d=>{if(!$('#dlRead'))return;$('#dlRead').innerHTML=`<h1>${esc(d.title)}</h1><p class="muted art-meta">${fmtDT(d.ts).slice(0,10)}</p>${artHTML(d)||'<p class="muted">អត្ថបទនៅទទេ</p>'}`};
+  shell(`<article class="art-read dl-read" id="dlRead"><h1>${esc(f.name)}</h1><p class="muted">កំពុងទាញអត្ថបទ...</p></article>`);
+  const c=DL.docs[f.id];if(c&&c.ts===f.ts)return show(c);
+  try{const r=await api(null,{action:'libDoc',id:f.id});DL.docs[f.id]=r;show(r)}
+  catch(e){if($('#dlRead'))$('#dlRead').innerHTML=`<iframe class="dl-frame" src="https://docs.google.com/document/d/${esc(f.id)}/preview" title=""></iframe>`}}
+function dlAct(s){const i=s.indexOf(':'),op=i<0?s:s.slice(0,i),a=i<0?'':s.slice(i+1);
+  if(op==='refresh')return dlLoad(DL.cur,true);
+  if(op==='open'){DL.q='';if(DL.cache[a]){DL.cur=a;renderDFiles();if(Date.now()-(DL.cache[a].time||0)>120000)dlLoad(a);return}DL.cur=a;return dlLoad(a)}
+  if(op==='file'){const d=DL.cache[DL.cur]||DL.cache.root,f=d&&d.files.find(x=>x.id===a);if(f)dlOpen(f)}}
+function enterLib(){setMode('lib');renderDLib();window.scrollTo(0,0)}
+/* ---------- បណ្ណាល័យ home: sections from the Drive folder → bookshelf / article titles / music player / files ---------- */
+const LB=(()=>{let c={};try{c=JSON.parse(localStorage.getItem('kep-lib2')||'{}')}catch(e){}return {home:c.home||null,data:c.data||{},sec:c.sec||'',grp:c.grp||{},busy:{},err:{},q:''}})();
+const LB_IC={books:'📚',articles:'📝',music:'🎵',files:'🗂'};
+function lbSave(){try{localStorage.setItem('kep-lib2',JSON.stringify({home:LB.home,data:LB.data,sec:LB.sec,grp:LB.grp}))}catch(e){try{localStorage.setItem('kep-lib2',JSON.stringify({home:LB.home,sec:LB.sec,grp:LB.grp}))}catch(_){}}}
+const lbSec=()=>LB.home&&(LB.home.sections.find(s=>s.id===LB.sec)||LB.home.sections[0]);
+const lbErr=e=>noKey(e)?'សូមធ្វើបច្ចុប្បន្នភាព Code.gs ថ្មី ហើយ Deploy › New version':readErr(e);
+async function lbLoadHome(refresh){if(!syncUrl()||LB.busy.home)return;LB.busy.home=1;delete LB.err.home;
+  try{const r=await api(null,{action:'libHome',refresh:!!refresh});LB.home={sections:r.sections||[],url:r.url,time:Date.now()};lbSave()}
+  catch(e){LB.err.home=lbErr(e)}finally{delete LB.busy.home;if(dlHere())renderDLib()}}
+async function lbLoad(s,refresh){if(LB.busy[s.id])return;LB.busy[s.id]=1;delete LB.err[s.id];if(dlHere()&&lbSec()===s)lbBody();
+  const act={books:'libBooks',articles:'libArticles',music:'libMusic'}[s.kind];
+  try{const r=await api(null,{action:act,id:s.id,refresh:!!refresh});r.time=Date.now();LB.data[s.id]=r;lbSave();
+    if(r.pending)setTimeout(()=>{if(dlHere()&&lbSec()===s)lbLoad(s)},4000)}
+  catch(e){LB.err[s.id]=lbErr(e)}finally{delete LB.busy[s.id];if(dlHere()){if(lbSec()===s)lbBody();lbTabCounts()}}}
+/* how many items each tab holds (shown on the tab) */
+function lbCount(s){const d=LB.data[s.id];if(!d)return '';
+  return s.kind==='books'?d.books.length:s.kind==='articles'?d.items.length:s.kind==='music'?d.lists.reduce((a,l)=>a+l.tracks.length,0):''}
+function lbTabCounts(){document.querySelectorAll('.lb-tab').forEach(b=>{const s=LB.home&&LB.home.sections.find(x=>'sec:'+x.id===b.dataset.lb);const c=b.querySelector('.lb-n');if(s&&c)c.textContent=lbCount(s)})}
+function renderDLib(){
+  if(!syncUrl()){LV().innerHTML='<div class="empty panel">បណ្ណាល័យប្រើបានតែក្នុងឯកសារ KEP-Pharmacy.html (ភ្ជាប់ Google Drive)</div>';return}
+  if(!LB.home||Date.now()-(LB.home.time||0)>300000)setTimeout(()=>lbLoadHome());
+  const H=LB.home,cur=lbSec();
+  LV().innerHTML=!H?`<div class="empty panel">${LB.err.home?esc(LB.err.home):'កំពុងបើកបណ្ណាល័យ...'}</div>`:
+    `<nav class="lb-tabs" role="tablist">${H.sections.map(s=>`<button role="tab" class="lb-tab ${s===cur?'on':''}" data-lb="sec:${esc(s.id)}"><span>${LB_IC[s.kind]}</span><b>${esc(s.name)}</b><small class="lb-n mono">${lbCount(s)}</small></button>`).join('')}</nav><div id="lbBody"></div>`;
+  if(H)lbBody()}
+/* the groups of a tab, for the «ក្រុម» dropdown: shelves / article folders / playlists */
+function lbGroups(s,d){if(!d)return [];
+  if(s.kind==='books')return d.shelves.map(x=>({id:x.id,name:x.id===d.folder.id?'ទូទៅ':x.name,n:d.books.filter(b=>b.shelf===x.id).length})).filter(g=>g.n);
+  if(s.kind==='articles'){const m={};d.items.forEach(a=>{const k=a.cat||'';m[k]=(m[k]||0)+1});return Object.keys(m).sort((a,b)=>a.localeCompare(b,'km')).map(k=>({id:k||'_',name:k||'ទូទៅ',n:m[k]}))}
+  if(s.kind==='music')return d.lists.map(l=>({id:l.id,name:l.name,n:l.tracks.length}));return []}
+const LB_ALL={books:'📚 សៀវភៅទាំងអស់',articles:'📝 អត្ថបទទាំងអស់',music:'🎶 ចម្រៀងទាំងអស់'};
+function musicTracks(d){return d.lists.flatMap(l=>l.tracks.map(t=>({...t,pl:l.name,plId:l.id})))}
+function lbBody(){const el=$('#lbBody'),s=lbSec();if(!el||!s)return;document.body.classList.toggle('mu-view',s.kind==='music');
+  if(s.kind==='files'){if(DL.cur!==s.id&&!(DL.cache[DL.cur]&&DL.cache[DL.cur].path.some(p=>p.id===s.id))){DL.cur=s.id;DL.q=''}return renderDFiles()}
+  const d=LB.data[s.id],busy=LB.busy[s.id],err=LB.err[s.id];
+  if(!busy&&!err&&(!d||Date.now()-(d.time||0)>300000))setTimeout(()=>lbLoad(s));
+  const groups=lbGroups(s,d);let g=LB.grp[s.id]||'';if(g&&!groups.some(x=>x.id===g))g='';
+  const total=groups.reduce((a,x)=>a+x.n,0);
+  const tools=ph=>`<div class="toolbar lb-tools">${groups.length?`<label class="lb-grp"><span>📁 ក្រុម</span><select data-lbgrp="${esc(s.id)}"><option value="">${LB_ALL[s.kind]} (${total})</option>${groups.map(x=>`<option value="${esc(x.id)}" ${x.id===g?'selected':''}>${esc(x.name)} (${x.n})</option>`).join('')}</select></label>`:''}
+    <input id="lbq" class="inp grow" placeholder="${ph}" value="${esc(LB.q)}"><button class="btn ghost" data-lb="refresh" title="ធ្វើឲ្យថ្មី" ${busy?'disabled':''}>${busy?'…':'↻'}</button></div>${err?`<p class="rx-note" style="margin:0 0 12px">${esc(err)}</p>`:''}`;
+  const q=LB.q.trim().toLowerCase(),wait=`<div class="empty panel">${busy?'កំពុងទាញពី Drive...':err?'':'មិនទាន់មានទិន្នន័យ'}</div>`;
+  if(s.kind==='books'){
+    if(d){BK={folder:d.folder,shelves:d.shelves,books:d.books,ts:d.time}}
+    el.innerHTML=tools('ស្វែងរកសៀវភៅ...')+(!d?wait:(()=>{const sh=d.shelves.map((x,si)=>({...x,si,list:d.books.filter(b=>b.shelf===x.id&&(!q||b.title.toLowerCase().includes(q))).sort((a,b)=>a.title.localeCompare(b.title,'km'))})).filter(x=>x.list.length&&(!g||x.id===g));
+      return sh.map(x=>`<section class="shelf"><header><b>${esc(x.id===d.folder.id?'ទូទៅ':x.name)}</b><small class="mono">${x.list.length}</small></header><div class="shelf-row">${x.list.map(b=>bookEl(b,x.si)).join('')}</div></section>`).join('')||`<div class="empty panel">${q?'រកមិនឃើញសៀវភៅ':'មិនទាន់មានសៀវភៅ'}</div>`})())}
+  else if(s.kind==='articles'){
+    const list=d?d.items.filter(a=>(!g||(a.cat||'_')===g)&&(!q||a.title.toLowerCase().includes(q))).sort((a,b)=>a.title.localeCompare(b.title,'km',{numeric:true})):[];
+    el.innerHTML=tools('ស្វែងរកអត្ថបទ...')+(!d?wait:list.length?`<ol class="lb-arts">${list.map(a=>`<li><button data-lb="art:${esc(a.id)}"><span class="lb-art-ic">📄</span><b>${esc(a.title)}</b><span class="lb-chev">›</span></button></li>`).join('')}</ol>`:`<div class="empty panel">${q?'រកមិនឃើញអត្ថបទ':'មិនទាន់មានអត្ថបទ'}</div>`)}
+  else if(s.kind==='music'){
+    const all=d?musicTracks(d):[],grpName=g?(groups.find(x=>x.id===g)||{}).name:'ចម្រៀងទាំងអស់';
+    const view=all.filter(t=>!g||t.plId===g),shown=view.map((t,i)=>({...t,i})).filter(t=>!q||t.title.toLowerCase().includes(q));
+    LB.view=view;LB.viewName=grpName;LB.viewId=g||'all';
+    const cur=MP.q[MP.i];
+    el.innerHTML=tools('ស្វែងរកបទចម្រៀង...')+(!d?wait:!all.length?'<div class="empty panel">មិនទាន់មានបទចម្រៀង</div>':`
+      ${npCard(cur||view[0],!!cur)}
+      <div class="mu-head"><h3>🎶 ${esc(grpName)} <small class="muted">${view.length} បទ</small></h3><span class="grow"></span>
+        <button class="btn mu-allbtn" data-lb="all">▶ ចាក់ទាំងអស់</button><button class="btn" data-lb="shuf">🔀 ចៃដន្យ</button></div>
+      <ol class="mu-tracks">${shown.map(t=>{const on=cur&&cur.id===t.id,hue=(hashHue(t.plId));return `<li><button class="mu-tr ${on?'on':''}" data-lb="trk:${t.i}">
+        <span class="mu-n mono">${t.i+1}</span><span class="mu-ic" style="--h:${hue}">${on?`<i class="eq ${MP.audio&&!MP.audio.paused?'':'paused'}"><b></b><b></b><b></b></i>`:'♪'}</span>
+        <span class="mu-tx"><span class="mu-t">${esc(t.title)}</span><small>${esc(t.pl)}</small></span>
+        <small class="mu-meta mono"><span class="mu-ok">✓</span> ${esc(fileExt(t))} · ${t.size?(t.size/1048576).toFixed(1)+' MB':''}</small></button></li>`}).join('')||'<li class="empty" style="padding:16px">រកមិនឃើញ</li>'}</ol>`);
+    if(d)npBind()}
+  const sel=el.querySelector('[data-lbgrp]');if(sel)sel.onchange=()=>{LB.grp[s.id]=sel.value;lbSave();lbBody()};
+  const i=$('#lbq');if(i)i.oninput=e=>{LB.q=e.target.value;const p=i.selectionStart;lbBody();const n=$('#lbq');n.focus();n.setSelectionRange(p,p)}}
+const hashHue=s=>{let h=0;for(const c of String(s||''))h=(h*31+c.charCodeAt(0))%360;return (h+280)%360};
+const fileExt=t=>(t.ext||'mp3').toUpperCase();
+/* the big "now playing" card (music tab) */
+function npCard(t,live){if(!t)return '';const a=MP.audio,playing=live&&a&&!a.paused,hue=hashHue(t.plId);
+  return `<section class="np ${playing?'playing':''}" id="npCard" style="--h:${hue}">
+    <div class="np-cov"><i class="eq ${playing?'':'paused'}"><b></b><b></b><b></b></i></div>
+    <div class="np-main"><small class="np-k">${live?'NOW PLAYING · កំពុងចាក់':'ចុចបទណាមួយដើម្បីចាក់'}</small>
+      <b class="np-t" id="npTitle">${esc(t.title)}</b>
+      <span class="np-s" id="npList">💿 ${esc(t.pl||MP.name)}${live?` · ${MP.i+1} / ${MP.q.length}`:''}</span>
+      <div class="np-seek"><span id="npCur" class="mono">${live&&a?mmss(a.currentTime):'0:00'}</span><input id="npRange" type="range" min="0" max="1000" value="${live&&a&&a.duration?Math.round(a.currentTime/a.duration*1000):0}" aria-label="ទីតាំងបទ" ${live?'':'disabled'}><span id="npDur" class="mono">${live&&a?mmss(a.duration):'0:00'}</span></div>
+      <div class="np-ctl">
+        <button data-mpc="shuffle" class="np-b ${MP.shuffle?'on':''}" title="ចាក់ចៃដន្យ" aria-label="ចាក់ចៃដន្យ"><svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button data-mpc="prev" class="np-b" aria-label="បទមុន"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z" fill="currentColor"/></svg></button>
+        <button data-mpc="${live?'toggle':'start'}" class="np-play" aria-label="ចាក់/ផ្អាក"><svg viewBox="0 0 24 24" id="npIc">${playing?'<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>':'<path d="M8 5v14l11-7z"/>'}</svg></button>
+        <button data-mpc="next" class="np-b" aria-label="បទបន្ទាប់"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z" fill="currentColor"/></svg></button>
+        <button data-mpc="repeat" class="np-b ${MP.rep!=='off'?'on':''}" title="${MP.rep==='one'?'ចាក់បទនេះម្តងទៀត':MP.rep==='all'?'ចាក់វិលជុំ':'មិនចាក់ឡើងវិញ'}" aria-label="ចាក់ឡើងវិញ"><svg viewBox="0 0 24 24"><path d="M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>${MP.rep==='one'?'<b class="np-one">1</b>':''}</button>
+        <span class="grow"></span>
+        <label class="np-vol"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9zM16 8a5 5 0 0 1 0 8M18.5 5.5a8.5 8.5 0 0 1 0 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><input id="npVol" type="range" min="0" max="100" value="${Math.round(MP.vol*100)}" aria-label="កម្រិតសំឡេង"></label>
+      </div></div></section>`}
+function npBind(){const r=$('#npRange'),v=$('#npVol');
+  if(r){r.oninput=()=>{const a=MP.audio;if(a&&isFinite(a.duration))a.currentTime=r.value/1000*a.duration};r.onpointerdown=()=>r.dataset.drag='1';r.onpointerup=()=>delete r.dataset.drag}
+  if(v)v.oninput=()=>{MP.vol=v.value/100;if(MP.audio)MP.audio.volume=MP.vol;try{localStorage.setItem('kep-vol',MP.vol)}catch(e){}}}
+function lbAct(spec){const k=spec.indexOf(':'),op=k<0?spec:spec.slice(0,k),a=k<0?'':spec.slice(k+1),s=lbSec();
+  if(op==='sec'){LB.sec=a;LB.q='';lbSave();return renderDLib()}
+  if(op==='refresh'){if(s)lbLoad(s,true);lbLoadHome(true);return}
+  if(op==='art'){const it=(LB.data[s.id]||{items:[]}).items.find(x=>x.id===a);if(it)dlOpen({id:a,name:it.title,doc:true,ts:it.ts,mime:'application/vnd.google-apps.document',thumb:''});return}
+  const view=LB.view||[];if(!view.length)return;
+  const pl={id:LB.viewId,name:LB.viewName};
+  if(op==='all'){MP.shuffle=false;return mpStart(pl,view,0)}
+  if(op==='shuf'){MP.shuffle=true;return mpStart(pl,view,Math.floor(Math.random()*view.length))}
+  if(op==='trk'){const n=+a,t=view[n];if(MP.q[MP.i]&&MP.q[MP.i].id===t.id)return mpToggle();return mpStart(pl,view,n)}}
+
+/* ---------- music player: one audio element for the whole app, so songs keep playing while you work ---------- */
+const MP={q:[],i:-1,list:'',name:'',audio:null,alt:false,shuffle:false,rep:'all',hist:[],vol:(()=>{try{const v=parseFloat(localStorage.getItem('kep-vol'));return isFinite(v)?v:1}catch(e){return 1}})()};
+const songSrc=(id,alt)=>alt?`https://drive.google.com/uc?export=download&id=${id}`:`https://drive.usercontent.google.com/download?id=${id}&export=download&confirm=t`;
+const mmss=s=>!isFinite(s)||s<0?'0:00':Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+function mpAudio(){if(MP.audio)return MP.audio;const a=MP.audio=new Audio();a.preload='auto';a.volume=MP.vol;
+  a.addEventListener('ended',()=>{if(MP.rep==='one'){a.currentTime=0;a.play().catch(()=>{});return}mpGo(1,true)});
+  a.addEventListener('timeupdate',mpTick);a.addEventListener('loadedmetadata',mpTick);a.addEventListener('durationchange',mpTick);
+  ['play','pause','waiting','playing'].forEach(ev=>a.addEventListener(ev,()=>{mpPaint();if(ev!=='waiting'&&ev!=='playing')mpRefreshList()}));
+  a.addEventListener('error',()=>{const t=MP.q[MP.i];if(!t||!a.getAttribute('src'))return;if(!MP.alt){MP.alt=true;a.src=songSrc(t.id,true);a.play().catch(()=>{});return}
+    toast('មិនអាចចាក់បទនេះបាន — រំលងទៅបទបន្ទាប់','bad');if(MP.q.length>1)setTimeout(()=>mpGo(1),800)});
+  if('mediaSession' in navigator){const ms=navigator.mediaSession;try{ms.setActionHandler('play',()=>a.play());ms.setActionHandler('pause',()=>a.pause());ms.setActionHandler('previoustrack',()=>mpGo(-1));ms.setActionHandler('nexttrack',()=>mpGo(1))}catch(e){}}
+  return a}
+function mpStart(pl,tracks,i){MP.q=tracks.slice();MP.list=pl.id;MP.name=pl.name;MP.hist=[];mpLoad(i)}
+function mpLoad(i){const a=mpAudio(),t=MP.q[i];if(!t)return;MP.i=i;MP.alt=false;a.src=songSrc(t.id);a.play().catch(()=>{});
+  if('mediaSession' in navigator&&window.MediaMetadata){try{navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.pl||MP.name,album:'ឱសថស្ថានកែប',artwork:[{src:LOGO,sizes:'512x512',type:'image/png'}]})}catch(e){}}
+  mpBar();mpPaint();mpRefreshList()}
+function mpGo(d,auto){if(!MP.q.length)return;const a=mpAudio();if(d<0&&a.currentTime>3){a.currentTime=0;return}
+  const L=MP.q.length;
+  if(d<0&&MP.shuffle&&MP.hist.length)return mpLoad(MP.hist.pop());
+  if(d>0&&MP.shuffle&&L>1){let n;do n=Math.floor(Math.random()*L);while(n===MP.i);MP.hist.push(MP.i);return mpLoad(n)}
+  const n=MP.i+d;if(auto&&n>=L&&MP.rep==='off'){a.pause();a.currentTime=0;return}
+  mpLoad((n+L)%L)}
+function mpToggle(){const a=mpAudio();if(!a.getAttribute('src'))return;a.paused?a.play().catch(()=>{}):a.pause()}
+function mpClose(){const a=MP.audio;if(a){a.pause();a.removeAttribute('src');a.load()}MP.q=[];MP.i=-1;MP.list='';$('#mpbar')?.remove();document.body.classList.remove('has-mp');mpRefreshList()}
+function mpRefreshList(){const s=lbSec();if(dlHere()&&s&&s.kind==='music'&&$('#lbBody')){const y=window.scrollY,f=document.activeElement&&document.activeElement.id;lbBody();window.scrollTo(0,y);if(f==='lbq')$('#lbq')?.focus()}}
+function mpBar(){if($('#mpbar'))return;const b=document.createElement('div');b.id='mpbar';b.className='mpbar';b.setAttribute('role','region');b.setAttribute('aria-label','ចាក់ចម្រៀង');
+  b.innerHTML=`<div class="mp-info"><span class="mp-art"><i class="eq"><b></b><b></b><b></b></i></span><span class="mp-tx"><b id="mpTitle"></b><small id="mpList"></small></span></div>
+  <div class="mp-ctl"><button data-mpc="prev" aria-label="បទមុន"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+  <button data-mpc="toggle" class="mp-play" aria-label="ចាក់/ផ្អាក"><svg viewBox="0 0 24 24" id="mpIc"><path d="M8 5v14l11-7z"/></svg></button>
+  <button data-mpc="next" aria-label="បទបន្ទាប់"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button></div>
+  <div class="mp-seek"><span id="mpCur" class="mono">0:00</span><input id="mpRange" type="range" min="0" max="1000" value="0" aria-label="ទីតាំងបទ"><span id="mpDur" class="mono">0:00</span></div>
+  <button data-mpc="close" class="mp-x" aria-label="បិទ">✕</button>`;
+  document.body.appendChild(b);document.body.classList.add('has-mp');
+  const r=$('#mpRange');r.oninput=()=>{const a=MP.audio;if(a&&isFinite(a.duration))a.currentTime=r.value/1000*a.duration};
+  r.onpointerdown=()=>r.dataset.drag='1';r.onpointerup=()=>delete r.dataset.drag}
+function mpPaint(){const a=MP.audio,t=MP.q[MP.i];if(!t)return;const playing=a&&!a.paused,ico=playing?'<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>':'<path d="M8 5v14l11-7z"/>';
+  const b=$('#mpbar');if(b){$('#mpTitle').textContent=t.title;$('#mpList').textContent=`${t.pl||MP.name} · ${MP.i+1}/${MP.q.length}`;
+    b.classList.toggle('playing',playing);b.classList.toggle('loading',!!a&&a.readyState<3&&!a.paused);$('#mpIc').innerHTML=ico}
+  const c=$('#npCard');if(c){c.classList.toggle('playing',playing);$('#npIc').innerHTML=ico;c.querySelector('.np-cov .eq').classList.toggle('paused',!playing)}}
+function mpTick(){const a=MP.audio;if(!a)return;
+  [['mpRange','mpCur','mpDur'],['npRange','npCur','npDur']].forEach(([r,c,d])=>{const R=$('#'+r);if(!R)return;$('#'+c).textContent=mmss(a.currentTime);$('#'+d).textContent=mmss(a.duration);
+    if(!R.dataset.drag&&isFinite(a.duration)&&a.duration)R.value=Math.round(a.currentTime/a.duration*1000)})}
+function mpCtl(c){if(c==='toggle')return mpToggle();if(c==='next')return mpGo(1);if(c==='prev')return mpGo(-1);if(c==='close')return mpClose();
+  if(c==='start')return lbAct('trk:0');
+  if(c==='shuffle'){MP.shuffle=!MP.shuffle;MP.hist=[];toast(MP.shuffle?'🔀 ចាក់ចៃដន្យ: បើក':'🔀 ចាក់ចៃដន្យ: បិទ','ok');return mpRefreshList()}
+  if(c==='repeat'){MP.rep=MP.rep==='all'?'one':MP.rep==='one'?'off':'all';toast(MP.rep==='all'?'🔁 ចាក់វិលជុំ':MP.rep==='one'?'🔂 ចាក់បទនេះម្តងទៀត':'ឈប់ពេលចប់បញ្ជី','ok');return mpRefreshList()}}
+
+
 /* ---------- ឃ្លាំងឯកសារ (archive): folders & files in Drive, staff PIN to enter ---------- */
 const ARCH={pin:'',at:0,data:null,busy:false,err:''};
 const FOLDER_IC='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.6l2 2h8.4A1.5 1.5 0 0 1 21 8.5v9A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z" fill="#f4c542" stroke="#c99a12" stroke-width="1.2"/></svg>';
 const extOf=n=>((/\.([a-z0-9]{1,5})$/i.exec(n)||[])[1]||'').toUpperCase();
 const EXT_COL={PDF:'#c2410c',DOC:'#1f6fd1',DOCX:'#1f6fd1',XLS:'#2f9e44',XLSX:'#2f9e44',PPT:'#e0a800',PPTX:'#e0a800',JPG:'#7c3aed',JPEG:'#7c3aed',PNG:'#7c3aed',ZIP:'#555'};
 const fsize=b=>b>1048576?(b/1048576).toFixed(1)+' MB':Math.max(1,Math.round(b/1024))+' KB';
-const archTabs=()=>`<div class="tabs" style="margin:0;flex:1;border:0">${Object.entries(LIB).map(([k,[kh]])=>`<button class="tab ${libTab===k?'on':''}" data-lib="${k}">${kh}${k==='archive'?(ARCH.pin?'':' 🔒'):''}</button>`).join('')}</div>`;
-async function archCall(p){ARCH.busy=true;ARCH.err='';if(libTab==='archive'&&view==='library')renderArchive();
+const archTabs=()=>'';
+async function archCall(p){ARCH.busy=true;ARCH.err='';if(view==='archive')renderArchive();
   try{const r=await api(null,Object.assign({action:'arch',pin:ARCH.pin},p));ARCH.data=r;ARCH.at=Date.now();return r}
   catch(e){ARCH.err=e&&e.error==='PIN'?'PIN មិនត្រឹមត្រូវ':noKey(e)?'សូមធ្វើបច្ចុប្បន្នភាព Code.gs ថ្មី ហើយ Deploy › New version':readErr(e);if(e&&e.error==='PIN')ARCH.pin='';throw e}
-  finally{ARCH.busy=false;if(libTab==='archive'&&view==='library')renderArchive()}}
+  finally{ARCH.busy=false;if(view==='archive')renderArchive()}}
 function renderArchive(){
   if(ARCH.pin&&Date.now()-ARCH.at>15*60000){ARCH.pin='';ARCH.data=null}          /* lock again after 15 minutes idle */
-  if(!syncUrl()){V().innerHTML=`<div class="toolbar">${archTabs()}</div><div class="empty panel">ឃ្លាំងឯកសារប្រើបានតែក្នុងឯកសារ KEP-Pharmacy.html (ភ្ជាប់ Google Drive)</div>`;return}
+  if(!syncUrl()){V().innerHTML=`<div class="empty panel">ឃ្លាំងឯកសារប្រើបានតែក្នុងឯកសារ KEP-Pharmacy.html (ភ្ជាប់ Google Drive)</div>`;return}
   if(!ARCH.pin){
-    V().innerHTML=`<div class="toolbar">${archTabs()}</div>
+    V().innerHTML=`
       <form class="panel arch-lock" id="archLock"><div class="arch-lock-ic">🔒</div><h3>ឃ្លាំងឯកសារ</h3><p class="muted">សូមវាយ PIN ដើម្បីចូល</p>
-      <div class="pin-row"><input id="archPin" class="inp mono" type="password" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="PIN"><button class="btn gold" ${ARCH.busy?'disabled':''}>${ARCH.busy?'កំពុងបើក...':'ចូល'}</button></div>
+      ${pinPad('archPin')}${ARCH.busy?'<p class="muted">កំពុងបើក...</p>':''}
       ${ARCH.err?`<p class="pin-msg bad">${esc(ARCH.err)}</p>`:''}</form>`;
-    setTimeout(()=>$('#archPin')?.focus(),30);
+    if(matchMedia('(pointer:fine)').matches)setTimeout(()=>$('#archPin')?.focus(),30);
     $('#archLock').onsubmit=async e=>{e.preventDefault();const p=$('#archPin').value.trim();if(!p)return;ARCH.pin=p;ARCH.at=Date.now();try{await archCall({op:'list'})}catch(_){}};return}
   const d=ARCH.data;
-  if(!d){if(!ARCH.busy)archCall({op:'list'}).catch(()=>{});V().innerHTML=`<div class="toolbar">${archTabs()}</div><div class="empty panel">កំពុងបើក...</div>`;return}
+  if(!d){if(!ARCH.busy)archCall({op:'list'}).catch(()=>{});V().innerHTML=`<div class="empty panel">កំពុងបើក...</div>`;return}
   const items=[...d.folders.map(f=>({...f,dir:true})),...d.files];
-  V().innerHTML=`<div class="toolbar">${archTabs()}</div>
+  V().innerHTML=`
   <div class="toolbar arch-bar"><nav class="arch-path">${d.path.map((p,i)=>i<d.path.length-1?`<button data-arch="open:${esc(p.id)}">${esc(p.name)}</button><span>›</span>`:`<b>${esc(p.name)}</b>`).join('')}</nav>
     <span class="grow"></span>
     <button class="btn" data-arch="mkdir:">+ Folder</button>
@@ -2883,7 +3229,7 @@ async function fullSync(full){
   finally{fullBusy=false;lastFull=Date.now();paintSync()}
   /* Drive (books, shares) refreshes quietly in the background — the Sheet sync is already done */
   if(driveBusy)return;driveBusy=true;
-  try{try{await loadBooks()}catch(e){}try{await loadArticles()}catch(e){}try{await scanStocks()}catch(e){}}finally{driveBusy=false}
+  try{try{await scanStocks()}catch(e){}}finally{driveBusy=false}
 }
 setInterval(()=>{if(mode==='staff'&&Date.now()-lastFull>=SYNC_EVERY-5000)fullSync()},60000);
 window.addEventListener('online',()=>{if(mode==='staff')fullSync()});
