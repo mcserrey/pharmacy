@@ -138,6 +138,7 @@ tr.click{cursor:pointer}
 .tab.on{color:var(--leaf-d);border-bottom-color:var(--sun);font-weight:600}
 .tab:focus-visible{outline:2px solid var(--gold)}
 .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.btn.blue{background:#1f6fd1;border-color:#1f6fd1;color:#fff}.btn.blue:hover{background:#185bb0}
 .chipbtn{border:1px solid var(--line);background:transparent;border-radius:999px;padding:4px 12px;cursor:pointer;font-size:.82rem;white-space:nowrap;color:var(--muted)}
 .chipbtn.on{background:var(--gold);color:#fff;border-color:var(--gold)}
 .chipbtn b{font-family:var(--f-mono);margin-left:4px}
@@ -451,6 +452,25 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
 .lib-pdf svg{width:80px;height:100px}
 
 .shelf-tools{margin-top:-4px}
+.art-chips{margin:6px 0 12px}
+.art-list{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr))}
+.art-card{display:flex;gap:12px;align-items:flex-start;text-align:left;background:var(--card,#fff);border:1px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer;font:inherit;color:inherit;min-width:0}
+.art-card:hover{border-color:var(--gold)}
+.art-ic{font-size:1.5rem;line-height:1}
+.art-tx{display:flex;flex-direction:column;gap:4px;min-width:0}
+.art-tx b{font-size:1rem;line-height:1.5}
+.art-snip{font-size:.85rem;line-height:1.6;color:var(--muted);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.art-read{max-width:760px;margin:0 auto;padding:22px clamp(16px,4vw,40px);line-height:1.9;font-size:1.02rem;overflow-wrap:anywhere}
+.art-read h1{font-size:1.45rem;line-height:1.5;margin:0 0 4px}
+.art-read h2{font-size:1.25rem;margin:22px 0 8px}.art-read h3{font-size:1.1rem;margin:18px 0 6px}.art-read h4{font-size:1rem;margin:14px 0 4px}
+.art-read p{margin:0 0 12px}.art-read .art-meta{font-size:.82rem;margin-bottom:18px}.art-read .art-sub{color:var(--muted);font-size:1.05rem}
+.art-read ul,.art-read ol{margin:0 0 12px;padding-left:1.4em}
+.art-read figure{margin:14px 0;text-align:center}.art-read figure img{max-width:100%;height:auto;border-radius:8px}
+.art-read a{color:var(--green,#2f9e44)}
+.art-read hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+.art-tbl{overflow-x:auto;margin:0 0 14px}.art-tbl table{border-collapse:collapse;width:100%;font-size:.9rem}.art-tbl th,.art-tbl td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}.art-tbl th{background:rgba(0,0,0,.04)}
+.art-top a.btn{text-decoration:none;display:inline-flex;align-items:center}
+
 .shelves{display:flex;flex-direction:column;gap:22px}
 .shelf header{display:flex;align-items:baseline;gap:8px;margin:0 4px 6px}
 .shelf header b{font:700 1rem var(--f-disp);color:var(--leaf-d)}
@@ -813,6 +833,7 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
       <button type="button" class="gtile t-g" data-act="gateDoc" data-doc="certImg"><span class="gt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M7 8h10M7 11h6"/><circle cx="16.5" cy="17" r="2.5"/><path d="M15 19l-1 3 2.5-1 2.5 1-1-3"/></svg></span><span class="gt-tx"><b>សញ្ញាបត្រ</b><small>សញ្ញាបត្រឱសថការី</small></span><span class="gt-ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></button>
       <button type="button" class="gtile t-g" data-act="gateDoc" data-doc="licImg"><span class="gt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span><span class="gt-tx"><b>អាជ្ញាប័ណ្ណ</b><small>អាជ្ញាប័ណ្ណបើកឱសថស្ថាន</small></span><span class="gt-ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></button>
       <button type="button" class="gtile t-g" data-act="gateDoc" data-doc="council"><span class="gt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20v-1a6 6 0 0 1 12 0v1"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2A5 5 0 0 1 21 19v1"/></svg></span><span class="gt-tx"><b>គណៈឱសថការី</b><small>ឯកសារគណៈឱសថការី</small></span><span class="gt-ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></button>
+      <button type="button" class="gtile t-g" data-act="gateLibrary"><span class="gt-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h4v16H4zM10 4h4v16h-4z"/><path d="M16 5.5l3.6-1 3 14.6-3.6 1z"/></svg></span><span class="gt-tx"><b>បណ្ណាល័យ</b><small>សៀវភៅ អត្ថបទ ឃ្លាំងឯកសារ · ត្រូវការ PIN</small></span><span class="gt-ch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></span></button>
     </div>
     <p class="gate-foot" id="gateFoot"></p>
   </div>
@@ -1012,7 +1033,7 @@ function openScanner(title,cb){
   scanCb=cb;scanDone=false;
   openModal(`<h3>${title}</h3><div id="reader">កំពុងបើកកាមេរ៉ា...</div><p class="scan-status" id="scanStatus">តម្រង់ Barcode ឲ្យនៅកណ្តាលស៊ុម</p>
   <div class="usb-hint">${SCAN_ICON}<span>ម៉ាស៊ីនស្កេន USB/Bluetooth៖ គ្រាន់តែស្កេន ពុំចាំបាច់បើកផ្ទាំងនេះទេ</span></div>
-  <div class="sheet-actions"><span class="btn filebtn">ថតរូប / ជ្រើសរូប Barcode<input type="file" id="scanFile" accept="image/*" capture="environment"></span><button class="btn gold" data-act="scanAddProduct">+ បន្ថែមឱសថ</button><span class="grow"></span><button class="btn ghost" data-act="closeModal">បិទ</button></div>`,'narrow');
+  <div class="sheet-actions"><span class="btn filebtn blue">🖼 ជ្រើសរូប<input type="file" id="scanFile" accept="image/*"></span><button class="btn gold" data-act="scanAddProduct">+ បន្ថែមឱសថ</button><span class="grow"></span><button class="btn ghost" data-act="closeModal">បិទ</button></div>`,'narrow');
   const status=(m,bad)=>{const el=$('#scanStatus');if(el){el.textContent=m;el.className='scan-status'+(bad?' bad':'')}};
   $('#scanFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;status('កំពុងអានរូប...');
     try{await loadScanLib();stopScan();const tmp=new Html5Qrcode('reader',{verbose:false,experimentalFeatures:{useBarCodeDetectorIfSupported:true}});const r=await tmp.scanFile(f,false);try{tmp.clear()}catch(_){}scanResult(r)}
@@ -1426,7 +1447,7 @@ const ACTS={
   wipe(){confirmBox('លុបទិន្នន័យទាំងអស់?','ឱសថ ស្តុក ប្រវត្តិលក់ និងអ្នកផ្គត់ផ្គង់ នឹងត្រូវលុប។ ការកំណត់នៅដដែល។','លុបទាំងអស់',()=>{Object.assign(S,{products:[],batches:[],suppliers:[],sales:[],moves:[],counter:0,orders:[],orderCounter:0});save();resetP();resetR();render();toast('បានលុបទិន្នន័យ','ok')})}
 };
 document.addEventListener('click',e=>{
-  const t=e.target.closest('[data-mp],[data-mptile],[data-mpcat],[data-arch],[data-docadd],[data-docdel],[data-sadd],[data-stile],[data-ptile],[data-docfile],[data-docback],[data-book],[data-lib],[data-libopen],[data-libpub],[data-photo],[data-sadd],[data-sinc],[data-sdec],[data-sdel],[data-scat],[data-of],[data-view],[data-act],[data-add],[data-inc],[data-dec],[data-del],[data-cat],[data-sale],[data-editp],[data-adj],[data-tab],[data-bf],[data-range],[data-rmline],[data-editsup],[data-goto]');
+  const t=e.target.closest('[data-art],[data-mp],[data-mptile],[data-mpcat],[data-arch],[data-docadd],[data-docdel],[data-sadd],[data-stile],[data-ptile],[data-docfile],[data-docback],[data-book],[data-lib],[data-libopen],[data-libpub],[data-photo],[data-sadd],[data-sinc],[data-sdec],[data-sdel],[data-scat],[data-of],[data-view],[data-act],[data-add],[data-inc],[data-dec],[data-del],[data-cat],[data-sale],[data-editp],[data-adj],[data-tab],[data-bf],[data-range],[data-rmline],[data-editsup],[data-goto]');
   if(e.target.id==='modal')return closeModal();
   if(!t)return;const d=t.dataset;
   if(d.stile){shopShow=shopShow===d.stile?'':d.stile;document.querySelectorAll('#sgrid .ptile').forEach(x=>x.classList.toggle('show',x.dataset.stile===shopShow));return}
@@ -1434,6 +1455,7 @@ document.addEventListener('click',e=>{
   if(d.mp){mpAct(d.mp,t);return}
   if(d.mptile){mpShow=mpShow===d.mptile?'':d.mptile;document.querySelectorAll('#mpbody .ptile').forEach(x=>x.classList.toggle('show',x.dataset.mptile===mpShow));return}
   if(d.mpcat){mpCat=d.mpcat;document.querySelectorAll('.mp-chips .chipbtn').forEach(b=>b.classList.toggle('on',b.dataset.mpcat===mpCat));drawMyPrices();return}
+  if(d.art!==undefined){artAct(d.art);return}
   if(d.arch!==undefined&&t.dataset.arch){archAct(d.arch);return}
   if(d.docadd){docAddForm(d.docadd);return}
   if(d.docdel){docDelForm(d.docdel);return}
@@ -2036,6 +2058,9 @@ Object.assign(ACTS,{
   gateGo(el){gateGo(el.dataset.to)},
   gateDoc(el){gateDoc(el.dataset.doc)},
   /* from any barcode scanner: jump straight to «add a new medicine» (front screen asks for the PIN first) */
+  gateLibrary(){if(mode==='staff'){libTab='book';go('library');return}
+    openModal(`<h3>បណ្ណាល័យ</h3><form id="libPinForm" class="form">${pinField()}<div class="sheet-actions"><span class="grow"></span><button type="button" class="btn ghost" data-act="closeModal">បោះបង់</button><button class="btn gold">ចូល</button></div></form>`,'narrow');setTimeout(()=>$('#bkPin')?.focus(),50);
+    $('#libPinForm').onsubmit=e=>{e.preventDefault();const pin=checkPinField();if(!pin)return;setSessPin(pin);try{sessionStorage.setItem(AUTH,'1')}catch(_){}closeModal();enterStaff();libTab='book';go('library')}},
   scanAddProduct(){stopScan();
     if(mode==='staff'){closeModal();if(view!=='products')go('products');setTimeout(()=>productForm(),40);return}
     openModal(`<h3>បន្ថែមឱសថថ្មី</h3><form id="scPinForm" class="form">${pinField()}<div class="sheet-actions"><span class="grow"></span><button type="button" class="btn ghost" data-act="closeModal">បោះបង់</button><button class="btn gold">បន្ត</button></div></form>`,'narrow');
@@ -2299,7 +2324,7 @@ async function aiStatus(){try{const r=await api(null,{action:'visionStatus',pin:
 /* ---------- library: certificates, licences, books ---------- */
 const LIB_ALL={cert:['សញ្ញាបត្រ','Certificates'],license:['អាជ្ញាប័ណ្ណ','Licences'],book:['សៀវភៅ','Books'],stock:['ភាគហ៊ុន','Shares']};
 /* certificates & licences now live in the pharmacist's Drive folder (start screen), so the Library keeps books and shares */
-const LIB={book:LIB_ALL.book,stock:LIB_ALL.stock,archive:['ឃ្លាំងឯកសារ','Archive']};
+const LIB={book:LIB_ALL.book,article:['អត្ថបទ','Articles'],stock:LIB_ALL.stock,archive:['ឃ្លាំងឯកសារ','Archive']};
 const STOCK_FOLDER='1K6oy5MlZ0ffiVURcxUO7OTj93HQn4scZ';
 const BOOKS_FOLDER='1IX-0IrkonNFzy1GtUGUieSvCIqgLSEtE';
 let libTab='book';
@@ -2317,9 +2342,10 @@ function renderLibrary(){
   if(libTab==='book')return renderShelf();
   if(libTab==='stock')return renderStocks();
   if(libTab==='archive')return renderArchive();
+  if(libTab==='article')return renderArticles();
   const cnt=t=>S.library.filter(x=>x.type===t).length;
   const list=S.library.filter(x=>x.type===libTab).sort((a,b)=>(a.title||'').localeCompare(b.title||''));
-  V().innerHTML=`<div class="toolbar"><div class="tabs" style="margin:0;flex:1;border:0">${Object.entries(LIB).map(([k,[kh]])=>`<button class="tab ${libTab===k?'on':''}" data-lib="${k}">${kh} <b class="mono">${k==='book'?bkCount():k==='stock'?(stockView().holdings.length||''):k==='archive'?'🔒':cnt(k)}</b></button>`).join('')}</div>
+  V().innerHTML=`<div class="toolbar"><div class="tabs" style="margin:0;flex:1;border:0">${Object.entries(LIB).map(([k,[kh]])=>`<button class="tab ${libTab===k?'on':''}" data-lib="${k}">${kh} <b class="mono">${k==='book'?bkCount():k==='stock'?(stockView().holdings.length||''):k==='archive'?'🔒':k==='article'?artCount():cnt(k)}</b></button>`).join('')}</div>
     <button class="btn gold" data-act="libNew">+ បន្ថែម${LIB[libTab][0]}</button></div>
   <div class="libgrid">${list.map(x=>`<button class="libcard" data-libopen="${x.id}"><span class="lib-th">${libThumb(x)}</span><span class="lib-tx"><b>${esc(x.title||'(គ្មានចំណងជើង)')}</b><small>${esc([x.holder,x.number].filter(Boolean).join(' · '))}</small>${libExp(x)}</span></button>`).join('')
     ||`<div class="empty panel" style="grid-column:1/-1">មិនទាន់មាន${LIB[libTab][0]}។ ចុច «+ បន្ថែម» ដើម្បីដាក់រូប ឬ PDF។</div>`}</div>
@@ -2383,7 +2409,7 @@ async function loadBooks(refresh){
   catch(e){bkLoading=false;bkFail=true;if(view==='library'&&libTab!=='book')return renderLibrary();if(view==='library'&&libTab==='book')renderShelf(noKey(e)?'សូមធ្វើបច្ចុប្បន្នភាព Code.gs ថ្មី ហើយ Deploy › New version':readErr(e))}}
 function renderShelf(err){
   const cnt=t=>S.library.filter(x=>x.type===t).length;
-  const tabs=`<div class="tabs" style="margin:0;flex:1;border:0">${Object.entries(LIB).map(([k,[kh]])=>`<button class="tab ${libTab===k?'on':''}" data-lib="${k}">${kh} <b class="mono">${k==='book'?bkCount():k==='stock'?(stockView().holdings.length||''):k==='archive'?'🔒':cnt(k)}</b></button>`).join('')}</div>`;
+  const tabs=`<div class="tabs" style="margin:0;flex:1;border:0">${Object.entries(LIB).map(([k,[kh]])=>`<button class="tab ${libTab===k?'on':''}" data-lib="${k}">${kh} <b class="mono">${k==='book'?bkCount():k==='stock'?(stockView().holdings.length||''):k==='archive'?'🔒':k==='article'?artCount():cnt(k)}</b></button>`).join('')}</div>`;
   const q=bkQ.trim().toLowerCase();
   let body='';
   if(BK){const shelves=BK.shelves.map((sh,si)=>({...sh,si,list:BK.books.filter(b=>b.shelf===sh.id&&(!q||b.title.toLowerCase().includes(q))).sort((a,b)=>a.title.localeCompare(b.title,'km'))})).filter(sh=>sh.list.length||(!q&&sh.si>0));
@@ -2496,7 +2522,7 @@ function renderStocks(){
   const cnt=t=>S.library.filter(x=>x.type===t).length;
   const v=stockView(stkPick),c=v.currency;
   const sumBuy=v.holdings.reduce((a,h)=>a+(h.buy||0),0),sumEval=v.holdings.reduce((a,h)=>a+(h.eval||0),0),gain=sumEval-sumBuy,gp=sumBuy?gain/sumBuy*100:0;
-  const tabs=`<div class="tabs" style="margin:0;flex:1;border:0">${Object.entries(LIB).map(([k,[kh]])=>`<button class="tab ${libTab===k?'on':''}" data-lib="${k}">${kh} <b class="mono">${k==='book'?bkCount():k==='stock'?(v.holdings.length||''):k==='archive'?'🔒':cnt(k)}</b></button>`).join('')}</div>`;
+  const tabs=`<div class="tabs" style="margin:0;flex:1;border:0">${Object.entries(LIB).map(([k,[kh]])=>`<button class="tab ${libTab===k?'on':''}" data-lib="${k}">${kh} <b class="mono">${k==='book'?bkCount():k==='stock'?(v.holdings.length||''):k==='archive'?'🔒':k==='article'?artCount():cnt(k)}</b></button>`).join('')}</div>`;
   if(!stkBusy&&!stkErr&&syncUrl()&&Date.now()-stkLastScan>600000)setTimeout(()=>scanStocks());
   const maxAbs=Math.max(1,...v.holdings.map(h=>Math.abs(h.gpct)));
   V().innerHTML=`<div class="toolbar">${tabs}</div>
@@ -2535,6 +2561,75 @@ function stockAddForm(){let data='';
       saveLocal();saveSY();stkPick='';closeModal();renderStocks();toast('បានអានរូប','ok')}
     catch(err){btn.disabled=false;btn.textContent='ផ្ទុកឡើង និងអាន';toast(readErr(err),'bad')}}}
 Object.assign(ACTS,{stkScan(){scanStocks()},stkAdd(){if(!syncUrl())return toast('ប្រើបានតែក្នុងឯកសារ KEP-Pharmacy.html','bad');stockAddForm()}});
+
+/* ---------- អត្ថបទ (articles): Google Docs from one Drive folder; title & text read by Code.gs ---------- */
+const ART={list:(()=>{try{return JSON.parse(localStorage.getItem('kep-articles')||'null')}catch(e){return null}})(),busy:false,err:'',q:'',cat:'all',open:'',docs:{},loading:''};
+const artCount=()=>ART.list?ART.list.items.length:(ART.busy?'…':'');
+const artTabs=()=>`<div class="tabs" style="margin:0;flex:1;border:0">${Object.entries(LIB).map(([k,[kh]])=>`<button class="tab ${libTab===k?'on':''}" data-lib="${k}">${kh} <b class="mono">${k==='book'?bkCount():k==='article'?artCount():k==='stock'?(stockView().holdings.length||''):k==='archive'?'🔒':''}</b></button>`).join('')}</div>`;
+const artHere=()=>view==='library'&&libTab==='article';
+async function loadArticles(refresh){
+  if(!syncUrl()||ART.busy)return;ART.busy=true;ART.err='';if(artHere()&&!ART.open)renderArticles();
+  try{const r=await api(null,{action:'articles',pin:sessPin(),refresh:!!refresh});
+    ART.list={items:r.items||[],folder:r.folder||{},ts:Date.now()};try{localStorage.setItem('kep-articles',JSON.stringify(ART.list))}catch(e){}
+    if(r.pending)setTimeout(()=>{if(artHere())loadArticles()},3000)}
+  catch(e){ART.err=noKey(e)?'សូមធ្វើបច្ចុប្បន្នភាព Code.gs ថ្មី ហើយ Deploy › New version':readErr(e)}
+  finally{ART.busy=false;if(artHere()&&!ART.open)renderArticles();else if(view==='library')document.querySelectorAll('[data-lib=article] b').forEach(b=>b.textContent=artCount())}}
+function renderArticles(){
+  if(ART.open)return renderArticle();
+  if(!syncUrl()){V().innerHTML=`<div class="toolbar">${artTabs()}</div><div class="empty panel">អត្ថបទប្រើបានតែក្នុងឯកសារ KEP-Pharmacy.html (ភ្ជាប់ Google Drive)</div>`;return}
+  if(!ART.list&&!ART.busy&&!ART.err)setTimeout(()=>loadArticles());
+  const L=ART.list,all=L?L.items:[],cats=[...new Set(all.map(a=>a.cat).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'km'));
+  if(ART.cat!=='all'&&!cats.includes(ART.cat))ART.cat='all';
+  V().innerHTML=`<div class="toolbar">${artTabs()}</div>
+  <div class="toolbar shelf-tools"><input id="artq" class="inp grow" placeholder="ស្វែងរកអត្ថបទ..." value="${esc(ART.q)}">
+    <button class="btn" data-art="refresh" ${ART.busy?'disabled':''}>${ART.busy?'កំពុងទាញ...':'ធ្វើឲ្យថ្មី'}</button>
+    ${L&&L.folder.url?`<a class="btn ghost" href="${esc(L.folder.url)}" target="_blank" rel="noopener">បើក Drive</a>`:''}</div>
+  ${cats.length?`<div class="chips art-chips"><button class="chipbtn ${ART.cat==='all'?'on':''}" data-art="cat:all">ទាំងអស់<b>${all.length}</b></button>${cats.map(c=>`<button class="chipbtn ${ART.cat===c?'on':''}" data-art="cat:${esc(c)}">${esc(c)}<b>${all.filter(a=>a.cat===c).length}</b></button>`).join('')}</div>`:''}
+  ${ART.err?`<p class="rx-note" style="margin:0 0 12px">${esc(ART.err)}</p>`:''}
+  <div id="artlist" class="art-list"></div>`;
+  drawArticles();
+  $('#artq').oninput=e=>{ART.q=e.target.value;drawArticles()}}
+function drawArticles(){const el=$('#artlist');if(!el)return;const L=ART.list;
+  if(!L){el.innerHTML=`<div class="empty panel">${ART.busy?'កំពុងទាញអត្ថបទពី Drive...':'មិនទាន់មានអត្ថបទ'}</div>`;return}
+  const q=ART.q.trim().toLowerCase();
+  const list=L.items.filter(a=>(ART.cat==='all'||a.cat===ART.cat)&&(!q||(a.title+' '+(a.snip||'')).toLowerCase().includes(q)));
+  el.innerHTML=list.map(a=>`<button class="art-card" data-art="open:${esc(a.id)}"><span class="art-ic">📄</span><span class="art-tx"><b>${esc(a.title)}</b>
+    ${a.snip?`<span class="art-snip">${esc(a.snip)}${a.snip.length>=220?'…':''}</span>`:a.snip===undefined?'<span class="art-snip muted">កំពុងអាន...</span>':''}
+    <small class="muted">${a.cat?esc(a.cat)+' · ':''}${fmtDT(a.ts).slice(0,10)}</small></span></button>`).join('')
+    ||`<div class="empty panel">${L.items.length?'រកមិនឃើញអត្ថបទ':'Folder នៅទទេ — សរសេរ Google Doc ក្នុង Folder អត្ថបទ ហើយចុច «ធ្វើឲ្យថ្មី»'}</div>`}
+const artRuns=r=>(r||[]).map(x=>{let s=esc(x.x).replace(/\n/g,'<br>').replace(/\u000b/g,'<br>');if(x.b)s=`<b>${s}</b>`;if(x.i)s=`<i>${s}</i>`;if(x.u&&!x.l)s=`<u>${s}</u>`;
+  if(x.l)s=`<a href="${esc(x.l)}" target="_blank" rel="noopener">${s}</a>`;return s}).join('');
+function artHTML(d){let out='',list=null;
+  const close=()=>{if(list){out+=`</${list.o?'ol':'ul'}>`;list=null}};
+  for(const b of d.blocks){
+    if(b.t==='li'){if(!list||list.lid!==b.lid||list.o!==b.o){close();list={lid:b.lid,o:b.o};out+=`<${b.o?'ol':'ul'}>`}
+      out+=`<li style="margin-left:${(b.n||0)*1.4}em">${artRuns(b.r)}</li>`;continue}
+    close();
+    const al=b.c===1?' style="text-align:center"':b.c===2?' style="text-align:right"':'';
+    if(b.t==='img')out+=`<figure><img src="${b.src}" alt="" loading="lazy"${b.w?` style="max-width:min(100%,${Math.round(b.w)}px)"`:''}></figure>`;
+    else if(b.t==='hr')out+='<hr>';
+    else if(b.t==='gap')out+='';
+    else if(b.t==='table')out+=`<div class="art-tbl"><table>${b.rows.map((r,i)=>`<tr>${r.map(c=>i?`<td>${esc(c)}</td>`:`<th>${esc(c)}</th>`).join('')}</tr>`).join('')}</table></div>`;
+    else{const tag=b.t==='h1'?'h2':b.t==='h2'?'h3':b.t==='h3'?'h4':b.t==='sub'?'p class="art-sub"':'p';out+=`<${tag}${al}>${artRuns(b.r)}</${tag.split(' ')[0]}>`}}
+  close();return out}
+async function renderArticle(){
+  const id=ART.open,meta=(ART.list&&ART.list.items.find(a=>a.id===id))||{title:''},d=ART.docs[id];
+  const fresh=d&&d.ts===meta.ts;
+  V().innerHTML=`<div class="toolbar">${artTabs()}</div>
+  <div class="toolbar art-top"><button class="btn ghost" data-art="back">‹ ត្រឡប់</button><span class="grow"></span>
+    <a class="btn ghost" href="https://docs.google.com/document/d/${esc(id)}/edit" target="_blank" rel="noopener">✎ កែក្នុង Google Docs</a></div>
+  <article class="panel art-read">${d?`<h1>${esc(d.title)}</h1><p class="muted art-meta">${meta.cat?esc(meta.cat)+' · ':''}${fmtDT(d.ts).slice(0,10)}</p>${artHTML(d)||'<p class="muted">អត្ថបទនៅទទេ</p>'}`
+    :ART.loading===id?`<h1>${esc(meta.title)}</h1><p class="muted">កំពុងទាញអត្ថបទ...</p>`:`<h1>${esc(meta.title)}</h1><p class="rx-note">${esc(ART.err||'')}</p>`}</article>`;
+  if(fresh||ART.loading===id)return;
+  ART.loading=id;ART.err='';if(!d)renderArticle();
+  try{const r=await api(null,{action:'article',pin:sessPin(),id});ART.docs[id]=r}
+  catch(e){ART.err=noKey(e)?'សូមធ្វើបច្ចុប្បន្នភាព Code.gs ថ្មី ហើយ Deploy › New version':readErr(e);if(d)toast(ART.err,'bad')}
+  finally{ART.loading='';if(artHere()&&ART.open===id){const keep=window.scrollY;renderArticle();if(d)window.scrollTo(0,keep)}}}
+function artAct(s){const i=s.indexOf(':'),op=i<0?s:s.slice(0,i),a=i<0?'':s.slice(i+1);
+  if(op==='refresh')return loadArticles(true);
+  if(op==='cat'){ART.cat=a;return renderArticles()}
+  if(op==='open'){ART.open=a;window.scrollTo(0,0);return renderArticle()}
+  if(op==='back'){ART.open='';renderArticles()}}
 
 /* ---------- ឃ្លាំងឯកសារ (archive): folders & files in Drive, staff PIN to enter ---------- */
 const ARCH={pin:'',at:0,data:null,busy:false,err:''};
@@ -2788,7 +2883,7 @@ async function fullSync(full){
   finally{fullBusy=false;lastFull=Date.now();paintSync()}
   /* Drive (books, shares) refreshes quietly in the background — the Sheet sync is already done */
   if(driveBusy)return;driveBusy=true;
-  try{try{await loadBooks()}catch(e){}try{await scanStocks()}catch(e){}}finally{driveBusy=false}
+  try{try{await loadBooks()}catch(e){}try{await loadArticles()}catch(e){}try{await scanStocks()}catch(e){}}finally{driveBusy=false}
 }
 setInterval(()=>{if(mode==='staff'&&Date.now()-lastFull>=SYNC_EVERY-5000)fullSync()},60000);
 window.addEventListener('online',()=>{if(mode==='staff')fullSync()});
