@@ -764,7 +764,7 @@ button.hw-btn,button.btn-hw{font-family:var(--f-body)}
 .mp-ctl button:hover,.mp-x:hover{background:rgba(255,255,255,.12)}
 .mp-ctl svg{width:20px;height:20px;fill:currentColor}
 .mp-ctl .mp-play{width:44px;height:44px;background:#ffd43b;color:#183020}.mp-ctl .mp-play:hover{background:#ffe066}.mp-ctl .mp-play svg{width:22px;height:22px}
-.mpbar.loading .mp-play{animation:mppulse 1s infinite}@keyframes mppulse{50%{opacity:.6}}
+.mpbar.loading .mp-play,.np.loading .np-play{animation:mppulse 1s infinite}@keyframes mppulse{50%{opacity:.6}}
 .mp-x{grid-area:x;width:30px;height:30px;opacity:.7;font-size:.9rem}
 .mp-seek{grid-area:seek;display:flex;align-items:center;gap:8px;font-size:.7rem;opacity:.9}
 .mp-seek input{flex:1;accent-color:#ffd43b;height:4px}
@@ -810,6 +810,27 @@ body.has-mp .main{padding-bottom:110px}
 .mu-tr .mu-n{width:22px}
 @media(max-width:520px){.mu-meta{display:none}}
 body.mu-view .mpbar{display:none}body.mu-view.has-mp .main{padding-bottom:0}
+
+/* products: plain price list + Excel import */
+.plist-rows{display:flex;flex-direction:column;background:var(--panel,#fff);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.pl-head,.pl-row{display:grid;grid-template-columns:38px minmax(0,1fr) 110px 120px 84px;gap:8px;align-items:center;padding:6px 10px}
+.pl-head{background:var(--panel2);font-size:.78rem;color:var(--muted);font-weight:600;padding:9px 10px}
+.pl-row+.pl-row{border-top:1px solid var(--line)}.pl-row:hover{background:rgba(47,158,68,.04)}
+.pl-n{color:var(--muted);font-size:.78rem;text-align:center}
+.pl-row .inp{padding:7px 9px;border-color:transparent;background:transparent;min-width:0;width:100%}
+.pl-row .inp:hover{border-color:var(--line)}.pl-row .inp:focus{border-color:var(--gold);background:#fff}
+.pl-row .pl-price{text-align:right;font-weight:600}
+.pl-row .inp.saved{border-color:#2f9e44;background:rgba(47,158,68,.08);transition:background .3s}
+.pl-acts{display:flex;gap:2px;justify-content:flex-end}
+@media(max-width:640px){.pl-head{display:none}.pl-row{grid-template-columns:minmax(0,1fr) 86px 40px;grid-template-areas:"name price acts" "unit unit acts";gap:0 6px;padding:8px 8px}
+  .pl-n{display:none}.pl-name{grid-area:name;font-weight:600}.pl-unit{grid-area:unit;font-size:.8rem;color:var(--muted);padding-top:0!important}.pl-price{grid-area:price}.pl-acts{grid-area:acts;flex-direction:column}}
+.pf-head{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-bottom:6px}.pf-head h3{margin:0}
+.imp-btn{background:#e8f5ec;border-color:#b7dfc2;color:#1f7a33}
+.imp-drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:34px 16px;border:2px dashed var(--line);border-radius:16px;background:var(--panel2);cursor:pointer;text-align:center;transition:border-color .15s,background .15s}
+.imp-drop:hover,.imp-drop.over{border-color:#2f9e44;background:rgba(47,158,68,.06)}.imp-ic{font-size:2.2rem}
+.imp-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}.imp-map{font-size:.8rem;color:var(--muted);line-height:2;margin:0 0 6px}
+.imp-wrap{max-height:46vh;overflow:auto;border:1px solid var(--line);border-radius:10px;margin-top:8px}
+.imp-tbl{width:100%;font-size:.84rem}.imp-tbl th{position:sticky;top:0;background:var(--panel2);z-index:1}
 
 /* staff orders */
 .olist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));gap:12px;align-items:start}
@@ -1343,18 +1364,101 @@ function fixCodes(){const seen={};let n=0;
   const rank=p=>(DEMO_NAMES.has(p.name)&&!p.img&&!p.barcode?2:p.img||p.barcode?0:1);
   [...S.products].sort((a,b)=>rank(a)-rank(b)||(a.id<b.id?-1:1)).forEach(p=>{const k=bcNorm(p.code);if(!k)return;if(seen[k]){p.code=nextCode();n++}else seen[k]=1});
   if(n)save();return n}
+/* ---------- បញ្ជីឱសថ: plain list (name · price, edit / delete) and Excel import ---------- */
+let pMode=(()=>{try{return localStorage.getItem('kep-pmode')||'tiles'}catch(e){return 'tiles'}})();
+function drawProductList(list){
+  $('#plist').className='plist-rows';
+  $('#plist').innerHTML=list.length?`<div class="pl-head"><span>#</span><span>ឈ្មោះឱសថ</span><span>ឯកតា</span><span>តម្លៃលក់ ($)</span><span></span></div>`+
+    list.map((p,i)=>`<div class="pl-row" data-pid="${p.id}"><span class="pl-n mono">${i+1}</span>
+      <input class="inp pl-name" value="${esc(p.name)}" aria-label="ឈ្មោះ" data-pf="name">
+      <input class="inp pl-unit" value="${esc(p.unit||'')}" aria-label="ឯកតា" data-pf="unit">
+      <input class="inp pl-price mono" type="number" step="0.01" min="0" inputmode="decimal" value="${p.price||''}" aria-label="តម្លៃ" data-pf="price">
+      <span class="pl-acts"><button class="btn ghost sm" data-editp="${p.id}" title="កែលម្អិត">✎</button><button class="btn ghost sm danger" data-act="delProduct" data-id="${p.id}" title="លុប">🗑</button></span></div>`).join('')
+    :'<div class="empty">គ្មានទិន្នន័យ</div>';
+  $('#plist').onchange=e=>{const i=e.target.closest('[data-pf]');if(!i)return;const p=prod(i.closest('[data-pid]').dataset.pid);if(!p)return;const f=i.dataset.pf;
+    if(f==='price'){const v=round2(i.value);if(!(v>0)){i.value=p.price||'';return toast('តម្លៃត្រូវតែធំជាង 0','bad')}p.price=v;i.value=v}
+    else{const v=i.value.trim();if(!v){i.value=p[f]||'';return toast(f==='name'?'សូមវាយឈ្មោះ':'សូមវាយឯកតា','bad')}p[f]=v}
+    save();i.classList.add('saved');setTimeout(()=>i.classList.remove('saved'),900)};
+  $('#plist').onkeydown=e=>{if(e.key==='Enter'&&e.target.matches('[data-pf]')){e.preventDefault();const all=[...document.querySelectorAll('#plist [data-pf="'+e.target.dataset.pf+'"]')],k=all.indexOf(e.target);e.target.blur();all[k+1]?.focus();all[k+1]?.select?.()}}}
+
+/* Excel / CSV import: reads the first sheet, finds the columns by their header names (Khmer or English) */
+function loadXLSX(){if(window.XLSX)return Promise.resolve();
+  const urls=['https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js','https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'];
+  return urls.reduce((p,u)=>p.catch(()=>new Promise((res,rej)=>{const s=document.createElement('script');s.src=u;s.onload=()=>window.XLSX?res():rej();s.onerror=rej;document.head.appendChild(s)})),Promise.reject())}
+const IMP_COLS=[['cost',/cost|ថ្លៃដើម|តម្លៃដើម|តម្លៃទិញ|purchase|buy/i],['price',/price|តម្លៃ|sell|retail|\$/i],['barcode',/bar\s*code|បាកូដ|ean|upc/i],['code',/^(code|កូដ|sku|id)$/i],
+  ['generic',/generic|ឈ្មោះទូទៅ|សារធាតុ|ingredient|inn/i],['name',/name|ឈ្មោះ|drug|product|medicine|ឱសថ|ថ្នាំ|item/i],['cat',/categ|ប្រភេទ|group|type/i],['form',/form|ទម្រង់|dosage/i],
+  ['unit',/unit|ឯកតា|pack|uom/i],['reorder',/reorder|min|កម្រិត|alert/i],['rx',/^rx$|prescri|វេជ្ជបញ្ជា/i]];
+const IMP_LBL={name:'ឈ្មោះ',generic:'ឈ្មោះទូទៅ',code:'កូដ',barcode:'Barcode',cat:'ប្រភេទ',form:'ទម្រង់',unit:'ឯកតា',price:'តម្លៃលក់',cost:'ថ្លៃដើម',reorder:'កម្រិតបញ្ជាទិញ',rx:'Rx'};
+function impMap(rows){let best=null;
+  for(let r=0;r<Math.min(rows.length,12);r++){const hd=rows[r].map(x=>String(x==null?'':x).trim()),m={};
+    hd.forEach((t,ci)=>{if(!t||t.length>40)return;const k=(IMP_COLS.find(([k,re])=>re.test(t)&&m[k]===undefined)||[])[0];if(k)m[k]=ci});
+    const n=Object.keys(m).length;if(m.name!==undefined&&n>=2&&(!best||n>best.n))best={head:r,map:m,titles:hd,n}}
+  return best||{head:-1,map:{name:0,price:1,unit:2},titles:[]}}   /* no header row: A = name, B = price, C = unit */
+const num=v=>{const n=parseFloat(String(v==null?'':v).replace(/[^\d.\-]/g,''));return isFinite(n)?n:0};
+function impRows(rows,M){const out=[];
+  rows.slice(M.head+1).forEach((r,k)=>{const g=f=>M.map[f]===undefined?'':String(r[M.map[f]]==null?'':r[M.map[f]]).trim();const name=g('name');if(!name)return;
+    const d={name,generic:g('generic'),code:g('code'),barcode:g('barcode').replace(/\.0$/,''),cat:g('cat'),form:g('form'),unit:g('unit'),price:round2(num(g('price'))),cost:round2(num(g('cost'))),reorder:parseInt(num(g('reorder')))||0,rx:/^(1|y|yes|true|x|✓|rx|មាន|ត្រូវ)/i.test(g('rx')),row:M.head+2+k};
+    const bd=bcDigits(d.barcode);
+    d.match=S.products.find(p=>(d.barcode&&(bcNorm(p.barcode)===bcNorm(d.barcode)||(bd&&bcDigits(p.barcode)===bd)))||(d.code&&bcNorm(p.code)===bcNorm(d.code)))
+      ||S.products.find(p=>p.name.trim().toLowerCase()===name.toLowerCase());
+    out.push(d)});
+  return out}
+async function productImport(){
+  openModal(`<h3>📥 Import ឱសថពី Excel</h3>
+    <p class="muted" style="margin:0 0 10px">ជ្រើសឯកសារ <b>.xlsx / .xls / .csv</b>។ ជួរទីមួយគួរមានចំណងជើងជួរឈរ ដូចជា <b>ឈ្មោះ, ឯកតា, តម្លៃលក់, ថ្លៃដើម, ប្រភេទ, Barcode</b> (ខ្មែរ ឬ English ក៏បាន)។</p>
+    <label class="imp-drop" id="impDrop"><input type="file" id="impFile" accept=".xlsx,.xls,.csv,.ods" hidden><span class="imp-ic">📊</span><b>ចុចដើម្បីជ្រើសឯកសារ Excel</b><small class="muted">ឬអូសឯកសារមកដាក់ទីនេះ</small></label>
+    <div class="sheet-actions"><button type="button" class="btn ghost" data-act="impTemplate">⬇ ទាញយកគំរូ Excel</button><span class="grow"></span><button type="button" class="btn ghost" data-act="closeModal">បិទ</button></div>`,'wide');
+  const go=f=>f&&impRead(f);$('#impFile').onchange=e=>go(e.target.files[0]);
+  const dz=$('#impDrop');dz.ondragover=e=>{e.preventDefault();dz.classList.add('over')};dz.ondragleave=()=>dz.classList.remove('over');dz.ondrop=e=>{e.preventDefault();dz.classList.remove('over');go(e.dataTransfer.files[0])};
+  loadXLSX().catch(()=>{})}
+async function impRead(file){
+  const dz=$('#impDrop');if(dz)dz.innerHTML='<span class="imp-ic">⏳</span><b>កំពុងអានឯកសារ...</b>';
+  try{await loadXLSX()}catch(e){return toast('មិនអាចផ្ទុកកម្មវិធីអាន Excel បាន — សូមភ្ជាប់អ៊ីនធឺណិត','bad')}
+  let rows;try{const wb=XLSX.read(await file.arrayBuffer(),{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:''})}
+  catch(e){toast('អានឯកសារនេះមិនបាន','bad');return productImport()}
+  const M=impMap(rows),list=impRows(rows,M);
+  if(!list.length){toast('រកមិនឃើញឈ្មោះឱសថក្នុងឯកសារ','bad');return productImport()}
+  impPreview(file.name,M,list)}
+function impPreview(fname,M,list){
+  const nNew=list.filter(d=>!d.match).length,nUp=list.length-nNew;
+  const cols=Object.keys(M.map).sort((a,b)=>M.map[a]-M.map[b]);
+  openModal(`<h3>📥 ពិនិត្យមុន Import</h3><p class="muted" style="margin:0 0 8px">${esc(fname)} · រកឃើញ <b>${list.length}</b> មុខ</p>
+    <div class="imp-chips"><span class="chip ok">ថ្មី ${nNew}</span><span class="chip info">មានរួច ${nUp}</span>${list.filter(d=>!(d.price>0)).length?`<span class="chip warn">គ្មានតម្លៃ ${list.filter(d=>!(d.price>0)).length}</span>`:''}</div>
+    <p class="imp-map">ជួរឈរដែលស្គាល់៖ ${cols.map(k=>`<span class="chip sm">${IMP_LBL[k]}${M.titles[M.map[k]]?` ← «${esc(M.titles[M.map[k]])}»`:''}</span>`).join(' ')}</p>
+    ${nUp?`<label class="check"><input type="checkbox" id="impUpd" checked> ធ្វើបច្ចុប្បន្នភាពមុខដែលមានរួច (តម្លៃ ឯកតា ប្រភេទ...)</label>`:''}
+    <div class="imp-wrap"><table class="tbl imp-tbl"><thead><tr><th>ជួរ</th><th>ឈ្មោះ</th><th>ឯកតា</th><th>តម្លៃ</th><th>ប្រភេទ</th><th></th></tr></thead><tbody>
+    ${list.slice(0,300).map(d=>`<tr><td class="mono muted">${d.row}</td><td>${esc(d.name)}${d.barcode?`<br><small class="mono muted">${esc(d.barcode)}</small>`:''}</td><td>${esc(d.unit||'—')}</td><td class="mono">${d.price>0?usd(d.price):'<span class="chip warn sm">—</span>'}</td><td>${esc(d.cat||'')}</td><td>${d.match?'<span class="chip info sm">មានរួច</span>':'<span class="chip ok sm">ថ្មី</span>'}</td></tr>`).join('')}</tbody></table>
+    ${list.length>300?`<p class="muted" style="font-size:.8rem">... និង ${list.length-300} មុខទៀត</p>`:''}</div>
+    <div class="sheet-actions"><button type="button" class="btn ghost" data-act="prodImport">‹ ជ្រើសឯកសារផ្សេង</button><span class="grow"></span><button type="button" class="btn ghost" data-act="closeModal">បោះបង់</button><button type="button" class="btn gold" id="impGo">Import ${list.length} មុខ</button></div>`,'wide');
+  $('#impGo').onclick=()=>{const upd=!$('#impUpd')||$('#impUpd').checked;let added=0,changed=0,skipped=0;const newCats=new Set();
+    for(const d of list){const cat=d.cat||'';if(cat&&!CATS.some(c=>c.toLowerCase()===cat.toLowerCase()))newCats.add(cat);
+      const cc=cat?(CATS.find(c=>c.toLowerCase()===cat.toLowerCase())||cat):'';
+      const p=d.match;
+      if(p){if(!upd){skipped++;continue}
+        ['generic','form','unit'].forEach(k=>{if(d[k])p[k]=d[k]});if(cc)p.cat=cc;if(d.price>0)p.price=d.price;if(d.cost>0)p.cost=d.cost;if(d.reorder)p.reorder=d.reorder;if(d.rx)p.rx=true;
+        if(d.barcode&&!p.barcode)p.barcode=d.barcode;changed++}
+      else{const code=d.code&&!S.products.some(x=>bcNorm(x.code)===bcNorm(d.code))?d.code:nextCode();
+        S.products.push({id:uid(),code,barcode:d.barcode,name:d.name,generic:d.generic,cat:cc||CATS[0],form:d.form,unit:d.unit||'ប្រអប់',rx:d.rx,cost:d.cost,price:d.price,reorder:d.reorder||5,img:''});added++}}
+    if(newCats.size){S.set.cats=[...(S.set.cats||CATS),...newCats];applyCats()}
+    save();closeModal();render();toast(`បាន Import៖ ថ្មី ${added} មុខ · កែ ${changed} មុខ${skipped?` · រំលង ${skipped}`:''}${newCats.size?` · ប្រភេទថ្មី ${newCats.size}`:''}`,'ok')}}
+async function impTemplate(){try{await loadXLSX()}catch(e){return toast('មិនអាចផ្ទុកកម្មវិធី Excel បាន','bad')}
+  const rows=[['ឈ្មោះ','ឈ្មោះទូទៅ','ប្រភេទ','ទម្រង់','ឯកតា','តម្លៃលក់','ថ្លៃដើម','Barcode','កម្រិតបញ្ជាទិញ','Rx'],
+    ['Paracetamol 500mg','Paracetamol',CATS[0]||'ថ្នាំគ្រាប់','គ្រាប់','បន្ទះ',0.5,0.3,'',10,''],['Amoxicillin 500mg','Amoxicillin',CATS[0]||'ថ្នាំគ្រាប់','កន្សោម','បន្ទះ',1.2,0.8,'',5,'Rx']];
+  const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=rows[0].map((_,i)=>({wch:i===0?26:14}));const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'ឱសថ');XLSX.writeFile(wb,'KEP-ឱសថ-គំរូ.xlsx')}
 function renderProducts(){
   fixCodes();const demo=demoSet();
-  V().innerHTML=`<div class="toolbar"><input id="pq" class="inp grow" placeholder="ស្វែងរកឱសថ..."><select id="pcat" class="inp"><option value="all">គ្រប់ប្រភេទ</option>${CATS.map(c=>`<option>${esc(c)}</option>`).join('')}</select><button class="btn gold" data-act="newProduct">+ បន្ថែមឱសថ</button></div>
+  V().innerHTML=`<div class="toolbar"><input id="pq" class="inp grow" placeholder="ស្វែងរកឱសថ..."><select id="pcat" class="inp"><option value="all">គ្រប់ប្រភេទ</option>${CATS.map(c=>`<option>${esc(c)}</option>`).join('')}</select><button class="btn" data-act="prodMode" title="ប្តូររបៀបបង្ហាញ">${pMode==='list'?'▦ រូបភាព':'☰ បញ្ជីតម្លៃ'}</button><button class="btn" data-act="prodImport">📥 Import Excel</button><button class="btn gold" data-act="newProduct">+ បន្ថែមឱសថ</button></div>
   ${demo.n?`<div class="rx-note" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 12px"><span class="grow">មានទិន្នន័យគំរូ (ឱសថ ${demo.prods.size} មុខ${demo.sups.size?`, អ្នកផ្គត់ផ្គង់ ${demo.sups.size}`:''}) ដែលមិនមែនជាទិន្នន័យពិត។</span><button class="btn sm danger" data-act="purgeDemo">លុបទិន្នន័យគំរូ</button></div>`:''}
   <div class="pgrid ptiles plist" id="plist"></div>`;drawProducts()}
 function drawProducts(){const q=($('#pq')?.value||'').toLowerCase(),c=$('#pcat')?.value||'all';
   const list=S.products.filter(p=>(c==='all'||p.cat===c)&&(!q||[p.name,p.generic,p.code,p.barcode].join(' ').toLowerCase().includes(q)));
+  if(pMode==='list')return drawProductList(list.slice().sort((a,b)=>a.name.localeCompare(b.name,'km',{numeric:true})));
+  $('#plist').className='pgrid ptiles plist';$('#plist').onchange=null;$('#plist').onkeydown=null;
   $('#plist').innerHTML=list.length?list.map(p=>`<button class="ptile" data-ptile="${p.id}" title="${esc(p.name)}" aria-label="${esc(p.name)}">
       <span class="pt-img">${pImgHTML(p)}</span><span class="pt-name">${esc(p.name)}<em>ចុចម្តងទៀតដើម្បីកែ</em></span>${p.rx?'<span class="pt-rx">Rx</span>':''}</button>`).join(''):'<div class="empty">គ្មានទិន្នន័យ</div>'}
 function productForm(id){
   const p=id?prod(id):{code:nextCode(),barcode:'',name:'',generic:'',cat:CATS[0],form:'',unit:'',rx:false,cost:'',price:'',reorder:10};
-  openModal(`<h3>${id?'កែប្រែឱសថ':'បន្ថែមឱសថថ្មី'}</h3><form id="pform" class="form">
+  openModal(`<div class="pf-head"><h3>${id?'កែប្រែឱសថ':'បន្ថែមឱសថថ្មី'}</h3>${id?'':'<button type="button" class="btn sm imp-btn" data-act="prodImport">📥 Import Excel</button>'}</div><form id="pform" class="form">
   <button type="button" class="btn-snap" data-act="prodCam">${CAM_ICON}<span><b>ថតរូបផលិតផល</b><small>ប្រមូលទិន្នន័យពីស្លាកប្រអប់ ដោយស្វ័យប្រវត្តិ</small></span></button>
   <p class="scan-status" id="phInfo" hidden></p>
   <div class="row2"><label>កូដ<input name="code" id="f-code" class="inp mono" required value="${esc(p.code)}"></label><label>Barcode<span class="inp-row"><input name="barcode" id="f-bc" class="inp mono" value="${esc(p.barcode)}" placeholder="ស្កេន ឬវាយបញ្ចូល"><button type="button" class="scanbtn" data-act="scanField" title="ស្កេន Barcode" aria-label="ស្កេន Barcode">${SCAN_ICON}</button></span></label></div>
@@ -1570,6 +1674,7 @@ const ACTS={
   clearCart(){P.cart=[];refreshPOS()},
   toTicket(){const t=$('.ticket');t&&t.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'start'})},
   newProduct(){productForm()},newSup(){supForm()},
+  prodMode(){pMode=pMode==='list'?'tiles':'list';try{localStorage.setItem('kep-pmode',pMode)}catch(e){}renderProducts()},prodImport(){productImport()},impTemplate(){impTemplate()},
   delProduct(el){const id=el.dataset.id;if(S.batches.some(b=>b.pid===id&&b.qty>0))return toast('មិនអាចលុបបានទេ ព្រោះនៅមានស្តុក','bad');
     confirmBox('លុបឱសថ?',esc(prod(id).name)+' នឹងត្រូវលុបចេញពីបញ្ជី។ ប្រវត្តិលក់នៅដដែល។','លុប',()=>{S.products=S.products.filter(p=>p.id!==id);save();render();toast('បានលុប','ok')})},
   voidSale(el){const s=S.sales.find(x=>x.id===el.dataset.id);
@@ -2930,28 +3035,51 @@ function lbAct(spec){const k=spec.indexOf(':'),op=k<0?spec:spec.slice(0,k),a=k<0
   if(op==='trk'){const n=+a,t=view[n];if(MP.q[MP.i]&&MP.q[MP.i].id===t.id)return mpToggle();return mpStart(pl,view,n)}}
 
 /* ---------- music player: one audio element for the whole app, so songs keep playing while you work ---------- */
-const MP={q:[],i:-1,list:'',name:'',audio:null,alt:false,shuffle:false,rep:'all',hist:[],vol:(()=>{try{const v=parseFloat(localStorage.getItem('kep-vol'));return isFinite(v)?v:1}catch(e){return 1}})()};
-const songSrc=(id,alt)=>alt?`https://drive.google.com/uc?export=download&id=${id}`:`https://drive.usercontent.google.com/download?id=${id}&export=download&confirm=t`;
+const MP={q:[],i:-1,list:'',name:'',audio:null,alt:false,fails:0,loading:false,shuffle:false,rep:'all',hist:[],vol:(()=>{try{const v=parseFloat(localStorage.getItem('kep-vol'));return isFinite(v)?v:1}catch(e){return 1}})()};
+/* songs come through Apps Script (in parts, in parallel) and are kept on the device, so a song played once starts at once next time */
+const SONG_CACHE='kep-songs-v1',SONG_KEEP=25,songURLs=new Map(),songJobs=new Map();
+const b64bytes=s=>{const bin=atob(s),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u};
+async function songCacheGet(id){try{if(!window.caches)return null;const c=await caches.open(SONG_CACHE),r=await c.match('/song/'+id);return r?await r.blob():null}catch(e){return null}}
+async function songCachePut(id,blob){try{if(!window.caches)return;const c=await caches.open(SONG_CACHE);await c.put('/song/'+id,new Response(blob,{headers:{'Content-Type':blob.type}}));
+  const keys=await c.keys();for(const k of keys.slice(0,Math.max(0,keys.length-SONG_KEEP)))await c.delete(k)}catch(e){}}
+function songURL(id){if(songURLs.has(id))return Promise.resolve(songURLs.get(id));if(songJobs.has(id))return songJobs.get(id);
+  const job=(async()=>{let blob=await songCacheGet(id);
+    if(!blob){const first=await api(null,{action:'libSong',id,part:0});const parts=[b64bytes(first.data)];
+      if(first.parts>1){const rest=await Promise.all(Array.from({length:first.parts-1},(_,k)=>api(null,{action:'libSong',id,part:k+1})));rest.forEach(r=>parts[r.part]=b64bytes(r.data))}
+      blob=new Blob(parts,{type:first.mime||'audio/mpeg'});songCachePut(id,blob)}
+    const u=URL.createObjectURL(blob);songURLs.set(id,u);
+    if(songURLs.size>4){const [k,v]=songURLs.entries().next().value;if(k!==id&&!(MP.q[MP.i]&&MP.q[MP.i].id===k)){URL.revokeObjectURL(v);songURLs.delete(k)}}
+    return u})().finally(()=>songJobs.delete(id));
+  songJobs.set(id,job);return job}
+/* phones only allow sound that starts from a tap: the first tap "unlocks" the player with a tiny silent sound */
+const SILENT='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+function mpUnlock(){const a=mpAudio();if(MP.unlocked)return;MP.unlocked=true;try{a.src=SILENT;const p=a.play();if(p)p.then(()=>a.pause()).catch(()=>{})}catch(e){}}
 const mmss=s=>!isFinite(s)||s<0?'0:00':Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
 function mpAudio(){if(MP.audio)return MP.audio;const a=MP.audio=new Audio();a.preload='auto';a.volume=MP.vol;
   a.addEventListener('ended',()=>{if(MP.rep==='one'){a.currentTime=0;a.play().catch(()=>{});return}mpGo(1,true)});
   a.addEventListener('timeupdate',mpTick);a.addEventListener('loadedmetadata',mpTick);a.addEventListener('durationchange',mpTick);
   ['play','pause','waiting','playing'].forEach(ev=>a.addEventListener(ev,()=>{mpPaint();if(ev!=='waiting'&&ev!=='playing')mpRefreshList()}));
-  a.addEventListener('error',()=>{const t=MP.q[MP.i];if(!t||!a.getAttribute('src'))return;if(!MP.alt){MP.alt=true;a.src=songSrc(t.id,true);a.play().catch(()=>{});return}
-    toast('មិនអាចចាក់បទនេះបាន — រំលងទៅបទបន្ទាប់','bad');if(MP.q.length>1)setTimeout(()=>mpGo(1),800)});
+  a.addEventListener('error',()=>{const src=a.getAttribute('src')||'';if(!src.startsWith('blob:'))return;mpFail('ឯកសារចម្រៀងខូច ឬមិនស្គាល់ទម្រង់')});
   if('mediaSession' in navigator){const ms=navigator.mediaSession;try{ms.setActionHandler('play',()=>a.play());ms.setActionHandler('pause',()=>a.pause());ms.setActionHandler('previoustrack',()=>mpGo(-1));ms.setActionHandler('nexttrack',()=>mpGo(1))}catch(e){}}
   return a}
-function mpStart(pl,tracks,i){MP.q=tracks.slice();MP.list=pl.id;MP.name=pl.name;MP.hist=[];mpLoad(i)}
-function mpLoad(i){const a=mpAudio(),t=MP.q[i];if(!t)return;MP.i=i;MP.alt=false;a.src=songSrc(t.id);a.play().catch(()=>{});
+function mpStart(pl,tracks,i){mpUnlock();MP.q=tracks.slice();MP.list=pl.id;MP.name=pl.name;MP.hist=[];mpLoad(i)}
+function mpFail(why){const t=MP.q[MP.i];MP.loading=false;mpPaint();toast(`មិនអាចចាក់ «${t?t.title:''}» បាន${why?' — '+why:''}`,'bad');
+  if(MP.q.length>1&&MP.fails++<3)setTimeout(()=>mpGo(1,true),1200)}
+async function mpLoad(i){const a=mpAudio(),t=MP.q[i];if(!t)return;MP.i=i;MP.loading=true;try{if(!a.paused)a.pause()}catch(e){}
+  const tok=MP.tok=(MP.tok||0)+1;
   if('mediaSession' in navigator&&window.MediaMetadata){try{navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.pl||MP.name,album:'ឱសថស្ថានកែប',artwork:[{src:LOGO,sizes:'512x512',type:'image/png'}]})}catch(e){}}
-  mpBar();mpPaint();mpRefreshList()}
+  mpBar();mpPaint();mpRefreshList();
+  try{const u=await songURL(t.id);if(tok!==MP.tok)return;MP.loading=false;MP.fails=0;a.src=u;
+    a.play().catch(()=>{mpPaint();toast('ចុច ▶ ដើម្បីចាក់','ok')});mpPaint();
+    const nx=MP.q[(i+1)%MP.q.length];if(nx&&nx.id!==t.id)setTimeout(()=>songURL(nx.id).catch(()=>{}),4000)}   /* get the next song ready */
+  catch(e){if(tok===MP.tok)mpFail(noKey(e)?'សូមធ្វើបច្ចុប្បន្នភាព Code.gs ថ្មី':readErr(e))}}
 function mpGo(d,auto){if(!MP.q.length)return;const a=mpAudio();if(d<0&&a.currentTime>3){a.currentTime=0;return}
   const L=MP.q.length;
   if(d<0&&MP.shuffle&&MP.hist.length)return mpLoad(MP.hist.pop());
   if(d>0&&MP.shuffle&&L>1){let n;do n=Math.floor(Math.random()*L);while(n===MP.i);MP.hist.push(MP.i);return mpLoad(n)}
   const n=MP.i+d;if(auto&&n>=L&&MP.rep==='off'){a.pause();a.currentTime=0;return}
   mpLoad((n+L)%L)}
-function mpToggle(){const a=mpAudio();if(!a.getAttribute('src'))return;a.paused?a.play().catch(()=>{}):a.pause()}
+function mpToggle(){const a=mpAudio();if(MP.loading)return;if(!(a.getAttribute('src')||'').startsWith('blob:')){if(MP.q[MP.i])mpLoad(MP.i);return}a.paused?a.play().catch(()=>{}):a.pause()}
 function mpClose(){const a=MP.audio;if(a){a.pause();a.removeAttribute('src');a.load()}MP.q=[];MP.i=-1;MP.list='';$('#mpbar')?.remove();document.body.classList.remove('has-mp');mpRefreshList()}
 function mpRefreshList(){const s=lbSec();if(dlHere()&&s&&s.kind==='music'&&$('#lbBody')){const y=window.scrollY,f=document.activeElement&&document.activeElement.id;lbBody();window.scrollTo(0,y);if(f==='lbq')$('#lbq')?.focus()}}
 function mpBar(){if($('#mpbar'))return;const b=document.createElement('div');b.id='mpbar';b.className='mpbar';b.setAttribute('role','region');b.setAttribute('aria-label','ចាក់ចម្រៀង');
@@ -2966,8 +3094,8 @@ function mpBar(){if($('#mpbar'))return;const b=document.createElement('div');b.i
   r.onpointerdown=()=>r.dataset.drag='1';r.onpointerup=()=>delete r.dataset.drag}
 function mpPaint(){const a=MP.audio,t=MP.q[MP.i];if(!t)return;const playing=a&&!a.paused,ico=playing?'<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>':'<path d="M8 5v14l11-7z"/>';
   const b=$('#mpbar');if(b){$('#mpTitle').textContent=t.title;$('#mpList').textContent=`${t.pl||MP.name} · ${MP.i+1}/${MP.q.length}`;
-    b.classList.toggle('playing',playing);b.classList.toggle('loading',!!a&&a.readyState<3&&!a.paused);$('#mpIc').innerHTML=ico}
-  const c=$('#npCard');if(c){c.classList.toggle('playing',playing);$('#npIc').innerHTML=ico;c.querySelector('.np-cov .eq').classList.toggle('paused',!playing)}}
+    b.classList.toggle('playing',playing);b.classList.toggle('loading',MP.loading||(!!a&&a.readyState<3&&!a.paused));$('#mpIc').innerHTML=ico}
+  const c=$('#npCard');if(c){c.classList.toggle('loading',!!MP.loading);const k=c.querySelector('.np-k');if(k)k.textContent=MP.loading?'កំពុងទាញបទចម្រៀង...':'NOW PLAYING · កំពុងចាក់';c.classList.toggle('playing',playing);$('#npIc').innerHTML=ico;c.querySelector('.np-cov .eq').classList.toggle('paused',!playing)}}
 function mpTick(){const a=MP.audio;if(!a)return;
   [['mpRange','mpCur','mpDur'],['npRange','npCur','npDur']].forEach(([r,c,d])=>{const R=$('#'+r);if(!R)return;$('#'+c).textContent=mmss(a.currentTime);$('#'+d).textContent=mmss(a.duration);
     if(!R.dataset.drag&&isFinite(a.duration)&&a.duration)R.value=Math.round(a.currentTime/a.duration*1000)})}
